@@ -4,6 +4,7 @@ import { MainPage } from "@pages/main/main";
 import { LoginPage } from "@pages/login/login";
 import { WeeklyMenuPage } from "@pages/weekly-menu/weekly-menu";
 import { SettingPage } from "@pages/setting/setting";
+import { TabNavigator } from "@components/common/TabNavigator";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/setting" element={<SettingPage />} />
         </Routes>
       </Layout>
+      <TabNavigator />
     </BrowserRouter>
   );
 }
