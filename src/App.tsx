@@ -5,6 +5,7 @@ import { LoginPage } from "@pages/login/login";
 import { WeeklyMenuPage } from "@pages/weekly-menu/weekly-menu";
 import { SettingPage } from "@pages/setting/setting";
 import { TabNavigator } from "@components/common/TabNavigator";
+import { Errorpage } from "@pages/error/error";
 
 function App() {
   return (
@@ -22,6 +23,9 @@ function App() {
 
           {/* setting page */}
           <Route path="/setting" element={<SettingPage />} />
+
+          {/* error page */}
+          <Route path="*" element={<Errorpage />} />
         </Routes>
       </Layout>
       <TabNavigator />
