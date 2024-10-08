@@ -15,7 +15,9 @@ yarn build
 
 ex) feat/login-ui
 
-- feat: 기능 개발
+- main: 서비스 운영
+- develop: 배포 전 개발용
+- feat: 기능 단위 구현
 - refactor: 코드 리팩토링
 - hotfix: 배포 버전 버그 수정
 
@@ -44,9 +46,10 @@ src/
 
 ## 4. Commit Convention
 
-- feat: 새로운 기능 추가
+- feat: 기능 구현, 추가
+- setting: 빌드수행, 패키지 설치, 환경 설정 수정 등
 - fix: 버그 및 오류 수정
 - style: css 파일 위주의 ui 작업
-- docs: 문서 수정
+- docs: README.md 작성, 주석 작성
 - refactor: 코드 리팩토링
-- chore: 빌드수행, 패키지 설치, 환경 설정 수정 등
+- chore: 기타 작업
