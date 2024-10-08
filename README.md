@@ -49,4 +49,4 @@ src/
 - style: css 파일 위주의 ui 작업
 - docs: 문서 수정
 - refactor: 코드 리팩토링
-- chore: 빌드 업무 수정, 패키지 매니저 수정
+- chore: 빌드수행, 패키지 설치, 환경 설정 수정 등
