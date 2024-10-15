@@ -1,18 +1,9 @@
-import styled from "styled-components";
-import errorImg from "@assets/error/error.png";
+import errorImg from "@assets/common/error.png";
 
 export const Errorpage = () => {
   return (
-    <Wrapper>
+    <div className="flex justify-center items-center w-full h-full">
       <img src={errorImg} alt="error-image" />
-    </Wrapper>
+    </div>
   );
 };
-
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-`;
