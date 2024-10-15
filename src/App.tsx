@@ -30,11 +30,11 @@ function App() {
 
   return (
     <BrowserRouter>
-      {isSplashVisible ? (
-        <Splash />
-      ) : (
-        <>
-          <Layout>
+      <Layout>
+        {isSplashVisible ? (
+          <Splash />
+        ) : (
+          <>
             <Routes>
               {/* main page */}
               <Route path="/" element={<MainPage />} />
@@ -51,10 +51,10 @@ function App() {
               {/* error page */}
               <Route path="*" element={<Errorpage />} />
             </Routes>
-          </Layout>
-          <TabNavigator />
-        </>
-      )}
+            <TabNavigator />
+          </>
+        )}
+      </Layout>
     </BrowserRouter>
   );
 }
