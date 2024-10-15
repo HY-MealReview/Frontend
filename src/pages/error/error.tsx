@@ -1,4 +1,4 @@
-import errorImg from "@assets/common/character.png";
+import errorImg from "@assets/common/error.png";
 
 export const Errorpage = () => {
   return (
