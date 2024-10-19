@@ -35,8 +35,36 @@ export const stores : Store[] =[
       {
         id: 2,
         title : '저녁',
+        name: "창업보육센터",
+        time: "17:00~22:00",
+        location: "학생복지관 2층",
+        imageUrl: menuImage,
+        mainMenu: [
+          { name: "창보 학식" },
+          { name: "창보 학식" }
+        ],
+        date : "2100년 10월 350일"
+      },
 
-        name: "학생 식당",
+      {
+        id: 3,
+        title : '저녁',
+        name: "창의인재원 식당",
+        time: "17:00~22:00",
+        location: "학생복지관 2층",
+        imageUrl: menuImage,
+        mainMenu: [
+          { name: "전주식 콩나물 해장국" },
+          { name: "전주식 콩나물 해장국" },
+          { name: "전주식 콩나물 해장국" }
+        ],
+        date : "2100년 10월 350일"
+      },
+
+      {
+        id: 4,
+        title : '저녁',
+        name: "교직원 식당",
         time: "17:00~22:00",
         location: "학생복지관 2층",
         imageUrl: menuImage,
