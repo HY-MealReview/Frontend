@@ -8,6 +8,7 @@ import { TabNavigator } from "@components/common/TabNavigator";
 import { Errorpage } from "@pages/error/error";
 import { useEffect, useState } from "react";
 import { Splash } from "@components/common/Splash";
+import { SignUpPage } from "@pages/signup/signup";
 
 function App() {
   const [isSplashVisible, setIsSplashVisible] = useState<boolean>(true);
@@ -41,6 +42,9 @@ function App() {
 
               {/* login page */}
               <Route path="/login" element={<LoginPage />} />
+
+              {/* signup page */}
+              <Route path="/signup" element={<SignUpPage />} />
 
               {/* weekly menu page */}
               <Route path="/weekly-menu" element={<WeeklyMenuPage />} />
