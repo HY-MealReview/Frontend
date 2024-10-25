@@ -1,5 +1,6 @@
 import prevArrowBtn from "@assets/setting/prev-arrow.svg";
 import rightArrowBtn from "@assets/setting/right-arrow.svg";
+import { Link } from "react-router-dom";
 
 export const SettingPage = () => {
   return (
@@ -17,9 +18,12 @@ export const SettingPage = () => {
         <h2 className="text-[10px] font-medium text-[#9E9E9E] mb-[8px]">
           내 정보
         </h2>
-        <button className="w-[344px] h-[32px] bg-main text-white rounded-[4px] text-[12px] font-bold">
+        <Link
+          to={"/login"}
+          className="flex items-center justify-center w-[344px] h-[32px] bg-main text-white rounded-[4px] text-[12px] font-bold"
+        >
           로그인을 해주세요
-        </button>
+        </Link>
       </section>
 
       <hr className="w-full h-[1px] border-[#F0F0F0] mb-[12px]" />

@@ -1,5 +1,5 @@
 import splashImg from "@assets/common/splash.png";
-import logo from "@assets/common/logo.png";
+import logo from "@assets/common/logo.svg";
 
 export const Splash = () => {
   return (
