@@ -1,7 +1,7 @@
 import prevArrow from "@assets/common/prev-arrow.svg";
 import classNames from "classnames";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import eyeClosed from "@assets/login/eye_closed.svg";
 import eyeOpen from "@assets/login/eye_open.svg";
 
@@ -150,19 +150,28 @@ export const SignUpPage = () => {
         )}
       </div>
 
-      <button
-        type="submit"
-        className="fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main text-[14px] font-bold text-white"
-        onClick={() => {
-          status === "id"
-            ? setStatus("pw")
-            : status === "pw"
-            ? setStatus("nickname")
-            : setStatus("success");
-        }}
-      >
-        {status === "nickname" ? "회원가입 완료" : "다음"}
-      </button>
+      {status === "nickname" ? (
+        <Link
+          to={"/"}
+          className="flex justify-center items-center fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main text-[14px] font-bold text-white"
+        >
+          회원가입 완료
+        </Link>
+      ) : (
+        <button
+          type="submit"
+          className="fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main text-[14px] font-bold text-white"
+          onClick={() => {
+            status === "id"
+              ? setStatus("pw")
+              : status === "pw"
+              ? setStatus("nickname")
+              : setStatus("success");
+          }}
+        >
+          다음
+        </button>
+      )}
     </>
   );
 };
