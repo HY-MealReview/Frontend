@@ -24,7 +24,7 @@ export const LoginPage = () => {
           <input
             type="text"
             id="id"
-            className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:outline-none placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
+            className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solild focus:border-[#1D1D1D] placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
             placeholder="학번을 입력해주세요"
           />
         </div>
@@ -38,7 +38,7 @@ export const LoginPage = () => {
           <input
             type={showPw ? "text" : "password"}
             id="pw"
-            className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:outline-none placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
+            className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solild focus:border-[#1D1D1D] placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
             placeholder="비밀번호를 입력해주세요"
           />
           {showPw ? (

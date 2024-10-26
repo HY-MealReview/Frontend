@@ -1,4 +1,3 @@
-import prevArrowBtn from "@assets/setting/prev-arrow.svg";
 import rightArrowBtn from "@assets/setting/right-arrow.svg";
 import { Link } from "react-router-dom";
 
@@ -6,11 +5,6 @@ export const SettingPage = () => {
   return (
     <div className="flex flex-col items-center w-full ">
       <header className="w-full h-[48px] flex items-center relative mb-[8px]">
-        <img
-          className="absolute top-1/2 left-[8px] -translate-y-1/2 w-[24px] h-[24px] cursor-pointer"
-          src={prevArrowBtn}
-          alt="prev-arrow-button"
-        />
         <h1 className="my-0 mx-auto">설정</h1>
       </header>
 
