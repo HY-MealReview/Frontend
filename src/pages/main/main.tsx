@@ -64,6 +64,11 @@ export const MainPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    console.log(`현재 슬라이드 인덱스: ${currentSlideIndex + 1}`); //현재 인덱스 번호 출력
+  }, [currentSlideIndex]);
+
+
 
   const handleRecommendClick = () => {
     if (isRecommended) {
@@ -71,6 +76,10 @@ export const MainPage: React.FC = () => {
     } else {
       setIsRecommended(true);  // 추천 버튼 활성화
       setIsNotRecommended(false); // 비추천 버튼 비활성화
+
+      if (currentStore) {//콘솔 남기기
+        console.log(`${currentStore.name} 식당을 추천했습니다.`);
+      }
     }
 };
 
@@ -80,6 +89,9 @@ const handleNotRecommendClick = () => {
   } else {
     setIsRecommended(false); // 추천 버튼 비활성화
     setIsNotRecommended(true);// 비추천 버튼활성화
+    if (currentStore) { //콘솔 남기기
+      console.log(`${currentStore.name} 식당을 비추천했습니다.`);
+    }
   }
 };
 
@@ -89,6 +101,8 @@ const handleStoreButtonClick = (index: number) => {
   setSelectedStoreIndex(index);
   if (sliderRef.current) {
     sliderRef.current.slickGoTo(index); // 슬라이드 이동
+
+    
   }
 };
 
