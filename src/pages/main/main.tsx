@@ -97,7 +97,15 @@ const handleNotRecommendClick = () => {
 
     {/*날짜, 식사 표시*/}
       <div style={{ textAlign: 'left', fontWeight: 'bold', marginBottom: '12px', marginLeft:'8px'}}>
-        {`${currentDate} 식단 - ${mealTime}`}
+        {`${currentDate} 식단 - `}
+        <span style={{ 
+          color: mealTime === '아침' ? '#94C120' : 
+          mealTime === '점심' ? '#F08A01' : 
+          mealTime === '저녁' ? '#888C8D' : 
+          'black'  //기본색 (값이 없을때)
+  }}>
+    {mealTime}
+    </span>
       </div>
 
 
