@@ -8,7 +8,8 @@ import 'slick-carousel/slick/slick-theme.css';
 
 
 export const MainPage: React.FC = () => {
-  const [currentMeal, setCurrentMeal] = useState<string>('아침');
+  const [currentDate, setCurrentDate] = useState<string>('');
+  const [mealTime, setMealTime] = useState<string>('');
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
   const [currentStore, setCurrentStore] = useState<Store | null>(null);
   const [isRecommended, setIsRecommended] = useState(false);//추천
@@ -17,7 +18,7 @@ export const MainPage: React.FC = () => {
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number>(0);  
 
   const settings = {
-    //dots: true,
+    dots: false,
     //infinite: true,
     speed: 500,
     slidesToShow: 1,
@@ -37,15 +38,29 @@ export const MainPage: React.FC = () => {
     setCurrentStore(stores[currentStoreIndex]);
   }, [currentStoreIndex]);
 
+
+  //시간 설정하기
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (currentMeal === '아침') setCurrentMeal('점심');
-      else if (currentMeal === '점심') setCurrentMeal('석식');
-      else if (currentMeal === '석식') setCurrentMeal('아침');
-    }, 1000 * 60 * 60);
+    const updateDateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+      setCurrentDate(now.toLocaleDateString(undefined, options));
+
+      const hours = now.getHours();
+      if (hours >= 0 && hours < 10) {
+        setMealTime('아침');
+      } else if (hours >= 10 && hours < 14) {
+        setMealTime('점심');
+      } else {
+        setMealTime('저녁');
+      }
+    };
+
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 60000); // 매 분마다 업데이트하기
 
     return () => clearInterval(interval);
-  }, [currentMeal]);
+  }, []);
 
 
   const handleRecommendClick = () => {
@@ -80,8 +95,9 @@ const handleNotRecommendClick = () => {
         <img src={LogoImage} style={{ width: '88px', height: 'auto', marginBottom : '12px', marginTop:'12px'}}/>
       </div>
 
+    {/*날짜, 식사 표시*/}
       <div style={{ textAlign: 'left', fontWeight: 'bold', marginBottom: '12px', marginLeft:'8px'}}>
-        {`${stores[currentSlideIndex].date} - ${stores[currentSlideIndex].title}`}
+        {`${currentDate} 식단 - ${mealTime}`}
       </div>
 
 
