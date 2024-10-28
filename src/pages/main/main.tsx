@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LogoImage from "@assets/main/logo.webp";
 import Recommend from "@assets/main/Recommend.webp";
 import Slider from "react-slick";
@@ -16,6 +16,8 @@ export const MainPage: React.FC = () => {
   const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number>(0);  
+  const sliderRef = useRef<Slider | null>(null); // 슬라이더 참조 생성하기
+
 
   const settings = {
     dots: false,
@@ -81,13 +83,14 @@ const handleNotRecommendClick = () => {
   }
 };
 
-
-//버튼, 슬라이드에 따라 메뉴 바꾸기
-  const handleStoreButtonClick = (index: number) => {
-    setCurrentStoreIndex(index); // 선택된 식당 메뉴 업뎃
-    setSelectedStoreIndex(index); // 버튼 강조하기
-    setCurrentSlideIndex(index); // 슬라이드 이동하기
-  };
+//버튼, 슬라이드에 따라 메뉴 바꾸기 - ref 추가
+const handleStoreButtonClick = (index: number) => {
+  setCurrentStoreIndex(index);
+  setSelectedStoreIndex(index);
+  if (sliderRef.current) {
+    sliderRef.current.slickGoTo(index); // 슬라이드 이동
+  }
+};
 
   return (
     <div style={{textAlign : 'center', width: '100%'}}>
@@ -110,7 +113,7 @@ const handleNotRecommendClick = () => {
 
 
       <div className="slider-container" style={{width : '100%', height:'500px', margin:'0 auto', alignItems:'left'}}>
-        <Slider {...settings}>
+        <Slider ref={sliderRef} {...settings}>
           {stores.map((food) => (
             <div key={food.id} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
               <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}>
