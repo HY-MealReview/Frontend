@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import LogoImage from "@assets/main/logo.webp";
 import Recommend from "@assets/main/Recommend.webp";
 import Slider from "react-slick";
 import { stores, Store } from '@pages/main/main-types';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { useNavigate } from "react-router-dom";
 
 
-export const MainPage: React.FC = () => {
+
+export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [mealTime, setMealTime] = useState<string>('');
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
@@ -17,6 +19,7 @@ export const MainPage: React.FC = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number>(0);  
   const sliderRef = useRef<Slider | null>(null); // 슬라이더 참조 생성하기
+  const navigate = useNavigate(); //페이지 이동하기
 
 
   const settings = {
@@ -64,6 +67,11 @@ export const MainPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    console.log(`현재 슬라이드 인덱스: ${currentSlideIndex + 1}`); //현재 인덱스 번호 출력
+  }, [currentSlideIndex]);
+
+
 
   const handleRecommendClick = () => {
     if (isRecommended) {
@@ -71,6 +79,10 @@ export const MainPage: React.FC = () => {
     } else {
       setIsRecommended(true);  // 추천 버튼 활성화
       setIsNotRecommended(false); // 비추천 버튼 비활성화
+
+      if (currentStore) {//콘솔 남기기
+        console.log(`${currentStore.name} 식당을 추천했습니다.`);
+      }
     }
 };
 
@@ -80,6 +92,9 @@ const handleNotRecommendClick = () => {
   } else {
     setIsRecommended(false); // 추천 버튼 비활성화
     setIsNotRecommended(true);// 비추천 버튼활성화
+    if (currentStore) { //콘솔 남기기
+      console.log(`${currentStore.name} 식당을 비추천했습니다.`);
+    }
   }
 };
 
@@ -89,8 +104,15 @@ const handleStoreButtonClick = (index: number) => {
   setSelectedStoreIndex(index);
   if (sliderRef.current) {
     sliderRef.current.slickGoTo(index); // 슬라이드 이동
+
+    
   }
 };
+
+const handleStoreClick = (id : number) => {
+  navigate(`/main-detail/${id}`);
+  };
+
 
   return (
     <div style={{textAlign : 'center', width: '100%'}}>
@@ -116,7 +138,8 @@ const handleStoreButtonClick = (index: number) => {
         <Slider ref={sliderRef} {...settings}>
           {stores.map((food) => (
             <div key={food.id} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
-              <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}>
+              <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
+              onClick={() => handleStoreClick(food.id)}>
                 <img src={food.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
