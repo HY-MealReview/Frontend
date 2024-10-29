@@ -7,7 +7,7 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   return (
     <div
-      className="min-w-[360px] max-w-[400px] h-screen bg-white pb-[54px] my-0 mx-auto overflow-auto
+      className="min-w-[360px] max-w-[400px] h-screen bg-white pb-[72px] my-0 mx-auto overflow-auto
     "
     >
       {children}

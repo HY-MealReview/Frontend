@@ -14,7 +14,7 @@ export const TabNavigator = () => {
   const path = location.pathname;
 
   return (
-    <div className="fixed left-1/2 bottom-0 -translate-x-1/2 flex justify-around items-center bg-white w-full min-w-[360px] max-w-[400px] h-[54px] border-t border-solid border-t-[#F0F0F0] shadow-[0_-2px_4px_0_rgba(0,0,0,0.04)]">
+    <div className="fixed left-1/2 bottom-0 -translate-x-1/2 flex justify-around items-center bg-white w-full min-w-[360px] max-w-[400px] h-[72px] border-t border-solid border-t-[#F0F0F0] shadow-[0_-2px_4px_0_rgba(0,0,0,0.04)]">
       <Link
         to={"/"}
         onClick={() => setNavStatus("메인")}
