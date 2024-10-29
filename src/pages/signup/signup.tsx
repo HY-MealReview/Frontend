@@ -31,7 +31,7 @@ export const SignUpPage = () => {
           <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[#F0F0F0]">
             <div
               className={classNames(
-                "w-[90px] h-[1px] bg-main transition-all duration-700 ease-in-out",
+                " h-[1px] bg-main transition-all duration-700 ease-in-out",
                 {
                   "w-3/12": status === "id",
                   "w-6/12": status === "pw",
