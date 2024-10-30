@@ -1,70 +1,59 @@
 import menuImage from "@assets/main/menuImage.webp";
 import NoImage from "@assets/main/NoImage.webp";
 
+export interface MenuSet{
+  items : string[];
+}
+
 //메뉴 데이터
-export interface MenuItem {
-    name: string; //이름
-  }
-  
-  //식당 정보들 - 식당 이름, 메뉴 이미지, 메뉴들
-  export interface Store {
-    id: number;
-    name: string; //식당 이름
-    imageUrl: string; //메뉴 이미지
-    mainMenu: MenuItem[]; //메뉴 종류
-    time: string; //운영 시간
-    location: string; //식당 위치
-  }
+export interface Store {
+  id: number;
+  restaurant: string; // 식당 이름
+  date: string; // 날짜
+  menuSets: MenuSet[];
+  imageUrl : string; //사진
+}
 
-export const stores : Store[] =[
-    {
-        id: 1,
-        name: "학생 식당",
-        time: "17:00~22:00",
-        location: "학생복지관 2층",
-        imageUrl: menuImage,
-        mainMenu: [
-          { name: "전주식 콩나물 해장국" },
-          { name: "전주식 콩나물 해장국" },
-          { name: "전주식 콩나물 해장국" }
-        ],
-      },
-      {
-        id: 2,
-        name: "창업보육센터",
-        time: "17:00~22:00",
-        location: "학생복지관 2층",
-        imageUrl: menuImage,
-        mainMenu: [
-          { name: "창보 학식" },
-          { name: "창보 학식" }
-        ],
-      },
+export const stores: Store[] = [
+  {
+      id: 1,
+      restaurant: "학생 식당",
+      date: "2024-10-29",
+      menuSets: [
+        { items: ["메뉴1", "미니해쉬브라운"] },
+        { items: ["메뉴2", "비빔밥"] }
+    ],
+      imageUrl : menuImage
+  },
 
-      {
-        id: 3,
-        name: "창의인재원 식당",
-        time: "17:00~22:00",
-        location: "학생복지관 2층",
-        imageUrl: NoImage,
-        mainMenu: [
-          { name: "긱사 식당" },
-          { name: "긱사 식당" },
-          { name: "긱사 식당" }
-        ],
-      },
-
-      {
-        id: 4,
-        name: "교직원 식당",
-        time: "17:00~22:00",
-        location: "학생복지관 2층",
-        imageUrl: menuImage,
-        mainMenu: [
-          { name: "교식" },
-          { name: "교식" },
-         
-        ],
-      }
-
+  {
+    id: 2,
+    restaurant: "창업보육센터",
+    date: "2024-10-29",
+    menuSets: [
+      { items: ["참치생야채비빔밥", "미니해쉬브라운"] },
+      { items: ["전주식 콩나물 해장국", "비빔밥"] }
+  ],
+    imageUrl : menuImage
+},
+{
+  id: 3,
+  restaurant: "창의인재원 식당",
+  date: "2024-10-29",
+  menuSets: [
+    { items: ["참치생야채비빔밥", "미니해쉬브라운"] },
+    { items: ["전주식 콩나물 해장국", "비빔밥"] }
+],
+  imageUrl : NoImage
+},
+{
+  id: 4,
+  restaurant: "교직원 식당",
+  date: "2024-10-29",
+  menuSets: [
+    { items: ["참치생야채비빔밥", "미니해쉬브라운"] },
+    { items: ["전주식 콩나물 해장국", "비빔밥"] }
+],
+  imageUrl : menuImage
+}
 ];

@@ -81,7 +81,7 @@ export const MainPage = () => {
       setIsNotRecommended(false); // 비추천 버튼 비활성화
 
       if (currentStore) {//콘솔 남기기
-        console.log(`${currentStore.name} 식당을 추천했습니다.`);
+        console.log(`${currentStore.restaurant} 식당을 추천했습니다.`);
       }
     }
 };
@@ -93,7 +93,7 @@ const handleNotRecommendClick = () => {
     setIsRecommended(false); // 추천 버튼 비활성화
     setIsNotRecommended(true);// 비추천 버튼활성화
     if (currentStore) { //콘솔 남기기
-      console.log(`${currentStore.name} 식당을 비추천했습니다.`);
+      console.log(`${currentStore.restaurant} 식당을 비추천했습니다.`);
     }
   }
 };
@@ -102,8 +102,9 @@ const handleNotRecommendClick = () => {
 const handleStoreButtonClick = (index: number) => {
   setCurrentStoreIndex(index);
   setSelectedStoreIndex(index);
+  setCurrentSlideIndex(0);
   if (sliderRef.current) {
-    sliderRef.current.slickGoTo(index); // 슬라이드 이동
+    sliderRef.current.slickGoTo(0); // 슬라이드 이동
 
     
   }
@@ -115,8 +116,8 @@ const handleStoreClick = (id : number) => {
 
 
   return (
-    <div style={{textAlign : 'center', width: '100%'}}>
-      <div style={{display:'flex', top:'0',  justifyContent:'center', marginBottom:'8px', marginTop:'32px', position: 'sticky'}}>
+    <div style={{textAlign : 'center', width: '100%', backgroundColor : 'white'}}>
+      <div style={{display:'flex', top:'0',  justifyContent:'center', marginBottom:'8px'}}>
         <img src={LogoImage} style={{ width: '88px', height: 'auto', marginBottom : '12px', marginTop:'12px'}}/>
       </div>
 
@@ -136,15 +137,15 @@ const handleStoreClick = (id : number) => {
 
       <div className="slider-container" style={{width : '100%', height:'500px', margin:'0 auto', alignItems:'left'}}>
         <Slider ref={sliderRef} {...settings}>
-          {stores.map((food) => (
-            <div key={food.id} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
+          {stores[currentStoreIndex]?.menuSets.map((menuSet, setIndex) => (
+            <div key={setIndex} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
               <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
-              onClick={() => handleStoreClick(food.id)}>
-                <img src={food.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
+              onClick={() => handleStoreClick(stores[currentStoreIndex]?.id)}>
+                <img src={stores[currentStoreIndex]?.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
-                    {food.mainMenu.map((item, index) => (
-                      <li key={index} style={{textAlign: 'left'}}>• {item.name}</li>
+                  {menuSet.items.map((item, index)  => (
+                      <li key={index} style={{textAlign: 'left'}}>• {item}</li>
                     ))}
                   </ul>
                   <div className="buttons" style={{display: 'flex', alignItems:'center', justifyContent:'center', gap:'24px'}}>
@@ -205,7 +206,7 @@ const handleStoreClick = (id : number) => {
               cursor: 'pointer',
             }}
           >
-            {store.name}
+            {store.restaurant}
           </button>
         ))}
       </div>
