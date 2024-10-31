@@ -1,8 +1,11 @@
 import classNames from "classnames";
 import { ReactNode } from "react";
 import prevArrow from "@assets/common/prev-arrow.svg";
+import { useNavigate } from "react-router-dom";
 
 export const SignUpLayout = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
+
   return (
     <div>
       <header className="relative flex justify-center items-center w-full h-[48px] mb-[13px] bg-white">
@@ -10,6 +13,7 @@ export const SignUpLayout = ({ children }: { children: ReactNode }) => {
           src={prevArrow}
           className="absolute top-1/2 -translate-y-1/2 left-[8px] w-[24px] h-[24px] cursor-pointer"
           alt="prev-arrow"
+          onClick={() => navigate(-1)}
         />
         <h1 className="text-[16px] font-medium text-[#1D1D1D]">회원가입</h1>
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[#F0F0F0]">

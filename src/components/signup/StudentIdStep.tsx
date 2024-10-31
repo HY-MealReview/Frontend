@@ -1,11 +1,14 @@
+import { useSignUpStatusStore } from "@store/signupStore";
 import { ChangeEvent, useState } from "react";
 
 export const StudentIdStep = () => {
+  const setStatus = useSignUpStatusStore((state) => state.setStatus);
   const [inputValue, setInputValue] = useState<string>("");
   const [inputValid, setInputValid] = useState<boolean>(false);
 
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    setInputValue(value);
     setInputValid(value.trim().length === 8 && !isNaN(Number(value)));
   };
 
@@ -29,6 +32,7 @@ export const StudentIdStep = () => {
         className="fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
            text-[14px] font-bold text-white"
         disabled={!inputValid}
+        onClick={() => setStatus("pw")}
       >
         다음
       </button>
