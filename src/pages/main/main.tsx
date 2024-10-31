@@ -24,7 +24,7 @@ export const MainPage = () => {
 
   const settings = {
     dots: false,
-    //infinite: true,
+    infinite: false,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -35,7 +35,6 @@ export const MainPage = () => {
     draggable: true, 
     afterChange: (current: number) => {
       setCurrentSlideIndex(current); 
-      setSelectedStoreIndex(current); 
     },
   };
 
@@ -105,8 +104,6 @@ const handleStoreButtonClick = (index: number) => {
   setCurrentSlideIndex(0);
   if (sliderRef.current) {
     sliderRef.current.slickGoTo(0); // 슬라이드 이동
-
-    
   }
 };
 
@@ -162,7 +159,10 @@ const handleStoreClick = (id : number) => {
                         justifyContent : 'center',
                         gap : '9px'
                             }}
-                      onClick={handleRecommendClick}>
+                            onClick={(event) => {
+                              event.stopPropagation(); // 클릭 이벤트 전파 방지
+                              handleRecommendClick();
+                            }}>
                         <img src={Recommend} style={{width : '48px', height : 'auto', padding : '6px'}}/>
                         추천
                       </div>
@@ -177,7 +177,10 @@ const handleStoreClick = (id : number) => {
                               display : 'flex',
                               alignItems : 'center',
                               justifyContent : 'center',}}
-                      onClick={handleNotRecommendClick}>
+                              onClick={(event) => {
+                                event.stopPropagation(); // 클릭 이벤트 전파 방지
+                                handleNotRecommendClick();
+                              }}>
                         비추천</div>
                     </div>
                   </div>
