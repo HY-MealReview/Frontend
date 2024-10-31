@@ -33,7 +33,6 @@ export const PasswordStep = () => {
       ...prev,
       [id]: value,
     }));
-    console.log(inputValue);
 
     switch (id) {
       case "pw":
@@ -95,7 +94,9 @@ export const PasswordStep = () => {
           value={inputValue.pw}
           className={`w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solid focus:border-[#1D1D1D]
  ${
-   inputValid.pw || "border-[1px] border-solid border-[#FF3B30]"
+   !inputValid.pw &&
+   inputValue.pw.length > 0 &&
+   "border-[1px] border-solid border-[#FF3B30]"
  }  placeholder:text-[12px]  placeholder:text-[#6A6A6A]`}
           placeholder="0000000000"
           onChange={handleInputValid}
@@ -134,7 +135,12 @@ export const PasswordStep = () => {
           type={showPwCheck ? "text" : "password"}
           id="pwCheck"
           value={inputValue.pwCheck}
-          className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0]  focus:bg-white focus:border-[1px] focus:border-solild focus:border-[#1D1D1D] placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
+          className={`w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solid focus:border-[#1D1D1D]
+            ${
+              !inputValid.pwCheck &&
+              inputValue.pwCheck.length > 0 &&
+              "border-[1px] border-solid border-[#FF3B30]"
+            }  placeholder:text-[12px]  placeholder:text-[#6A6A6A]`}
           placeholder="0000000000"
           onChange={handleInputValid}
         />
