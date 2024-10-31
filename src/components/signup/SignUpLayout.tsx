@@ -2,9 +2,14 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 import prevArrow from "@assets/common/prev-arrow.svg";
 import { useNavigate } from "react-router-dom";
+import { useSignUpStatusStore } from "@store/signupStore";
+import { useShallow } from "zustand/shallow";
 
 export const SignUpLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
+  const { signupStatus } = useSignUpStatusStore(
+    useShallow((state) => ({ signupStatus: state.signupStatus }))
+  );
 
   return (
     <div>
@@ -21,9 +26,9 @@ export const SignUpLayout = ({ children }: { children: ReactNode }) => {
             className={classNames(
               " h-[1px] bg-main transition-all duration-700 ease-in-out",
               {
-                "w-3/12": status === "id",
-                "w-6/12": status === "pw",
-                "w-9/12": status === "nickname",
+                "w-3/12": signupStatus === "id",
+                "w-6/12": signupStatus === "pw",
+                "w-9/12": signupStatus === "nickname",
               }
             )}
           />

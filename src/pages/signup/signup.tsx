@@ -6,14 +6,16 @@ import { useSignUpStatusStore } from "@store/signupStore";
 import { useShallow } from "zustand/shallow";
 
 export const SignUpPage = () => {
-  const status = useSignUpStatusStore(useShallow((state) => state.status));
-  console.log(status);
+  const { signupStatus } = useSignUpStatusStore(
+    useShallow((state) => ({ signupStatus: state.signupStatus }))
+  );
+  console.log(signupStatus);
 
   return (
     <SignUpLayout>
-      {status === "id" && <StudentIdStep />}
-      {status === "pw" && <PasswordStep />}
-      {status === "nickname" && <NicknameStep />}
+      {signupStatus === "id" && <StudentIdStep />}
+      {signupStatus === "pw" && <PasswordStep />}
+      {signupStatus === "nickname" && <NicknameStep />}
     </SignUpLayout>
   );
 };
