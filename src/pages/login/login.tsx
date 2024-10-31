@@ -3,8 +3,12 @@ import logo from "@assets/common/logo.svg";
 import eyeOpen from "@assets/login/eye_open.svg";
 import eyeClosed from "@assets/login/eye_closed.svg";
 import { useState } from "react";
+import { useSignUpStatusStore } from "@store/signupStore";
 
 export const LoginPage = () => {
+  const setSignupStatus = useSignUpStatusStore(
+    (state) => state.setSignupStatus
+  );
   const [showPw, setShowPw] = useState<boolean>(false);
 
   return (
@@ -67,6 +71,7 @@ export const LoginPage = () => {
         <Link
           to={"/signup"}
           className="flex justify-center items-center w-[344px] h-[48px] rounded-[4px] mb-[12px] border-[1px] border-solid border-main text-[14px] font-medium text-main"
+          onClick={() => setSignupStatus("id")}
         >
           회원가입
         </Link>
