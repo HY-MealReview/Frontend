@@ -1,6 +1,6 @@
 import prevArrow from "@assets/common/prev-arrow.svg";
 import classNames from "classnames";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import eyeClosed from "@assets/login/eye_closed.svg";
 import eyeOpen from "@assets/login/eye_open.svg";
@@ -8,8 +8,49 @@ import eyeOpen from "@assets/login/eye_open.svg";
 export const SignUpPage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<string>("id");
+  const [inputValue, setInputValue] = useState({
+    id: "",
+    pw: "",
+    pwCheck: "",
+    nickName: "",
+  });
+  const [inputValid, setInputValid] = useState({
+    id: false,
+    pw: false,
+    pwCheck: false,
+    nickName: false,
+  });
   const [showPw, setShowPw] = useState<boolean>(false);
   const [showPwcheck, setShowPwCheck] = useState<boolean>(false);
+
+  const checkValid =
+    inputValid.id ||
+    (inputValid.pw && inputValid.pwCheck) ||
+    inputValid.nickName;
+
+  const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setInputValue((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    console.log(inputValid.id);
+
+    switch (name) {
+      case "id":
+        setInputValid((prev) => ({
+          ...prev,
+          id: value.trim().length === 8 && !isNaN(Number(value)),
+        }));
+        break;
+      case "pw":
+        break;
+      case "pwCheck":
+        break;
+      case "nickName":
+        break;
+    }
+  };
 
   return (
     <>
@@ -52,8 +93,11 @@ export const SignUpPage = () => {
 
             <input
               type="text"
+              name="id"
+              value={inputValue.id}
               className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0]  focus:bg-white focus:border-[1px] focus:border-solild focus:border-[#1D1D1D] placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
               placeholder="0000000000"
+              onChange={handleInputValid}
             />
           </div>
         )}
@@ -160,7 +204,9 @@ export const SignUpPage = () => {
       ) : (
         <button
           type="submit"
-          className="fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main text-[14px] font-bold text-white"
+          className="fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
+           text-[14px] font-bold text-white"
+          disabled={!checkValid}
           onClick={() => {
             status === "id"
               ? setStatus("pw")
