@@ -71,7 +71,7 @@ export const PasswordStep = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full ">
+    <div className="flex flex-col items-start w-[344px] mx-auto my-0 ">
       <strong className="block w-[344px] h-[30px] mb-[12px] text-[20px] font-normal text-[#1D1D1D] ">
         <span className="font-bold">비밀번호</span>를 입력해주세요
       </strong>
