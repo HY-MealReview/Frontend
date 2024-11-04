@@ -157,7 +157,7 @@ const handleStoreClick = (id : number) => {
                         display : 'flex',
                         alignItems : 'center',
                         justifyContent : 'center',
-                        gap : '9px'
+                        gap : '9px',
                             }}
                             onClick={(event) => {
                               event.stopPropagation(); // 클릭 이벤트 전파 방지
