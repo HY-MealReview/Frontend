@@ -144,7 +144,7 @@ const handleStoreClick = (id : number) => {
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
                   {menu.foods.map((item, index)  => (
-                      <li key={index} style={{textAlign: 'left'}}>• {item}</li>
+                      <li key={index} style={{textAlign: 'left'}}>• {item.name}</li>
                     ))}
                   </ul>
                   <div className="buttons" style={{display: 'flex', alignItems:'center', justifyContent:'center', gap:'24px'}}>

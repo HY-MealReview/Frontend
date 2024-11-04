@@ -61,8 +61,10 @@ export const MainDetailPage = () => {
                     style={{width : '148px', height : '150px', marginRight : '12px', 
                     borderBottomLeftRadius : '8px', borderTopLeftRadius : '8px',
                     objectFit: 'cover'}} />
-                    <div>
-                    <p>{menu.foods}</p>
+                    <div style={{display:'flex', flexDirection :'column', alignItems : 'flex-start',justifyContent : 'center'}}>
+                    {menu.foods.map((item, index)  => (
+                      <li key={index} style={{textAlign: 'left', fontSize:'12px'}}>{item.name}</li>
+                    ))}
                         
                     </div>
                 </div>
