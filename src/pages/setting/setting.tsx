@@ -1,11 +1,12 @@
 import rightArrowBtn from "@assets/setting/right-arrow.svg";
 import { Link } from "react-router-dom";
+import logo from "@assets/common/logo.svg";
 
 export const SettingPage = () => {
   return (
     <div className="flex flex-col items-center w-full ">
-      <header className="w-full h-[48px] flex items-center relative mb-[8px]">
-        <h1 className="my-0 mx-auto">설정</h1>
+      <header className="w-full h-[50px] flex items-center justify-center relative">
+        <img src={logo} alt="logo" />
       </header>
 
       <section className="w-[344px] h-[54px] mb-[12px]">
