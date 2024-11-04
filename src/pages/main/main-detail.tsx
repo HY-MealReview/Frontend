@@ -5,7 +5,7 @@ import { useState} from 'react';
 import goBack from '@assets/main/goBack.webp';
 import Recommend from '@assets/main/Recommend.webp';
 import Review from '@assets/main/review.webp';
-import { stores, Store } from '@pages/main/main-types';
+import { menus } from '@pages/main/main-types';
 
 export const MainDetailPage = () => {
     const navigate = useNavigate(); 
@@ -13,12 +13,10 @@ export const MainDetailPage = () => {
     const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
     const { storeId } = useParams<{ storeId: string }>();
     
-    const store: Store | undefined = stores.find(
-        (store) => store.id === Number(storeId)
-      );
-      if (!store) {
+    const menu = menus.find((menu) => menu.id === Number(storeId));
+    if (!menu) {
         return <div>데이터를 찾을 수 없습니다.</div>;
-      }
+    }
     
     
 
@@ -58,7 +56,7 @@ export const MainDetailPage = () => {
                     border : '1px solid #F0F0F0', borderRadius :'8px',
                     display : 'flex'
                 }}>
-                    <img src={store?.imageUrl} 
+                    <img src={menu.imageUrl} 
                     style={{width : '148px', height : '150px', marginRight : '12px', 
                     borderBottomLeftRadius : '8px', borderTopLeftRadius : '8px',
                     objectFit: 'cover'}} />

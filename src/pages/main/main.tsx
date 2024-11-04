@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import LogoImage from "@assets/main/logo.webp";
 import Recommend from "@assets/main/Recommend.webp";
 import Slider from "react-slick";
-import { stores, Store } from '@pages/main/main-types';
+import { menus, Menu } from '@pages/main/main-types';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from "react-router-dom";
@@ -13,12 +13,12 @@ export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [mealTime, setMealTime] = useState<string>('');
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
-  const [currentStore, setCurrentStore] = useState<Store | null>(null);
+  const [currentStore, setCurrentStore] = useState<Menu | undefined>(undefined);  
   const [isRecommended, setIsRecommended] = useState(false);//추천
   const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number>(0);  
-  const sliderRef = useRef<Slider | null>(null); // 슬라이더 참조 생성하기
+  const sliderRef = useRef<Slider | null>(null); 
   const navigate = useNavigate(); //페이지 이동하기
 
 
@@ -38,9 +38,9 @@ export const MainPage = () => {
     },
   };
 
-  useEffect(() => {
-    setCurrentStore(stores[currentStoreIndex]);
-  }, [currentStoreIndex]);
+    useEffect(() => {
+    setCurrentStore(menus[currentStoreIndex]);
+    }, [currentStoreIndex]);
 
 
   //시간 설정하기
@@ -80,7 +80,7 @@ export const MainPage = () => {
       setIsNotRecommended(false); // 비추천 버튼 비활성화
 
       if (currentStore) {//콘솔 남기기
-        console.log(`${currentStore.restaurant} 식당을 추천했습니다.`);
+        console.log(`${!isRecommended} 식당을 추천했습니다.`);
       }
     }
 };
@@ -92,13 +92,13 @@ const handleNotRecommendClick = () => {
     setIsRecommended(false); // 추천 버튼 비활성화
     setIsNotRecommended(true);// 비추천 버튼활성화
     if (currentStore) { //콘솔 남기기
-      console.log(`${currentStore.restaurant} 식당을 비추천했습니다.`);
+      console.log(`${!isNotRecommended} 식당을 비추천했습니다.`);
     }
   }
 };
 
 //버튼, 슬라이드에 따라 메뉴 바꾸기 - ref 추가
-const handleStoreButtonClick = (index: number) => {
+const handleStoreButtonClick = (index : number ) => {
   setCurrentStoreIndex(index);
   setSelectedStoreIndex(index);
   setCurrentSlideIndex(0);
@@ -134,14 +134,14 @@ const handleStoreClick = (id : number) => {
 
       <div className="slider-container" style={{width : '100%', height:'500px', margin:'0 auto', alignItems:'left'}}>
         <Slider ref={sliderRef} {...settings}>
-          {stores[currentStoreIndex]?.menuSets.map((menuSet, setIndex) => (
+        {menus.filter(menu => menu.restaurant === menus[currentStoreIndex].restaurant).map((menu, setIndex) => (
             <div key={setIndex} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
               <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
-              onClick={() => handleStoreClick(stores[currentStoreIndex]?.id)}>
-                <img src={stores[currentStoreIndex]?.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
+              onClick={() => handleStoreClick(menus[currentStoreIndex]?.id)}>
+                <img src={menu.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
-                  {menuSet.items.map((item, index)  => (
+                  {menu.foods.map((item, index)  => (
                       <li key={index} style={{textAlign: 'left'}}>• {item}</li>
                     ))}
                   </ul>
@@ -193,9 +193,9 @@ const handleStoreClick = (id : number) => {
 
     {/* 식당 선택 버튼 섹션 */}
     <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 8px', marginTop: '14px'}}>
-        {stores.map((store, index) => (
-          <button
-            key={store.id}
+      {Array.from(new Set(menus.map(menu => menu.restaurant))).map((restaurant, index) => (
+          <button         
+            key={index}
             onClick={() => handleStoreButtonClick(index)}
             style={{
               width : '160px',
@@ -209,7 +209,7 @@ const handleStoreClick = (id : number) => {
               cursor: 'pointer',
             }}
           >
-            {store.restaurant}
+            {restaurant}
           </button>
         ))}
       </div>
