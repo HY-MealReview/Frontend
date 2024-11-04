@@ -12,12 +12,13 @@ import { useNavigate } from "react-router-dom";
 export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [mealTime, setMealTime] = useState<string>('');
-  const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
+  const [currentStoreIndex] = useState<number>(0);
   const [currentStore, setCurrentStore] = useState<Menu | undefined>(undefined);  
   const [isRecommended, setIsRecommended] = useState(false);//추천
   const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number>(0);  
+  const [currentRestaurant, setCurrentRestaurant] = useState(menus[0].restaurant);
   const sliderRef = useRef<Slider | null>(null); 
   const navigate = useNavigate(); //페이지 이동하기
 
@@ -98,14 +99,14 @@ const handleNotRecommendClick = () => {
 };
 
 //버튼, 슬라이드에 따라 메뉴 바꾸기 - ref 추가
-const handleStoreButtonClick = (index : number ) => {
-  setCurrentStoreIndex(index);
-  setSelectedStoreIndex(index);
-  setCurrentSlideIndex(0);
+const handleStoreButtonClick = (restaurant: string, index: number) => {
+  setCurrentRestaurant(restaurant); // 선택된 식당 이름 업데이트
+  setSelectedStoreIndex(index); // 선택된 버튼 인덱스 업데이트
   if (sliderRef.current) {
     sliderRef.current.slickGoTo(0); // 슬라이드 이동
   }
 };
+
 
 const handleStoreClick = (id : number) => {
   navigate(`/main-detail/${id}`);
@@ -134,10 +135,11 @@ const handleStoreClick = (id : number) => {
 
       <div className="slider-container" style={{width : '100%', height:'500px', margin:'0 auto', alignItems:'left'}}>
         <Slider ref={sliderRef} {...settings}>
-        {menus.filter(menu => menu.restaurant === menus[currentStoreIndex].restaurant).map((menu, setIndex) => (
+        {menus
+            .filter(menu => menu.restaurant === currentRestaurant).map((menu, setIndex) => (
             <div key={setIndex} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
               <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
-              onClick={() => handleStoreClick(menus[currentStoreIndex]?.id)}>
+              onClick={() => handleStoreClick(menu.id)}>
                 <img src={menu.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
@@ -196,7 +198,7 @@ const handleStoreClick = (id : number) => {
       {Array.from(new Set(menus.map(menu => menu.restaurant))).map((restaurant, index) => (
           <button         
             key={index}
-            onClick={() => handleStoreButtonClick(index)}
+            onClick={() => handleStoreButtonClick(restaurant, index)}
             style={{
               width : '160px',
               height : '40px',

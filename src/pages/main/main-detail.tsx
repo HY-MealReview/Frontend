@@ -12,6 +12,7 @@ export const MainDetailPage = () => {
     const [isRecommended, setIsRecommended] = useState(false);//추천
     const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
     const { storeId } = useParams<{ storeId: string }>();
+    console.log("Current store ID:", storeId); 
     
     const menu = menus.find((menu) => menu.id === Number(storeId));
     if (!menu) {
@@ -61,6 +62,7 @@ export const MainDetailPage = () => {
                     borderBottomLeftRadius : '8px', borderTopLeftRadius : '8px',
                     objectFit: 'cover'}} />
                     <div>
+                    <p>{menu.foods}</p>
                         
                     </div>
                 </div>
