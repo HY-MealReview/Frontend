@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "@components/common/Layout";
 import { MainPage } from "@pages/main/main";
 import { LoginPage } from "@pages/login/login";
-import { WeeklyMenuPage } from "@pages/weekly-menu/weekly-menu";
+import { WeeklyMenuPage } from "@pages/weekly-menu/weeklyMenu";
 import { SettingPage } from "@pages/setting/setting";
 import { TabNavigator } from "@components/common/TabNavigator";
 import { Errorpage } from "@pages/error/error";

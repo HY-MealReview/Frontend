@@ -5,6 +5,10 @@ export default {
     extend: {
       colors: { main: "#134B84", white: "#FFFFFF" },
     },
+
+    fontFamily: {
+      sans: ['Noto Sans', 'sans-serif'],
+    },
   },
   plugins: [],
 };
