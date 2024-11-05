@@ -7,6 +7,7 @@ import Recommend from '@assets/main/Recommend.webp';
 import Review from '@assets/main/review.webp';
 import { menus, Rating } from '@pages/main/main-types';
 import star from "@assets/main/star.webp";
+import { MainModal } from '@pages/main/mainModal';
 
 
 export const MainDetailPage = () => {
@@ -14,6 +15,10 @@ export const MainDetailPage = () => {
     const [isRecommended, setIsRecommended] = useState(false);//추천
     const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
     const { storeId } = useParams<{ storeId: string }>();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const openModal = () => setIsModalOpen(true);  // 모달 열기
+    const closeModal = () => setIsModalOpen(false); // 모달 닫기
+
     console.log("Current store ID:", storeId); 
     
     const menu = menus.find((menu) => menu.id === Number(storeId));
@@ -156,7 +161,7 @@ export const MainDetailPage = () => {
                 </div>
             </div>
 
-            <div className='reviewButton' style={{padding : '8px'}}>
+            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={openModal}>
                 <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
                     borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px'
                 }}>
@@ -165,8 +170,9 @@ export const MainDetailPage = () => {
                         리뷰하기
                     </div>
                 </div>
+               
             </div>
-
+            <MainModal isOpen={isModalOpen} onClose={closeModal} />
         </div>
     );
 

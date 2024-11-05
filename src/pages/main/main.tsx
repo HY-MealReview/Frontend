@@ -46,6 +46,7 @@ export const MainPage = () => {
 
     useEffect(() => {
     setCurrentStore(menus[currentStoreIndex]);
+    console.log(`현재 인덱스: ${currentStore}`); 
     }, [currentStoreIndex]);
 
 
@@ -129,7 +130,7 @@ const handleStoreClick = (id : number) => {
   const calculateAverageRating = (ratings: Rating[]) => {
     if (ratings.length === 0) return 0;
     const totalScore = ratings.reduce((acc, rating) => acc + rating.score, 0);
-    return (totalScore / ratings.length).toFixed(1); // 소수점 1자리로
+    return (totalScore / ratings.length /2).toFixed(1); // 10점으로 계산 후 나누기 2로 나타내기, 소수점 1자리까지
   };
   
 

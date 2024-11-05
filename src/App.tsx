@@ -41,6 +41,7 @@ function App() {
               {/* main page */}
               <Route path="/" element={<MainPage />} />
               <Route path="/main-detail/:storeId" element={<MainDetailPage/>} />
+              
 
               {/* login page */}
               <Route path="/login" element={<LoginPage />} />
