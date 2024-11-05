@@ -67,7 +67,7 @@ export const ChangePasswords = () => {
   };
 
   return (
-    <div className="flex flex-col items-start w-[344px] mx-auto my-0 ">
+    <div className="relative flex flex-col items-center w-full ">
       <header className="relative flex justify-center items-center w-full h-[48px] mb-[12px] bg-white">
         <img
           src={prevArrow}
