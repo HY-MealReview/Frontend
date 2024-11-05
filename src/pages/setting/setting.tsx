@@ -57,9 +57,11 @@ export const SettingPage = () => {
           <span className="text-[12px] font-medium text-[#1D1D1D]">
             비밀번호 변경
           </span>
-          <button className="w-[27px] h-full text-[12px] font-medium text-[#134B84]">
-            변경
-          </button>
+          <Link to="/setting/password">
+            <button className="w-[27px] h-full text-[12px] font-medium text-[#134B84]">
+              변경
+            </button>
+          </Link>
         </div>
 
         <button className="w-[344px] h-[106px] flex flex-col justify-center items-center border-[1px] border-solid border-[#F0F0F0] rounded-[6px] shadow-custom-shadow">
