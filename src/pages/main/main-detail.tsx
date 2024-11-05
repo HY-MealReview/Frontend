@@ -5,7 +5,9 @@ import { useState} from 'react';
 import goBack from '@assets/main/goBack.webp';
 import Recommend from '@assets/main/Recommend.webp';
 import Review from '@assets/main/review.webp';
-import { menus } from '@pages/main/main-types';
+import { menus, Rating } from '@pages/main/main-types';
+import star from "@assets/main/star.webp";
+
 
 export const MainDetailPage = () => {
     const navigate = useNavigate(); 
@@ -44,6 +46,14 @@ export const MainDetailPage = () => {
         navigate(`/`);
     }
 
+    const calculateAverageRating = (ratings: Rating[]) => {
+        if (ratings.length === 0) return 0;
+        const totalScore = ratings.reduce((acc, rating) => acc + rating.score, 0);
+        return (totalScore / ratings.length /2 ).toFixed(1);  // 10점으로 계산 후 나누기 2로 나타내기, 소수점 1자리까지
+      };
+    
+      
+
     return(
         <div style={{margin : '0px'}}>
             <div className="topper" style={{display : 'flex', padding : '8px'}}>
@@ -63,7 +73,14 @@ export const MainDetailPage = () => {
                     objectFit: 'cover'}} />
                     <div style={{display:'flex', flexDirection :'column', alignItems : 'flex-start',justifyContent : 'center'}}>
                     {menu.foods.map((item, index)  => (
-                      <li key={index} style={{textAlign: 'left', fontSize:'12px'}}>{item.name}</li>
+                      <li key={index} style={{width : '184px',marginBottom : '4px',textAlign: 'left', fontSize:'12px', fontWeight : 'normal', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        • {item.name}
+                        <div style={{width : '36px',textAlign:'right', alignItems:'center', display : 'flex', justifyItems : 'center'}}>
+                            <img src={star} style={{width :'16px', height :'16px', marginRight : '5px'}}/>
+                            {calculateAverageRating(item.ratings)}
+                        </div>
+                        </li>
+                      
                     ))}
                         
                     </div>
@@ -78,10 +95,10 @@ export const MainDetailPage = () => {
                 <div style={{width : '100%', display : 'flex', justifyContent : 'center', marginTop : '8px', marginBottom : '8px'}}>
                     <div className='totalScore' style={{display: 'flex', height : '81px'}}>
                         <div style={{display : 'flex', flexDirection :'column', alignItems : 'center', width : '165px'}}> 
-                            <div className='score'>
-                                4.4/5
+                            <div className='score' style={{fontSize : '24px', color : "#6A6A6A"}}>
+                            <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{calculateAverageRating(menu.ratings)}</span>/5
                             </div>
-                            <div>
+                            <div style={{fontSize : '12px', color : "#6A6A6A"}}>
                                 메뉴별 종합 별점
                             </div>
                             <div>
