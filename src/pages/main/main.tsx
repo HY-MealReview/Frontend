@@ -78,8 +78,6 @@ export const MainPage = () => {
   }, [currentSlideIndex]);
 
 
-
-
 const handleRecommendClick = (index: number) => {
     setRecommendationStatus(prev => {
         const newStatus = [...prev];
@@ -95,6 +93,7 @@ const handleRecommendClick = (index: number) => {
         
         return newStatus;
     });
+
 };
 
 const handleNotRecommendClick = (index: number) => {
@@ -119,6 +118,7 @@ const handleStoreButtonClick = (restaurant: string, index: number) => {
   setSelectedStoreIndex(index); // 선택된 버튼 인덱스 업데이트
   if (sliderRef.current) {
     sliderRef.current.slickGoTo(0); // 슬라이드 이동
+
   }
 };
 
