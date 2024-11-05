@@ -1,27 +1,36 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import LogoImage from "@assets/main/logo.webp";
 import Recommend from "@assets/main/Recommend.webp";
+import star from "@assets/main/star.webp";
 import Slider from "react-slick";
-import { stores, Store } from '@pages/main/main-types';
+import { menus, Menu, Rating } from '@pages/main/main-types';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { useNavigate } from "react-router-dom";
 
 
-export const MainPage: React.FC = () => {
+
+export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [mealTime, setMealTime] = useState<string>('');
-  const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
-  const [currentStore, setCurrentStore] = useState<Store | null>(null);
-  const [isRecommended, setIsRecommended] = useState(false);//추천
-  const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
+  const [currentStoreIndex] = useState<number>(0);
+  const [currentStore, setCurrentStore] = useState<Menu | undefined>(undefined);  
+  const [recommendationStatus, setRecommendationStatus] = useState<(string | null)[]>(menus.map(() => null));
+  const [notRecommendationStatus, setNotRecommendationStatus] = useState<(string | null)[]>(menus.map(() => null));
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number>(0);  
-  const sliderRef = useRef<Slider | null>(null); // 슬라이더 참조 생성하기
+  const [currentRestaurant, setCurrentRestaurant] = useState(menus[0].restaurant);
+  const [recommendCount, setRecommendCount] = useState(0); //추천수 카운팅
+  const [NotRecommendCount, setNotRecommendCount] = useState(0); //추천수 카운팅
+
+
+  const sliderRef = useRef<Slider | null>(null); 
+  const navigate = useNavigate(); //페이지 이동하기
 
 
   const settings = {
     dots: false,
-    //infinite: true,
+    infinite: false,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -32,13 +41,13 @@ export const MainPage: React.FC = () => {
     draggable: true, 
     afterChange: (current: number) => {
       setCurrentSlideIndex(current); 
-      setSelectedStoreIndex(current); 
     },
   };
 
-  useEffect(() => {
-    setCurrentStore(stores[currentStoreIndex]);
-  }, [currentStoreIndex]);
+    useEffect(() => {
+    setCurrentStore(menus[currentStoreIndex]);
+    console.log(`현재 인덱스: ${currentStore}`); 
+    }, [currentStoreIndex]);
 
 
   //시간 설정하기
@@ -69,46 +78,66 @@ export const MainPage: React.FC = () => {
   }, [currentSlideIndex]);
 
 
+const handleRecommendClick = (index: number) => {
+    setRecommendationStatus(prev => {
+        const newStatus = [...prev];
+        newStatus[index] = newStatus[index] === 'recommended' ? null : 'recommended';
+        // 비추천 상태를 해제
+        const newNotStatus = [...notRecommendationStatus];
+        newNotStatus[index] = null;
+        setNotRecommendationStatus(newNotStatus);
+        
+        const recommendCountChange = newStatus[index] === 'recommended' ? 1 : -1;
+        const newCount = Math.max(recommendCount + recommendCountChange, 0);
+        setRecommendCount(newCount);
+        
+        return newStatus;
+    });
 
-  const handleRecommendClick = () => {
-    if (isRecommended) {
-      setIsRecommended(false); // 다시 누르면 해제하기
-    } else {
-      setIsRecommended(true);  // 추천 버튼 활성화
-      setIsNotRecommended(false); // 비추천 버튼 비활성화
-
-      if (currentStore) {//콘솔 남기기
-        console.log(`${currentStore.name} 식당을 추천했습니다.`);
-      }
-    }
 };
 
-const handleNotRecommendClick = () => {
-  if (isNotRecommended) {
-    setIsNotRecommended(false); // 다시 누르면 해제하기
-  } else {
-    setIsRecommended(false); // 추천 버튼 비활성화
-    setIsNotRecommended(true);// 비추천 버튼활성화
-    if (currentStore) { //콘솔 남기기
-      console.log(`${currentStore.name} 식당을 비추천했습니다.`);
-    }
-  }
+const handleNotRecommendClick = (index: number) => {
+    setNotRecommendationStatus(prev => {
+        const newStatus = [...prev];
+        newStatus[index] = newStatus[index] === 'NotRecommended' ? null : 'NotRecommended';
+        // 추천 상태를 해제
+        const newRecStatus = [...recommendationStatus];
+        newRecStatus[index] = null;
+        setRecommendationStatus(newRecStatus);
+        
+        const NotRecommendCountChange = newStatus[index] === 'NotRecommended' ? 1 : -1;
+        const newCount = Math.max(NotRecommendCount + NotRecommendCountChange, 0);
+        setNotRecommendCount(newCount);
+        
+        return newStatus;
+    });
 };
-
 //버튼, 슬라이드에 따라 메뉴 바꾸기 - ref 추가
-const handleStoreButtonClick = (index: number) => {
-  setCurrentStoreIndex(index);
-  setSelectedStoreIndex(index);
+const handleStoreButtonClick = (restaurant: string, index: number) => {
+  setCurrentRestaurant(restaurant); // 선택된 식당 이름 업데이트
+  setSelectedStoreIndex(index); // 선택된 버튼 인덱스 업데이트
   if (sliderRef.current) {
-    sliderRef.current.slickGoTo(index); // 슬라이드 이동
+    sliderRef.current.slickGoTo(0); // 슬라이드 이동
 
-    
   }
 };
+
+
+const handleStoreClick = (id : number) => {
+  navigate(`/main-detail/${id}`);
+  };
+
+  const calculateAverageRating = (ratings: Rating[]) => {
+    if (ratings.length === 0) return 0;
+    const totalScore = ratings.reduce((acc, rating) => acc + rating.score, 0);
+    return (totalScore / ratings.length /2).toFixed(1); // 10점으로 계산 후 나누기 2로 나타내기, 소수점 1자리까지
+  };
+  
+
 
   return (
-    <div style={{textAlign : 'center', width: '100%'}}>
-      <div style={{display:'flex', top:'0',  justifyContent:'center', marginBottom:'8px', marginTop:'32px', position: 'sticky'}}>
+    <div style={{textAlign : 'center', width: '100%', backgroundColor : 'white'}}>
+      <div style={{display:'flex', top:'0',  justifyContent:'center', marginBottom:'8px'}}>
         <img src={LogoImage} style={{ width: '88px', height: 'auto', marginBottom : '12px', marginTop:'12px'}}/>
       </div>
 
@@ -128,46 +157,67 @@ const handleStoreButtonClick = (index: number) => {
 
       <div className="slider-container" style={{width : '100%', height:'500px', margin:'0 auto', alignItems:'left'}}>
         <Slider ref={sliderRef} {...settings}>
-          {stores.map((food) => (
-            <div key={food.id} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
-              <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}>
-                <img src={food.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
+        {menus
+            .filter(menu => menu.restaurant === currentRestaurant).map((menu, setIndex) => (
+            <div key={setIndex} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
+              <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
+              onClick={() => handleStoreClick(menu.id)}>
+                <img src={menu.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
-                    {food.mainMenu.map((item, index) => (
-                      <li key={index} style={{textAlign: 'left'}}>• {item.name}</li>
+                  {menu.foods.map((item, index)  => (
+                      <li key={index} style={{ display: 'flex', height : '24px',justifyContent: 'space-between', alignItems: 'center'}}>
+                        <div>
+                        • {item.name}
+                        </div>
+                        <div style={{textAlign:'right', alignItems:'center', display : 'flex', justifyItems : 'center'}}>
+                          <img src={star} style={{width:'20px', height:'20px', margin : '5px'}}/> 
+                          {calculateAverageRating(item.ratings)}
+                        </div>
+                      </li>
                     ))}
+                    
                   </ul>
                   <div className="buttons" style={{display: 'flex', alignItems:'center', justifyContent:'center', gap:'24px'}}>
                     <div>
-                      <div style={{fontSize : '12px', color : '#444444', marginBottom : '12px'}}>추천</div>
+                      <div style={{fontSize : '12px', color : '#444444', marginBottom : '12px'}}>
+                        추천 {recommendCount}
+                        </div>
                       <div 
                       className="like-button" 
                       style={{width:'124px', height:'104px', borderRadius:'10px', cursor: 'pointer',
-                        fontSize : '14px', fontWeight : isRecommended ? 'bold' : 'normal',
-                        color : isRecommended ? '#134B84' : '#6A6A6A' ,
-                        border: isRecommended ? '2px solid #134B84' : '1px solid #F0F0F0',
+                        fontSize : '14px', fontWeight : recommendationStatus[setIndex] ? 'bold' : 'normal',
+                        color : recommendationStatus[setIndex] ? '#134B84' : '#6A6A6A' ,
+                        border: recommendationStatus[setIndex] ? '2px solid #134B84' : '1px solid #F0F0F0',
                         display : 'flex',
                         alignItems : 'center',
                         justifyContent : 'center',
-                        gap : '9px'
+                        gap : '9px',
                             }}
-                      onClick={handleRecommendClick}>
+                            onClick={(event) => {
+                              event.stopPropagation(); // 클릭 이벤트 전파 방지
+                              handleRecommendClick(setIndex);
+                            }}>
                         <img src={Recommend} style={{width : '48px', height : 'auto', padding : '6px'}}/>
                         추천
                       </div>
                     </div>
                     <div>
-                      <div style={{fontSize : '12px', color : '#444444', marginBottom : '12px'}}>비추천</div>
+                      <div style={{fontSize : '12px', color : '#444444', marginBottom : '12px'}}>
+                        비추천 {NotRecommendCount}
+                        </div>
                       <div 
                       style={{width:'124px', height:'104px', borderRadius:'10px', cursor: 'pointer',
-                        fontSize : '14px', fontWeight : isNotRecommended ? 'bold' : 'normal',
-                        color : isNotRecommended ? '#134B84' : '#6A6A6A' ,
-                              border: isNotRecommended ? '2px solid #134B84' : '1px solid #F0F0F0',
+                        fontSize : '14px', fontWeight : notRecommendationStatus[setIndex]? 'bold' : 'normal',
+                        color : notRecommendationStatus[setIndex] ? '#134B84' : '#6A6A6A' ,
+                              border: notRecommendationStatus[setIndex] ? '2px solid #134B84' : '1px solid #F0F0F0',
                               display : 'flex',
                               alignItems : 'center',
                               justifyContent : 'center',}}
-                      onClick={handleNotRecommendClick}>
+                              onClick={(event) => {
+                                event.stopPropagation(); // 클릭 이벤트 전파 방지
+                                handleNotRecommendClick(setIndex);
+                              }}>
                         비추천</div>
                     </div>
                   </div>
@@ -180,10 +230,10 @@ const handleStoreButtonClick = (index: number) => {
 
     {/* 식당 선택 버튼 섹션 */}
     <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 8px', marginTop: '14px'}}>
-        {stores.map((store, index) => (
-          <button
-            key={store.id}
-            onClick={() => handleStoreButtonClick(index)}
+      {Array.from(new Set(menus.map(menu => menu.restaurant))).map((restaurant, index) => (
+          <button         
+            key={index}
+            onClick={() => handleStoreButtonClick(restaurant, index)}
             style={{
               width : '160px',
               height : '40px',
@@ -196,7 +246,7 @@ const handleStoreButtonClick = (index: number) => {
               cursor: 'pointer',
             }}
           >
-            {store.name}
+            {restaurant}
           </button>
         ))}
       </div>

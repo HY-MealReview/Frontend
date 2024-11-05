@@ -9,6 +9,7 @@ import { Errorpage } from "@pages/error/error";
 import { useEffect, useState } from "react";
 import { Splash } from "@components/common/Splash";
 import { SignUpPage } from "@pages/signup/signup";
+import { MainDetailPage } from "@pages/main/main-detail";
 import { ChangeNickname } from "@components/setting/ChangeNickname";
 import { ChangePasswords } from "@components/setting/ChangePassword";
 
@@ -41,6 +42,8 @@ function App() {
             <Routes>
               {/* main page */}
               <Route path="/" element={<MainPage />} />
+              <Route path="/main-detail/:storeId" element={<MainDetailPage/>} />
+              
 
               {/* login page */}
               <Route path="/login" element={<LoginPage />} />
