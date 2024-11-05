@@ -9,6 +9,7 @@ import { Errorpage } from "@pages/error/error";
 import { useEffect, useState } from "react";
 import { Splash } from "@components/common/Splash";
 import { SignUpPage } from "@pages/signup/signup";
+import { ChangeNickname } from "@components/setting/ChangeNickname";
 
 function App() {
   const [isSplashVisible, setIsSplashVisible] = useState<boolean>(true);
@@ -51,6 +52,7 @@ function App() {
 
               {/* setting page */}
               <Route path="/setting" element={<SettingPage />} />
+              <Route path="/setting/nickname" element={<ChangeNickname />} />
 
               {/* error page */}
               <Route path="*" element={<Errorpage />} />

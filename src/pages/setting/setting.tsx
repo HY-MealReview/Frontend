@@ -23,17 +23,17 @@ export const SettingPage = () => {
 
       <hr className="w-full h-[1px] border-[#F0F0F0] mb-[12px]" />
 
-      <section className="flex flex-col w-[344px] h-[142px] ">
+            <section className="flex flex-col items-center w-[344px] h-[142px] ">
         <h2 className="text-[10px] text-[#9E9E9E] mb-[8px]">지원</h2>
-        <button className="flex justify-between items-center w-[344px] text-[14px] text-[#1D1D1D] mb-[12px]">
+        <button className="flex justify-between items-center w-[328px] text-[14px] text-[#1D1D1D] mb-[12px]">
           <span>공지사항</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
-        <button className="flex justify-between items-center w-[344px] text-[14px] text-[#1D1D1D] mb-[12px]">
+        <button className="flex justify-between items-center w-[328px] text-[14px] text-[#1D1D1D] mb-[12px]">
           <span>고객센터</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
-        <button className="flex justify-between items-center w-[344px] text-[14px] font-medium text-[#FF0000]">
+        <button className="flex justify-between items-center w-[328px] text-[14px] font-medium text-[#FF0000]">
           <span>로그아웃</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
@@ -43,19 +43,21 @@ export const SettingPage = () => {
         <h2 className="text-[10px] font-medium text-[#9E9E9E] mb-[8px]">
           내 정보
         </h2>
-        <div className="w-[344px] h-[32px] flex justify-between items-center">
+        <div className="w-[344px] h-[32px] flex justify-between items-center pr-[8px]">
           <span className="text-[12px] font-medium text-[#1D1D1D]">
             닉네임123
           </span>
-          <button className="text-[12px] font-medium text-[#134B84]">
-            수정
-          </button>
+          <Link to="/setting/nickname">
+            <button className="w-[27px] h-full text-[12px] font-medium text-[#134B84]">
+              수정
+            </button>
+          </Link>
         </div>
-        <div className="w-[344px] h-[32px] flex justify-between items-center mb-[12px]">
+        <div className="w-[344px] h-[32px] flex justify-between items-center mb-[12px] pr-[8px]">
           <span className="text-[12px] font-medium text-[#1D1D1D]">
             비밀번호 변경
           </span>
-          <button className="text-[12px] font-medium text-[#134B84]">
+          <button className="w-[27px] h-full text-[12px] font-medium text-[#134B84]">
             변경
           </button>
         </div>
@@ -72,17 +74,17 @@ export const SettingPage = () => {
 
       <hr className="w-full h-[1px] border-[#F0F0F0] mb-[12px]" />
 
-      <section className="flex flex-col w-[344px] h-[142px] ">
+      <section className="flex flex-col items-center w-[344px] h-[142px] ">
         <h2 className="text-[10px] text-[#9E9E9E] mb-[8px]">지원</h2>
-        <button className="flex justify-between items-center w-[344px] text-[14px] text-[#1D1D1D] mb-[12px]">
+        <button className="flex justify-between items-center w-[328px] text-[14px] text-[#1D1D1D] mb-[12px]">
           <span>공지사항</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
-        <button className="flex justify-between items-center w-[344px] text-[14px] text-[#1D1D1D] mb-[12px]">
+        <button className="flex justify-between items-center w-[328px] text-[14px] text-[#1D1D1D] mb-[12px]">
           <span>고객센터</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
-        <button className="flex justify-between items-center w-[344px] text-[14px] font-medium text-[#FF0000]">
+        <button className="flex justify-between items-center w-[328px] text-[14px] font-medium text-[#FF0000]">
           <span>로그아웃</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
