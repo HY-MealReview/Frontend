@@ -1,0 +1,84 @@
+[
+  [
+    {
+      "id": 3,
+      "restaurant": "학생식당",
+      "name": "참치생야채비빔밥",
+      "ratings": [
+        {
+          "id": 1,
+          "user": 1,
+          "food": 3,
+          "rating": 8
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "restaurant": "학생식당",
+      "name": "숯불제육덮밥",
+      "ratings": [
+        {
+          "id": 2,
+          "user": 1,
+          "food": 4,
+          "rating": 8
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "restaurant": "학생식당",
+      "name": "쇠고기장터국밥",
+      "ratings": [
+        {
+          "id": 3,
+          "user": 1,
+          "food": 5,
+          "rating": 9
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "id": 3,
+      "restaurant": "학생식당",
+      "name": "참치생야채비빔밥",
+      "ratings": [
+        {
+          "id": 1,
+          "user": 1,
+          "food": 3,
+          "rating": 8
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "restaurant": "학생식당",
+      "name": "숯불제육덮밥",
+      "ratings": [
+        {
+          "id": 2,
+          "user": 1,
+          "food": 4,
+          "rating": 8
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "restaurant": "학생식당",
+      "name": "쇠고기장터국밥",
+      "ratings": [
+        {
+          "id": 3,
+          "user": 1,
+          "food": 5,
+          "rating": 9
+        }
+      ]
+    }
+  ]
+]
