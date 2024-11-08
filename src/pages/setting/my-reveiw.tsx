@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import prevArrow from "@assets/common/prev-arrow.svg";
 import infoIcon from "@assets/setting/info.svg";
 import filterUnactive from "@assets/setting/filter-unactive.svg";
 import filterActive from "@assets/setting/filter-active.svg";
-import mockData from "@constant/my-review.json";
+import { getUserReviews } from "@apis/my-review";
+import { MyReview } from "@type/my-review";
+import { MyReviewItem } from "@components/setting/MyReviewItem";
 
 export const MyReviewPage = () => {
+  const [reviewData, setReviewData] = useState<MyReview[]>([]);
   const [isFiltered, setIsFiltered] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  console.log(mockData);
+  const fetchUserReview = async () => {
+    const response = await getUserReviews();
+    setReviewData(response?.data);
+    console.log(response?.data);
+    if (reviewData) console.log(response?.data);
+  };
+
+  useEffect(() => {
+    fetchUserReview();
+  }, []);
+
   return (
     <div className="flex flex-col items-center">
       <header className="relative flex justify-center items-center w-full h-[50px] mb-[6px] bg-white">
@@ -47,6 +60,12 @@ export const MyReviewPage = () => {
         )}
         <span>오래된순</span>
       </div>
+
+      <ul>
+        {reviewData.map((review) => (
+          <MyReviewItem key={review.id} {...review} />
+        ))}
+      </ul>
     </div>
   );
 };

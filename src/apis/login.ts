@@ -1,5 +1,4 @@
-import axios from "axios";
-import { axiosInstance } from "./instance";
+import { axiosInstance } from "./axiosInstance";
 
 export const requestLogin = async () => {
   try {
