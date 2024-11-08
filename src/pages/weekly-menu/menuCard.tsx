@@ -24,7 +24,7 @@ function MenuCard({ imageSrc, rating, menuItems }: MenuCardProps) {
             <div className='text-white'>{rating}</div>
           </div>
         ) : null}
-      </div>
+      </div>``
 
       {/* 메뉴 정보 */}
       <div className="w-[200px] justify-center items-center">
