@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface MenuCardProps {
   restaurant: string; // 식당 이름
   rating: number; // 전체 별점
@@ -12,20 +10,20 @@ function MenuCardAll({ restaurant, rating, menuItems }: MenuCardProps) {
       {/* 식당 이름 */}
       <div className="text-[14px] mb-[6px]">{restaurant}</div>
 
-			<div className="flex items-center justify-between">
-      {/* 메뉴 항목 리스트 */}
-				<div className="text-[12px] flex flex-wrap gap-[4px]">
-					{menuItems.map((item, index) => (
-						<span key={index}>{item.name}</span>
-					))}
-				</div>
+      <div className="flex items-center justify-between">
+        {/* 메뉴 항목 리스트 */}
+        <div className="text-[12px] flex flex-wrap gap-[4px]">
+          {menuItems.map((item, index) => (
+            <span key={index}>{item.name}</span>
+          ))}
+        </div>
 
-      {/* 전체 별점 */}
-				<div className="flex justify-end items-center">
-					<span className="text-[#F0F900] text-[20px]">★</span>
-					<span className="ml-[4px] text-[14px] font-bold">{rating}</span>
-				</div>
-			</div>
+        {/* 전체 별점 */}
+        <div className="flex justify-end items-center">
+          <span className="text-[#F0F900] text-[20px]">★</span>
+          <span className="ml-[4px] text-[14px] font-bold">{rating}</span>
+        </div>
+      </div>
     </div>
   );
 }
