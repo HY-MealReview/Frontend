@@ -55,8 +55,9 @@ export const MainDetailPage = () => {
         if (ratings.length === 0) return 0;
         const totalScore = ratings.reduce((acc, rating) => acc + rating.score, 0);
         return (totalScore / ratings.length /2 ).toFixed(1);  // 10점으로 계산 후 나누기 2로 나타내기, 소수점 1자리까지
+        
       };
-    
+
       
 
     return(
@@ -107,7 +108,8 @@ export const MainDetailPage = () => {
                                 메뉴별 종합 별점
                             </div>
                             <div>
-                                ⭐️⭐️⭐️⭐️
+                            
+                                
                             </div>
                         </div>
 
