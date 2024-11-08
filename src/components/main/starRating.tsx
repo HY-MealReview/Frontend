@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const StarRating = () => {
   const [rating, setRating] = useState(0); // 현재 별점

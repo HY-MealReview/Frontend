@@ -3,7 +3,7 @@ import LogoImage from "@assets/main/logo.webp";
 import Recommend from "@assets/main/Recommend.webp";
 import star from "@assets/main/star.webp";
 import Slider from "react-slick";
-import { menus, Menu, Rating } from '@pages/main/main-types';
+import { menus,Rating } from '@pages/main/main-types';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from "react-router-dom";
@@ -13,8 +13,6 @@ import { useNavigate } from "react-router-dom";
 export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [mealTime, setMealTime] = useState<string>('');
-  const [currentStoreIndex] = useState<number>(0);
-  const [currentStore, setCurrentStore] = useState<Menu | undefined>(undefined);  
   const [recommendationStatus, setRecommendationStatus] = useState<(string | null)[]>(menus.map(() => null));
   const [notRecommendationStatus, setNotRecommendationStatus] = useState<(string | null)[]>(menus.map(() => null));
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
@@ -44,10 +42,6 @@ export const MainPage = () => {
     },
   };
 
-    useEffect(() => {
-    setCurrentStore(menus[currentStoreIndex]);
-    console.log(`현재 인덱스: ${currentStore}`); 
-    }, [currentStoreIndex]);
 
 
   //시간 설정하기
@@ -155,18 +149,18 @@ const handleStoreClick = (id : number) => {
       </div>
 
 
-      <div className="slider-container" style={{width : '100%', height:'500px', margin:'0 auto', alignItems:'left'}}>
+      <div className="slider-container" style={{ height:'500px', margin:'0 auto', alignItems:'left', padding :'0px'}}>
         <Slider ref={sliderRef} {...settings}>
         {menus
             .filter(menu => menu.restaurant === currentRestaurant).map((menu, setIndex) => (
-            <div key={setIndex} className="slide" style ={{ display: 'flex', flexDirection: 'column', margin:'0 10px'}}>
-              <div style={{width: '328px', height: '482px', margin: '0 auto', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
+            <div key={setIndex} className="slide" style ={{ display: 'flex',flexDirection: 'column', flexWrap: 'wrap', minWidth: '320px', margin :'4px'}}>
+              <div style={{width: '328px', height: '482px', margin: '10px', marginBottom:'20px',boxShadow : '0 0px 20px rgba(0,0,0,0.1)', borderRadius:'12px'}}
               onClick={() => handleStoreClick(menu.id)}>
                 <img src={menu.imageUrl} className="menu-image" style={{width:'328px', height:'auto',alignItems: 'center'}} />
                 <div style={{margin : '12px'}}>
                   <ul style={{width : '304px', height : '72px', marginBottom :'8px'}}>
                   {menu.foods.map((item, index)  => (
-                      <li key={index} style={{ display: 'flex', height : '24px',justifyContent: 'space-between', alignItems: 'center'}}>
+                      <li key={index} style={{ display: 'flex', height : '24px',width :'300px',justifyContent: 'space-between', alignItems: 'center'}}>
                         <div>
                         • {item.name}
                         </div>
