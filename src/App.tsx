@@ -2,13 +2,14 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "@components/common/Layout";
 import { MainPage } from "@pages/main/main";
 import { LoginPage } from "@pages/login/login";
-import { WeeklyMenuPage } from "@pages/weekly-menu/weekly-menu";
+import { WeeklyMenuPage } from "@pages/weekly-menu/weeklyMenu";
 import { SettingPage } from "@pages/setting/setting";
 import { TabNavigator } from "@components/common/TabNavigator";
 import { Errorpage } from "@pages/error/error";
 import { useEffect, useState } from "react";
 import { Splash } from "@components/common/Splash";
 import { SignUpPage } from "@pages/signup/signup";
+import { MainDetailPage } from "@pages/main/main-detail";
 import { ChangeNickname } from "@components/setting/ChangeNickname";
 import { ChangePasswords } from "@components/setting/ChangePassword";
 import { MyReviewPage } from "@pages/setting/my-reveiw";
@@ -42,6 +43,8 @@ function App() {
             <Routes>
               {/* main page */}
               <Route path="/" element={<MainPage />} />
+              <Route path="/main-detail/:storeId" element={<MainDetailPage/>} />
+              
 
               {/* login page */}
               <Route path="/login" element={<LoginPage />} />

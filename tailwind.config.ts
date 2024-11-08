@@ -35,6 +35,10 @@ export default {
         fadeUpTodown: "fadeUpTodown 0.5s",
       },
     },
+
+    fontFamily: {
+      sans: ['Noto Sans', 'sans-serif'],
+    },
   },
   plugins: [],
 };
