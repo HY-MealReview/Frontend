@@ -4,12 +4,18 @@ import eyeOpen from "@assets/login/eye_open.svg";
 import eyeClosed from "@assets/login/eye_closed.svg";
 import { useState } from "react";
 import { useSignUpStatusStore } from "@store/signupStore";
+import { requestLogin } from "@apis/login";
 
 export const LoginPage = () => {
   const setSignupStatus = useSignUpStatusStore(
     (state) => state.setSignupStatus
   );
   const [showPw, setShowPw] = useState<boolean>(false);
+
+  const submitLogin = async () => {
+    const response = await requestLogin();
+    console.log(response);
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -75,7 +81,10 @@ export const LoginPage = () => {
         >
           회원가입
         </Link>
-        <button className="w-[344px] h-[48px] rounded-[4px] text-[14px] text-white bg-main">
+        <button
+          className="w-[344px] h-[48px] rounded-[4px] text-[14px] text-white bg-main"
+          onClick={submitLogin}
+        >
           로그인
         </button>
       </div>

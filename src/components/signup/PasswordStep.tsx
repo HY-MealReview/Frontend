@@ -170,7 +170,7 @@ export const PasswordStep = () => {
 
       <button
         type="submit"
-        className="fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
+        className="fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
            text-[14px] font-bold text-white"
         disabled={!(inputValid.pw && inputValid.pwCheck)}
         onClick={() => setSignupStatus("nickname")}
