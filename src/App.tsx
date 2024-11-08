@@ -12,6 +12,7 @@ import { SignUpPage } from "@pages/signup/signup";
 import { MainDetailPage } from "@pages/main/main-detail";
 import { ChangeNickname } from "@components/setting/ChangeNickname";
 import { ChangePasswords } from "@components/setting/ChangePassword";
+import { MyReviewPage } from "@pages/setting/my-reveiw";
 
 function App() {
   const [isSplashVisible, setIsSplashVisible] = useState<boolean>(true);
@@ -58,6 +59,7 @@ function App() {
               <Route path="/setting" element={<SettingPage />} />
               <Route path="/setting/nickname" element={<ChangeNickname />} />
               <Route path="/setting/password" element={<ChangePasswords />} />
+              <Route path="/setting/my-review" element={<MyReviewPage />} />
 
               {/* error page */}
               <Route path="*" element={<Errorpage />} />

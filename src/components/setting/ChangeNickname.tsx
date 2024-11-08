@@ -45,7 +45,7 @@ export const ChangeNickname = () => {
 
       <Link
         to={"/login"}
-        className={`flex justify-center items-center fixed bottom-[240px] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main ${
+        className={`flex justify-center items-center fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main ${
           inputValid || "bg-[#9E9E9E]"
         } text-[14px] font-bold text-white`}
         onClick={(e) => {
