@@ -1,4 +1,3 @@
-import React from 'react';
 import noImage from '../../assets/weekly/noimage.jpg'; // noimage 파일 경로 설정
 
 interface MenuCardProps {

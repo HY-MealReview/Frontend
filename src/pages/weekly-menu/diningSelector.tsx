@@ -1,7 +1,5 @@
-import React from 'react';
-
 const days = ['월', '화', '수', '목', '금', '토', '일'];
-const diningOptions = ['전체', '학생식당', '창업보육센터', '창의인재원식당'];
+const diningOptions = ['전체', '학생식당', '창업보육센터', '창의인재원식당', '교직원식당'];
 
 interface DiningSelectorProps {
   selectedDay: string;
@@ -34,7 +32,7 @@ function DiningSelector({
       </div>
 
       {/* 식당 선택 버튼 */}
-      <div className="flex justify-center font-medium mb-[12px] gap-[12px]">
+      <div className="flex justify-start font-medium overflow-y-auto mb-[12px] gap-[8px] whitespace-nowrap">
         {diningOptions.map((option) => (
           <button
             key={option}

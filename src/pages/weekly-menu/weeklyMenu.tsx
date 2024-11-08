@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import DiningSelector from './diningSelector';
 import logo from '../../assets/weekly/logo.webp'
 import morning from '../../assets/weekly/morning.jpg'
@@ -23,7 +23,6 @@ const getDateForSelectedDay = (selectedDay: string) => {
 export const WeeklyMenuPage = () => {
   const [selectedDay, setSelectedDay] = useState<string>('월');
   const [selectedDining, setSelectedDining] = useState<string>('전체');
-  const [weekInfo, setWeekInfo] = useState<string>('');
 
   // 선택한 요일에 맞는 날짜 설정
   const currentDate = getDateForSelectedDay(selectedDay);
@@ -38,17 +37,6 @@ export const WeeklyMenuPage = () => {
     );
   };
 
-  // 현재 주차 계산
-  const getWeekInfo = () => {
-    const today = new Date();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const weekNumber = Math.ceil((day + firstDayOfMonth.getDay()) / 7);
-
-    return `${month}월 ${weekNumber}주차`;
-  };
-
   useEffect(() => {
     const today = new Date();
     const todayDayIndex = today.getDay(); // 0: 일요일, 1: 월요일, ..., 6: 토요일
@@ -60,10 +48,6 @@ export const WeeklyMenuPage = () => {
     <div className="p-[8px] font-[Noto Sans] bg-white">
       <div className='flex justify-center items-center mt-[12px] mb-[20px]'>
         <img src={logo} alt="학식하냥" className='w-[100px] h-[22px]' />
-      </div>
-
-      <div className="text-start font-bold text-[16px] mb-[12px]">
-        {weekInfo}
       </div>
       
       {/* DiningSelector 컴포넌트를 추가하고, 상태 전달 */}

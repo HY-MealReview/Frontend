@@ -1,4 +1,3 @@
-import React from 'react';
 import image from "../../assets/weekly/menuImage.webp"
 
 interface MenuItem {
@@ -337,7 +336,45 @@ export const menuData: StoreMenu[] = [
       { name: "콩나물무침", score: 4.5 },
     ],
   },
-
+  {
+    id: 26,
+    restaurant: "교직원식당",
+    imageUrl: image,
+    rating: 4.3,
+    date: "2024-11-07",
+    time: "중식",
+    mainMenu: [
+      { name: "통삼겹구이", score: 4.3 },
+      { name: "물냉면", score: 4.9 },
+      { name: "야채샐러드", score: 4.5 },
+    ],
+  },
+  {
+    id: 27,
+    restaurant: "교직원식당",
+    imageUrl: image,
+    rating: 4.3,
+    date: "2024-11-04",
+    time: "중식",
+    mainMenu: [
+      { name: "모듬튀김", score: 4.3 },
+      { name: "궁중떡볶이", score: 4.9 },
+      { name: "켄터키치킨구이", score: 4.5 },
+    ],
+  },
+  {
+    id: 28,
+    restaurant: "교직원식당",
+    imageUrl: image,
+    rating: 4.3,
+    date: "2024-11-05",
+    time: "중식",
+    mainMenu: [
+      { name: "콘스프", score: 4.3 },
+      { name: "카레돈까스", score: 4.9 },
+      { name: "미트볼파스타", score: 4.5 },
+    ],
+  },
 
 
   // 추가 식당 데이터를 여기에 추가할 수 있습니다.
