@@ -1,16 +1,28 @@
 import { ChangeEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import prevArrow from "@assets/common/prev-arrow.svg";
+import { changeNickname } from "@apis/setting";
 
 export const ChangeNickname = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState<string>("");
-  const [inputValid, setInputValid] = useState<boolean>(false);
+  const [inputValid, setInputValid] = useState<boolean>(true);
 
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    setInputValid(value.trim().length > 0);
+  };
+
+  const handleSubmit = async () => {
+    const response = await changeNickname(inputValue);
+    // 중복 예외 처리
+    if (!response) {
+      setInputValid(false);
+      return;
+    }
+    // 중복 아닐 때
+    setInputValid(true);
+    navigate("/setting");
   };
 
   return (
@@ -37,23 +49,21 @@ export const ChangeNickname = () => {
         placeholder="닉네임123"
         onChange={handleInputValid}
       />
-      {inputValue.length > 0 && !inputValid && (
-        <span className="absolute top-[125px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
+      {!inputValid && (
+        <span className="absolute top-[115px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
           ※ 중복된 닉네임입니다
         </span>
       )}
 
-      <Link
-        to={"/login"}
-        className={`flex justify-center items-center fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main ${
-          inputValid || "bg-[#9E9E9E]"
+      <button
+        className={`flex justify-center items-center fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px]  ${
+          inputValue.length > 0 ? "bg-main" : "bg-[#9E9E9E]"
         } text-[14px] font-bold text-white`}
-        onClick={(e) => {
-          inputValid || e.preventDefault();
-        }}
+        onClick={handleSubmit}
+        disabled={inputValue.length === 0}
       >
         변경사항 저장
-      </Link>
+      </button>
     </div>
   );
 };

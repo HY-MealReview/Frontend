@@ -61,7 +61,11 @@ export const TabNavigator = () => {
         className="flex flex-col items-center w-[60px] h-[42px]"
       >
         <img
-          src={path === "/setting" ? settingActiveIcon : settingUnactiveIcon}
+          src={
+            path.startsWith("/setting")
+              ? settingActiveIcon
+              : settingUnactiveIcon
+          }
           alt="main-icon"
           className="w-[24px] h-[24px] mb-[2px]"
         />
