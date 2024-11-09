@@ -8,12 +8,8 @@ export const changeNickname = async (nickname: string) => {
     });
     return response;
   } catch (error) {
-    console.error("Nickname Change Error", error);
-    if (axios.isAxiosError(error)) {
-      if (error.response && error.response.status === 500) {
-        console.log("서버 오류 발생");
-      }
-    }
+    console.error(error);
+    return;
   }
 };
 

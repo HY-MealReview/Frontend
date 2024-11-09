@@ -6,7 +6,7 @@ import { changeNickname } from "@apis/setting";
 export const ChangeNickname = () => {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState<string>("");
-  const [inputValid, setInputValid] = useState<boolean>(false);
+  const [inputValid, setInputValid] = useState<boolean>(true);
 
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -15,7 +15,13 @@ export const ChangeNickname = () => {
 
   const handleSubmit = async () => {
     const response = await changeNickname(inputValue);
-    console.log(response);
+    // 중복 예외 처리
+    if (!response) {
+      setInputValid(false);
+      return;
+    }
+    setInputValid(true);
+    navigate("/setting");
   };
 
   return (
@@ -42,17 +48,18 @@ export const ChangeNickname = () => {
         placeholder="닉네임123"
         onChange={handleInputValid}
       />
-      {inputValue.length > 0 && !inputValid && (
-        <span className="absolute top-[125px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
+      {!inputValid && (
+        <span className="absolute top-[115px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
           ※ 중복된 닉네임입니다
         </span>
       )}
 
       <button
         className={`flex justify-center items-center fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px]  ${
-          inputValid ? "bg-main" : "bg-[#9E9E9E]"
+          inputValue.length > 0 ? "bg-main" : "bg-[#9E9E9E]"
         } text-[14px] font-bold text-white`}
         onClick={handleSubmit}
+        disabled={inputValue.length === 0}
       >
         변경사항 저장
       </button>
