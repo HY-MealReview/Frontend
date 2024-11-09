@@ -3,7 +3,11 @@ export default {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
-      colors: { main: "#134B84", white: "#FFFFFF" },
+      colors: {
+        main: "#134B84",
+        white: "#FFFFFF",
+        "black-70": "rgba(0,0,0,0.7)",
+      },
       boxShadow: {
         "custom-shadow": "1px 2px 8px 0 rgba(0,0,0,0.04)",
         "span-shadow": "1px 1px 8px 0 rgba(0,0,0,0.12)",
@@ -32,12 +36,12 @@ export default {
       },
       animation: {
         fadeIn: "fadeIn 0.5s ",
-        fadeUpTodown: "fadeUpTodown 0.5s",
+        fadeUpToDown: "fadeUpTodown 0.5s",
       },
     },
 
     fontFamily: {
-      sans: ['Noto Sans', 'sans-serif'],
+      sans: ["Noto Sans", "sans-serif"],
     },
   },
   plugins: [],

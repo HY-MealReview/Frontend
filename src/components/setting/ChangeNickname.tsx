@@ -20,6 +20,7 @@ export const ChangeNickname = () => {
       setInputValid(false);
       return;
     }
+    // 중복 아닐 때
     setInputValid(true);
     navigate("/setting");
   };

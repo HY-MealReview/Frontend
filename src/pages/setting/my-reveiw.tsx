@@ -74,7 +74,7 @@ export const MyReviewPage = () => {
           />
 
           {isClickedInfo && (
-            <div className=" flex justify-center items-center absolute top-[41px] right-[6px] w-[250px] h-[36px] rounded-[4px] shadow-span-shadow animate-fadeUpTodown ">
+            <div className=" flex justify-center items-center absolute top-[41px] right-[6px] w-[250px] h-[36px] rounded-[4px] shadow-span-shadow animate-fadeUpToDown ">
               <img
                 src={upArrow}
                 className="absolute top-[-12px] right-[5px]"

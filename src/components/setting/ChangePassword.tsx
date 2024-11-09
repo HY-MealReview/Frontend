@@ -26,6 +26,7 @@ export const ChangePasswords = () => {
   const [showOldPw, setShowOldPw] = useState<boolean>(false);
   const [showNewPw, setShowNewPw] = useState<boolean>(false);
   const [showNewPwCheck, setShowNewPwCheck] = useState<boolean>(false);
+  const [showFailedAlert, setShowFailedAlert] = useState<boolean>(false);
 
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -36,6 +37,14 @@ export const ChangePasswords = () => {
     }));
 
     if (id === "oldPw" || id === "newPw") {
+      // 새 비밀번호 변경 시 비밀번호 확인과 일치 여부 검증
+      if (id === "newPw") {
+        setInputValid((prev) => ({
+          ...prev,
+          newPwCheck: value === inputValue.newPwCheck,
+        }));
+      }
+
       setInputValid((prev) => ({
         ...prev,
         [id]: regexPw.test(value) && value.trim().length >= 8,
@@ -70,16 +79,23 @@ export const ChangePasswords = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      const data = {
-        old_password: inputValue.oldPw,
-        new_password: inputValue.newPw,
-      };
-      const response = await changePassword(data);
-      console.log(response);
-    } catch (error) {
-      if (error instanceof Error) console.error(error.message);
+    const data = {
+      old_password: inputValue.oldPw,
+      new_password: inputValue.newPw,
+    };
+    const response = await changePassword(data);
+    // 비밀번호 변경 실패 예외처리
+    if (!response) {
+      setShowFailedAlert(true);
+      const timer = setTimeout(() => {
+        setShowFailedAlert(false);
+      }, 2000);
+      return () => clearTimeout(timer);
     }
+
+    // 비밀번호 변경 성공
+    setShowFailedAlert(false);
+    navigate("/setting");
   };
 
   return (
@@ -247,6 +263,13 @@ export const ChangePasswords = () => {
       >
         변경사항 저장
       </button>
+
+      {/* 비밀번호 실패 알림 */}
+      {showFailedAlert && (
+        <div className="absolute top-1/3 flex justify-center items-center w-[344px] h-[64px] rounded-[8px] bg-black-70 text-[16px] font-medium text-white animate-fadeUpToDown">
+          비밀번호 변경에 실패했습니다
+        </div>
+      )}
     </div>
   );
 };
