@@ -3,6 +3,7 @@ import eyeOpen from "@assets/login/eye_open.svg";
 import { ChangeEvent, useState } from "react";
 import prevArrow from "@assets/common/prev-arrow.svg";
 import { useNavigate } from "react-router-dom";
+import { changePassword } from "@apis/setting";
 
 export const ChangePasswords = () => {
   const navigate = useNavigate();
@@ -22,8 +23,9 @@ export const ChangePasswords = () => {
     newPw: "",
     newPwCheck: "",
   });
-  const [showPw, setShowPw] = useState<boolean>(false);
-  const [showPwCheck, setShowPwCheck] = useState<boolean>(false);
+  const [showOldPw, setShowOldPw] = useState<boolean>(false);
+  const [showNewPw, setShowNewPw] = useState<boolean>(false);
+  const [showNewPwCheck, setShowNewPwCheck] = useState<boolean>(false);
 
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -67,6 +69,19 @@ export const ChangePasswords = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      const data = {
+        old_password: inputValue.oldPw,
+        new_password: inputValue.newPw,
+      };
+      const response = await changePassword(data);
+      console.log(response);
+    } catch (error) {
+      if (error instanceof Error) console.error(error.message);
+    }
+  };
+
   return (
     <div className="relative flex flex-col items-center w-full ">
       <header className="relative flex justify-center items-center w-full h-[48px] mb-[12px] bg-white">
@@ -91,12 +106,12 @@ export const ChangePasswords = () => {
             현재 비밀번호
           </label>
           {inputValue.oldPw.length === 0 || inputValid.oldPw ? null : (
-            <span className="absolute top-[3px] left-[70px] text-[12px] font-medium text-[#FF3B30]">
+            <span className="absolute top-[3px] left-[100px] text-[12px] font-medium text-[#FF3B30]">
               {errorMessage.oldPw}
             </span>
           )}
           <input
-            type={showPw ? "text" : "password"}
+            type={showOldPw ? "text" : "password"}
             id="oldPw"
             value={inputValue.oldPw}
             className={`w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solid focus:border-[#1D1D1D]
@@ -108,19 +123,19 @@ export const ChangePasswords = () => {
             placeholder="0000000000"
             onChange={handleInputValid}
           />
-          {showPw ? (
+          {showOldPw ? (
             <img
               src={eyeOpen}
               alt="eye-open"
               className="absolute top-[47px] right-3 w-[24px] h-[24px]"
-              onClick={() => setShowPw(!showPw)}
+              onClick={() => setShowOldPw(!showOldPw)}
             />
           ) : (
             <img
               src={eyeClosed}
               alt="eye-closed"
               className="absolute top-[47px] right-3 w-[24px] h-[24px]"
-              onClick={() => setShowPw(!showPw)}
+              onClick={() => setShowOldPw(!showOldPw)}
             />
           )}
         </div>
@@ -134,12 +149,12 @@ export const ChangePasswords = () => {
             새 비밀번호
           </label>
           {inputValue.newPw.length === 0 || inputValid.newPw ? null : (
-            <span className="absolute top-[3px] left-[70px] text-[12px] font-medium text-[#FF3B30]">
+            <span className="absolute top-[3px] left-[100px] text-[12px] font-medium text-[#FF3B30]">
               {errorMessage.newPw}
             </span>
           )}
           <input
-            type={showPw ? "text" : "password"}
+            type={showNewPw ? "text" : "password"}
             id="newPw"
             value={inputValue.newPw}
             className={`w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solid focus:border-[#1D1D1D]
@@ -151,19 +166,19 @@ export const ChangePasswords = () => {
             placeholder="0000000000"
             onChange={handleInputValid}
           />
-          {showPw ? (
+          {showNewPw ? (
             <img
               src={eyeOpen}
               alt="eye-open"
               className="absolute top-[47px] right-3 w-[24px] h-[24px]"
-              onClick={() => setShowPw(!showPw)}
+              onClick={() => setShowNewPw(!showNewPw)}
             />
           ) : (
             <img
               src={eyeClosed}
               alt="eye-closed"
               className="absolute top-[47px] right-3 w-[24px] h-[24px]"
-              onClick={() => setShowPw(!showPw)}
+              onClick={() => setShowNewPw(!showNewPw)}
             />
           )}
         </div>
@@ -178,13 +193,13 @@ export const ChangePasswords = () => {
           </label>
           {inputValue.newPwCheck.length === 0 ||
           inputValid.newPwCheck ? null : (
-            <span className="absolute top-[3px] left-[105px] text-[12px] font-medium text-[#FF3B30]">
+            <span className="absolute top-[3px] left-[125px] text-[12px] font-medium text-[#FF3B30]">
               {errorMessage.newPwCheck}
             </span>
           )}
 
           <input
-            type={showPwCheck ? "text" : "password"}
+            type={showNewPwCheck ? "text" : "password"}
             id="newPwCheck"
             value={inputValue.newPwCheck}
             className={`w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solid focus:border-[#1D1D1D]
@@ -196,19 +211,19 @@ export const ChangePasswords = () => {
             placeholder="0000000000"
             onChange={handleInputValid}
           />
-          {showPwCheck ? (
+          {showNewPwCheck ? (
             <img
               src={eyeOpen}
               alt="eye-open"
               className="absolute top-[47px] right-3 w-[24px] h-[24px]"
-              onClick={() => setShowPwCheck(!showPwCheck)}
+              onClick={() => setShowNewPwCheck(!showNewPwCheck)}
             />
           ) : (
             <img
               src={eyeClosed}
               alt="eye-closed"
               className="absolute top-[47px] right-3 w-[24px] h-[24px]"
-              onClick={() => setShowPwCheck(!showPwCheck)}
+              onClick={() => setShowNewPwCheck(!showNewPwCheck)}
             />
           )}
         </div>
@@ -228,6 +243,7 @@ export const ChangePasswords = () => {
         disabled={
           !(inputValid.oldPw && inputValid.newPw && inputValid.newPwCheck)
         }
+        onClick={handleSubmit}
       >
         변경사항 저장
       </button>
