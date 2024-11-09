@@ -1,6 +1,7 @@
 import { ChangeEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import prevArrow from "@assets/common/prev-arrow.svg";
+import { changeNickname } from "@apis/setting";
 
 export const ChangeNickname = () => {
   const navigate = useNavigate();
@@ -10,7 +11,11 @@ export const ChangeNickname = () => {
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    setInputValid(value.trim().length > 0);
+  };
+
+  const handleSubmit = async () => {
+    const response = await changeNickname(inputValue);
+    console.log(response);
   };
 
   return (
@@ -43,17 +48,14 @@ export const ChangeNickname = () => {
         </span>
       )}
 
-      <Link
-        to={"/login"}
-        className={`flex justify-center items-center fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main ${
-          inputValid || "bg-[#9E9E9E]"
+      <button
+        className={`flex justify-center items-center fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px]  ${
+          inputValid ? "bg-main" : "bg-[#9E9E9E]"
         } text-[14px] font-bold text-white`}
-        onClick={(e) => {
-          inputValid || e.preventDefault();
-        }}
+        onClick={handleSubmit}
       >
         변경사항 저장
-      </Link>
+      </button>
     </div>
   );
 };
