@@ -1,5 +1,16 @@
-import axios from "axios";
 import { axiosInstance } from "./axiosInstance";
+
+export const getMyInfo = async () => {
+  const [nicknameResponse, myReviewResponse] = await Promise.all([
+    axiosInstance.get("users/detail/"),
+    axiosInstance.get("rating/user/all/"),
+  ]);
+
+  const nickname = nicknameResponse.data.nickname;
+  const review = myReviewResponse.data;
+
+  return { nickname, review };
+};
 
 export const changeNickname = async (nickname: string) => {
   try {
@@ -8,7 +19,6 @@ export const changeNickname = async (nickname: string) => {
     });
     return response;
   } catch (error) {
-    console.error(error);
     return;
   }
 };
@@ -21,10 +31,6 @@ export const changePassword = async (data: {
     const response = await axiosInstance.post("users/change/password/", data);
     return response;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response && error.response.status === 400) {
-        return error.response.data.error;
-      }
-    }
+    return;
   }
 };

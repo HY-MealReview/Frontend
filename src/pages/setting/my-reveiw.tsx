@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getUserReviews } from "@apis/my-review";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MyReview } from "@type/my-review";
 import { MyReviewItem } from "@components/setting/MyReviewItem";
 import prevArrow from "@assets/common/prev-arrow.svg";
@@ -11,6 +10,7 @@ import upArrow from "@assets/setting/up-arrow.svg";
 import { FilteredRestaurant } from "@components/setting/FilteredRestaurant";
 
 export const MyReviewPage = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [reviewData, setReviewData] = useState<MyReview[]>([]);
   const [isClickedFilter, setIsClickedFilter] = useState<boolean>(false);
@@ -18,14 +18,8 @@ export const MyReviewPage = () => {
   const [isClickedInfo, setIsClickedInfo] = useState<boolean>(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  const fetchUserReview = async () => {
-    const response = await getUserReviews();
-    setReviewData(response?.data);
-    if (reviewData) console.log(response?.data);
-  };
-
   useEffect(() => {
-    fetchUserReview();
+    setReviewData(location.state.data);
   }, []);
 
   useEffect(() => {
