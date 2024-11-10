@@ -1,14 +1,49 @@
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getMyInfo } from "@apis/setting";
 import rightArrowBtn from "@assets/setting/right-arrow.svg";
-import { Link } from "react-router-dom";
 import logo from "@assets/common/logo.svg";
 
 export const SettingPage = () => {
+  const navigate = useNavigate();
+  const [data, setData] = useState({
+    nickname: "",
+    review: [],
+  });
+
+  const fetchMyInfo = async () => {
+    try {
+      const { nickname, review } = await getMyInfo();
+      setData((prev) => ({
+        ...prev,
+        nickname: nickname,
+        review: review,
+      }));
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyInfo();
+  }, []);
+
+  const navigateToMyReview = () => {
+    navigate("/setting/my-review", {
+      state: {
+        data: data.review,
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col items-center w-full ">
       <header className="w-full h-[50px] flex items-center justify-center relative">
         <img src={logo} alt="logo" />
       </header>
 
+      {/* 비로그인 UI */}
       {/* <section className="w-[344px] h-[54px] mb-[12px]">
         <h2 className="text-[10px] font-medium text-[#9E9E9E] mb-[8px]">
           내 정보
@@ -39,13 +74,14 @@ export const SettingPage = () => {
         </button>
       </section> */}
 
+      {/* 로그인 UI */}
       <section className="w-[344px] h-[208px] mb-[12px]">
         <h2 className="text-[10px] font-medium text-[#9E9E9E] mb-[8px]">
           내 정보
         </h2>
         <div className="w-[344px] h-[32px] flex justify-between items-center pr-[8px]">
           <span className="text-[12px] font-medium text-[#1D1D1D]">
-            닉네임123
+            {data.nickname}
           </span>
           <Link to="/setting/nickname">
             <button className="w-[27px] h-full text-[12px] font-medium text-[#134B84]">
@@ -64,16 +100,17 @@ export const SettingPage = () => {
           </Link>
         </div>
 
-        <Link to="/setting/my-review">
-          <button className="w-[344px] h-[106px] flex flex-col justify-center items-center border-[1px] border-solid border-[#F0F0F0] rounded-[6px] shadow-custom-shadow">
-            <h3 className="w-full h-[22px] mb-[8px] text-center text-[16px] font-medium text-[#1D1D1D]">
-              리뷰메뉴
-            </h3>
-            <strong className="w-full h-[33px] text-center text-[24px] font-bold text-[#1D1D1D]">
-              10
-            </strong>
-          </button>
-        </Link>
+        <button
+          className="w-[344px] h-[106px] flex flex-col justify-center items-center border-[1px] border-solid border-[#F0F0F0] rounded-[6px] shadow-custom-shadow"
+          onClick={navigateToMyReview}
+        >
+          <h3 className="w-full h-[22px] mb-[8px] text-center text-[16px] font-medium text-[#1D1D1D]">
+            리뷰메뉴
+          </h3>
+          <strong className="w-full h-[33px] text-center text-[24px] font-bold text-[#1D1D1D]">
+            {data.review.length}
+          </strong>
+        </button>
       </section>
 
       <hr className="w-full h-[1px] border-[#F0F0F0] mb-[12px]" />
