@@ -13,16 +13,24 @@ export const getMyInfo = async () => {
 };
 
 export const changeNickname = async (nickname: string) => {
-  const response = await axiosInstance.post("users/change/nickname/", {
-    nickname,
-  });
-  return response;
+  try {
+    const response = await axiosInstance.post("users/change/nickname/", {
+      nickname,
+    });
+    return response;
+  } catch (error) {
+    return;
+  }
 };
 
 export const changePassword = async (data: {
   old_password: string;
   new_password: string;
 }) => {
-  const response = await axiosInstance.post("users/change/password/", data);
-  return response;
+  try {
+    const response = await axiosInstance.post("users/change/password/", data);
+    return response;
+  } catch (error) {
+    return;
+  }
 };
