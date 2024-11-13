@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "@assets/common/logo.svg";
 import eyeOpen from "@assets/login/eye_open.svg";
 import eyeClosed from "@assets/login/eye_closed.svg";
@@ -7,18 +7,47 @@ import { useSignUpStatusStore } from "@store/signupStore";
 import { requestLogin } from "@apis/login";
 
 export const LoginPage = () => {
+  const navigate = useNavigate();
   const setSignupStatus = useSignUpStatusStore(
     (state) => state.setSignupStatus
   );
+  const [inputValue, setInputValue] = useState({
+    student_id: "",
+    password: "",
+  });
+  const [showFailedAlert, setShowFailedAlert] = useState<boolean>(false);
   const [showPw, setShowPw] = useState<boolean>(false);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+
+    setInputValue((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+    console.log(inputValue);
+  };
+
   const submitLogin = async () => {
-    const response = await requestLogin();
-    console.log(response);
+    const response = await requestLogin(inputValue);
+
+    // 로그인 변경 실패 예외처리
+    if (!response) {
+      setShowFailedAlert(true);
+      const timer = setTimeout(() => {
+        setShowFailedAlert(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+
+    // 로그인 변경 성공
+    setShowFailedAlert(false);
+    navigate("/");
+    console.log(response?.data);
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="relative flex flex-col items-center">
       <header className="flex justify-center items-center w-[360px] h-[50px] mb-[20px]">
         <img src={logo} alt="logo-image" />
       </header>
@@ -26,30 +55,32 @@ export const LoginPage = () => {
       <div>
         <div className="flex flex-col w-[344px] h-[81px] mb-[24px]">
           <label
-            htmlFor="id"
+            htmlFor="student_id"
             className="mb-[12px] text-[14px] font-bold text-[#1D1D1D]"
           >
             학번
           </label>
           <input
             type="text"
-            id="id"
+            id="student_id"
             className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solild focus:border-[#1D1D1D] placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
             placeholder="학번을 입력해주세요"
+            onChange={handleChange}
           />
         </div>
         <div className="flex flex-col relative w-[344px] h-[81px] mb-[12px]">
           <label
-            htmlFor="pw"
+            htmlFor="password"
             className="mb-[12px] text-[14px] font-bold text-[#1D1D1D] "
           >
             비밀번호
           </label>
           <input
             type={showPw ? "text" : "password"}
-            id="pw"
+            id="password"
             className="w-[344px] h-[48px] rounded-[4px] pl-[12px] text-[12px] bg-[#F0F0F0] focus:bg-white focus:border-[1px] focus:border-solild focus:border-[#1D1D1D] placeholder:text-[12px]  placeholder:text-[#6A6A6A]"
             placeholder="비밀번호를 입력해주세요"
+            onChange={handleChange}
           />
           {showPw ? (
             <img
@@ -88,6 +119,13 @@ export const LoginPage = () => {
           로그인
         </button>
       </div>
+
+      {/* 로그인 실패 알림 */}
+      {showFailedAlert && (
+        <div className="absolute top-1/3 flex justify-center items-center w-[344px] h-[64px] rounded-[8px] bg-black-70 text-[16px] font-medium text-white animate-fadeUpToDown">
+          학번 또는 비밀번호를 다시 확인해주세요
+        </div>
+      )}
     </div>
   );
 };
