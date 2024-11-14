@@ -38,6 +38,13 @@ export const SettingPage = () => {
     });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("accessToken");
+
+    navigate("/login");
+  };
+
   return (
     <div className="flex flex-col items-center w-full ">
       <header className="w-full h-[50px] flex items-center justify-center relative">
@@ -128,7 +135,10 @@ export const SettingPage = () => {
           <span>고객센터</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
-        <button className="flex justify-between items-center w-[328px] text-[14px] font-medium text-[#FF0000]">
+        <button
+          className="flex justify-between items-center w-[328px] text-[14px] font-medium text-[#FF0000]"
+          onClick={handleLogout}
+        >
           <span>로그아웃</span>
           <img src={rightArrowBtn} alt="right-arrow-button" />
         </button>
