@@ -25,7 +25,6 @@ export const LoginPage = () => {
       ...prev,
       [id]: value,
     }));
-    console.log(inputValue);
   };
 
   const submitLogin = async () => {
