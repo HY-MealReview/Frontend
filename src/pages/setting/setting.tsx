@@ -51,7 +51,8 @@ export const SettingPage = () => {
         <img src={logo} alt="logo" />
       </header>
 
-      {localStorage.getItem("accessToken") ? (
+      {localStorage.getItem("accessToken") &&
+      localStorage.getItem("refreshToken") ? (
         // 로그인 UI
         <section className="w-[344px] h-[208px] mb-[12px]">
           <h2 className="text-[10px] font-medium text-[#9E9E9E] mb-[8px]">
@@ -103,22 +104,6 @@ export const SettingPage = () => {
             >
               로그인을 해주세요
             </Link>
-          </section>
-          <hr className="w-full h-[1px] border-[#F0F0F0] mb-[12px]" />
-          <section className="flex flex-col items-center w-[344px] h-[142px] ">
-            <h2 className="text-[10px] text-[#9E9E9E] mb-[8px]">지원</h2>
-            <button className="flex justify-between items-center w-[328px] text-[14px] text-[#1D1D1D] mb-[12px]">
-              <span>공지사항</span>
-              <img src={rightArrowBtn} alt="right-arrow-button" />
-            </button>
-            <button className="flex justify-between items-center w-[328px] text-[14px] text-[#1D1D1D] mb-[12px]">
-              <span>고객센터</span>
-              <img src={rightArrowBtn} alt="right-arrow-button" />
-            </button>
-            <button className="flex justify-between items-center w-[328px] text-[14px] font-medium text-[#FF0000]">
-              <span>로그아웃</span>
-              <img src={rightArrowBtn} alt="right-arrow-button" />
-            </button>
           </section>
         </>
       )}

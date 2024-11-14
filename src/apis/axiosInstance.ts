@@ -54,14 +54,14 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(new Error("Maximum retry attempts reached"));
       }
 
+      // refresh token으로 새로운 access token 발급
       try {
-        // refresh token으로 새로운 access token 발급 시도
         const refresh = localStorage.getItem("refreshToken") as string;
         if (!refresh) {
           throw new Error("No refresh token available");
         }
 
-        // 토큰 갱신
+        // 토큰 갱신 요청
         const response = await refreshAccessToken(refresh);
 
         if (response?.data.access) {
@@ -69,7 +69,7 @@ axiosInstance.interceptors.response.use(
 
           retryCount++;
 
-          // 토큰 갱신 후 요청 정보 업데이트
+          // 토큰 요청 정보 업데이트
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
           }
@@ -78,9 +78,10 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         }
       } catch (refreshError) {
-        console.log("Token refresh failed:", refreshError);
+        console.error("Token refresh failed:", refreshError);
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+
         return Promise.reject(refreshError);
       }
     }
