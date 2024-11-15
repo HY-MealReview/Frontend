@@ -1,3 +1,4 @@
+import { checkIdRedundancy } from "@apis/signup";
 import { useSignUpStatusStore } from "@store/signupStore";
 import { ChangeEvent, useState } from "react";
 import { useShallow } from "zustand/shallow";
@@ -9,12 +10,22 @@ export const StudentIdStep = () => {
     }))
   );
   const [inputValue, setInputValue] = useState<string>("");
-  const [inputValid, setInputValid] = useState<boolean>(false);
+  const [inputValid, setInputValid] = useState<boolean>(true);
 
   const handleInputValid = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    setInputValid(value.trim().length === 8 && !isNaN(Number(value)));
+  };
+
+  const handleSubmit = async () => {
+    const response = await checkIdRedundancy(inputValue);
+    // 중복 예외 처리
+    if (!response) {
+      setInputValid(false);
+      return;
+    }
+    // 중복 아닐 때
+    setSignupStatus("pw");
   };
 
   return (
@@ -32,12 +43,18 @@ export const StudentIdStep = () => {
         onChange={handleInputValid}
       />
 
+      {!inputValid && (
+        <span className="absolute top-[115px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
+          ※ 중복된 닉네임입니다
+        </span>
+      )}
+
       <button
         type="submit"
         className="fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
            text-[14px] font-bold text-white"
-        disabled={!inputValid}
-        onClick={() => setSignupStatus("pw")}
+        disabled={inputValue.length === 0}
+        onClick={handleSubmit}
       >
         다음
       </button>

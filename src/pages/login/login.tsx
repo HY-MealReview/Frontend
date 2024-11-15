@@ -26,7 +26,6 @@ export const LoginPage = () => {
       [id]: value,
     }));
   };
-
   const submitLogin = async () => {
     const response = await requestLogin(inputValue);
 
