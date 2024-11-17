@@ -1,16 +1,20 @@
 import { useState } from 'react';
+interface StarRatingProps {
+  onRatingChange: (rating: number) => void; // 별점 변경 함수의 타입
+}
 
-const StarRating = () => {
+const StarRating: React.FC<StarRatingProps> = ({ onRatingChange }) => {
   const [rating, setRating] = useState(0); // 현재 별점
   const [hoveredRating, setHoveredRating] = useState(0); // 마우스 호버
 
   // 별 클릭
-  const handleClick = (index : number) => {
+  const handleClick = (index: number) => {
     setRating(index);
+    onRatingChange(index); // 부모 컴포넌트에 별점 전달
   };
 
   // 별 호버 
-  const handleMouseEnter = (index : number) => {
+  const handleMouseEnter = (index: number) => {
     setHoveredRating(index);
   };
 
@@ -20,7 +24,7 @@ const StarRating = () => {
   };
 
   // 별 스타일
-  const getStarStyle = (index : number) => {
+  const getStarStyle = (index: number) => {
     if (hoveredRating >= index) {
       return { color: '#F0F900' }; // 호버 시 노란색
     }
@@ -31,19 +35,18 @@ const StarRating = () => {
   };
 
   return (
-    <div style={{margin :'0'}}>
+    <div style={{ margin: '0' }}>
       {[1, 2, 3, 4, 5].map((index) => (
         <span
           key={index}
           onClick={() => handleClick(index)}
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
-          style={{ cursor: 'pointer', fontSize: '52px', ...getStarStyle(index), margin :'0', marginRight :'12px'}}
+          style={{ cursor: 'pointer', fontSize: '52px', ...getStarStyle(index), margin: '0', marginRight: '12px' }}
         >
           ★
         </span>
       ))}
-
     </div>
   );
 };

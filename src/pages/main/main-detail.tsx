@@ -6,12 +6,10 @@ import NoRecommend from "@assets/main/NoRecommend.webp";
 import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
-//import { MainModal } from '@pages/main/mainModal';
+import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings} from '@apis/mainApi';
+import axios from "axios";
 
-interface RatingProps {
-    menuItems?: { name: string; average_rating: number }[]; // 메뉴 이름과 각 점수 (optional)
-  }
 
 export const MainDetailPage = () => {
     const { restaurant = '', date = '' } = useParams<{ restaurant: string; date: string }>();
@@ -21,8 +19,8 @@ export const MainDetailPage = () => {
     const navigate = useNavigate();
     const [isRecommended, setIsRecommended] = useState(false);
     const [isNotRecommended, setIsNotRecommended] = useState(false);
-    //const [isModalOpen, setIsModalOpen] = useState(false);
-    //const [selectedMenu, setSelectedMenu] = useState<any | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [averageRating, setAverageRating] = useState<number | null>(null);
 
     const GoBack = () => {
@@ -57,7 +55,7 @@ export const MainDetailPage = () => {
         };
 
         fetchMenusAndRatings();
-    }, [restaurant, date]);
+    }, [restaurant, date, averageRating]);
 
 
    
@@ -90,6 +88,36 @@ const handleNotRecommendClick = () => {
   }
 };
 
+const openModal = () => {
+    setIsModalOpen(true);
+};
+
+const closeModal = () => {
+    setIsModalOpen(false);
+};
+const handleRatingChange = (index: number, rating: number) => {
+    const newRatings = [...ratings];
+    newRatings[index] = rating; // 해당 음식의 별점 업데이트
+    setRatings(newRatings); // 상태 업데이트
+};
+
+const isReviewButtonEnabled = ratings.every(rating => rating > 0);
+
+const submitReview = async () => {
+    try {
+        for (let i = 0; i < menuData.length; i++) {
+            const response = await axios.post('/rating/', {
+                food: menuData[i].id,
+                rating: ratings[i],
+            });
+            console.log("리뷰가 성공적으로 제출되었습니다:", response.data);
+        }
+        alert("모든 리뷰가 성공적으로 제출되었습니다.");
+    } catch (error) {
+        console.error("리뷰 제출 중 오류 발생:", error);
+        alert("리뷰 제출에 실패했습니다.");
+    }
+};
 
  return (
 
@@ -207,17 +235,17 @@ const handleNotRecommendClick = () => {
                 </div>
             </div>
 
-            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} >
-                <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
-                    borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px'
-                }}>
-                    <img src ={Review} style={{width :'20px', height : '20px'}}/>
-                    <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}>
-                        리뷰하기
-                    </div>
-                </div>
-               
-            </div>
+            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={openModal}>
+    <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
+        borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px'
+    }}>
+        <img src ={Review} style={{width :'20px', height : '20px'}}/>
+        <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}  onClick={isReviewButtonEnabled ? submitReview : undefined}>
+            리뷰하기
+        </div>
+    </div>
+</div>
+<MainModal isOpen={isModalOpen} onClose={closeModal} menuData={menuData}  onRatingChange={handleRatingChange}   />
     </div>
 
   );
