@@ -20,15 +20,11 @@ export const MainPage = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
   const [date, setDate] = useState<string>('2024-10-29');
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
-  const [isRecommended, setIsRecommended] = useState(false);//추천
-  const [recommendationStatus, setRecommendationStatus] = useState<(string | null)[]>(menus.map(() => null));
-  const [notRecommendationStatus, setNotRecommendationStatus] = useState<(string | null)[]>(menus.map(() => null));
+  const [recommendationStatus, setRecommendationStatus] = useState<string[]>(Array(menus.length).fill(null));
+  const [notRecommendationStatus, setNotRecommendationStatus] = useState<string[]>(Array(menus.length).fill(null));
   const [recommendCount, setRecommendCount] = useState(0); //추천수 카운팅
   const [NotRecommendCount, setNotRecommendCount] = useState(0); //추천수 카운팅
   const [ratings, setRatings] = useState({}); //별점
-
-
-
   const navigate = useNavigate(); //페이지 이동하기
 
   useEffect(() => {
@@ -58,6 +54,11 @@ export const MainPage = () => {
     setMenus(menuData);
     setSelectedRestaurant(restaurant);
     setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
+
+    // 상태 배열 초기화
+    setRecommendationStatus(Array(menuData.length).fill(null));
+    setNotRecommendationStatus(Array(menuData.length).fill(null));
+
     fetchRatings(restaurant);
   };
 
@@ -112,14 +113,12 @@ export const MainPage = () => {
 
 
 
-  const handleStoreClick = (id: number) => {
-    // ID가 유효한 경우에만 상세 페이지로 이동
-    const selectedRestaurant = restaurants.find(restaurant => restaurant.id === id);
-    if (selectedRestaurant) {
-      fetchMenus(selectedRestaurant.name, selectedRestaurant.index); // 식당 이름과 인덱스를 사용
-      navigate(`/main-detail/${id}`); // 상세 페이지로 이동
+  const handleStoreClick = (menuId: number) => {
+    const selectedMenu = menus.find(menu => menu.id === menuId);
+    if (selectedMenu) {
+      navigate(`/main-detail/${selectedMenu.restaurant}/${selectedMenu.date}`);
     } else {
-      console.error("Invalid restaurant ID:", id);
+      console.error("Invalid menu ID:", menuId);
     }
   };
   
@@ -143,24 +142,22 @@ export const MainPage = () => {
 
 };
 
-
 const handleNotRecommendClick = (index: number) => {
-  setNotRecommendationStatus(prev => {
-    const newStatus = [...prev];
-    newStatus[index] = newStatus[index] === 'NotRecommended' ? null : 'NotRecommended';
-    // 추천 상태를 해제
-    const newRecStatus = [...recommendationStatus];
-    newRecStatus[index] = null;
-    setRecommendationStatus(newRecStatus);
-    
-    const NotRecommendCountChange = newStatus[index] === 'NotRecommended' ? 1 : -1;
-    const newCount = Math.max(NotRecommendCount + NotRecommendCountChange, 0);
-    setNotRecommendCount(newCount);
-    
-    return newStatus;
-});
+    setNotRecommendationStatus(prev => {
+        const newStatus = [...prev];
+        newStatus[index] = newStatus[index] === 'NotRecommended' ? null : 'NotRecommended';
+        // 추천 상태를 해제
+        const newRecStatus = [...recommendationStatus];
+        newRecStatus[index] = null;
+        setRecommendationStatus(newRecStatus);
+        
+        const NotRecommendCountChange = newStatus[index] === 'NotRecommended' ? 1 : -1;
+        const newCount = Math.max(NotRecommendCount + NotRecommendCountChange, 0);
+        setNotRecommendCount(newCount);
+        
+        return newStatus;
+    });
 };
-
 
 
   
@@ -188,7 +185,7 @@ const handleNotRecommendClick = (index: number) => {
     
     <div className="slider-container" style={{ height: '500px', margin: '0 auto', alignItems: 'left', padding: '0px' }}>
       <Slider ref={sliderRef} {...settings}>
-        {menus.map((menu) => (
+        {menus.map((menu, index) => (
           <div key={menu.id} className="slide" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap', minWidth: '320px', margin: '4px' }}>
             <div style={{ width: '300px', height: '482px', margin: '10px', marginBottom: '20px', boxShadow: '0 0px 20px rgba(0,0,0,0.1)', borderRadius: '12px' }}
             onClick={() => handleStoreClick(menu.id)}>
@@ -212,6 +209,7 @@ const handleNotRecommendClick = (index: number) => {
 
 
               <div className="buttons" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                
                   <div key={menu.id}  style={{ display: 'flex', flexDirection: 'row', alignItems:'center'}}>
                     <div style={{ fontSize: '12px', color: '#444444', marginBottom: '12px', marginRight : '20px'}}>
                       추천 
@@ -225,16 +223,16 @@ const handleNotRecommendClick = (index: number) => {
                         borderRadius: '10px',
                         cursor: 'pointer',
                         fontSize: '14px',
-                        fontWeight: isRecommended ? 'bold' : 'normal',
-                        color:  isRecommended ? '#134B84' : '#6A6A6A',
-                        border: isRecommended ? '2px solid #134B84' : '1px solid #F0F0F0',
+                        fontWeight: recommendationStatus[index] === 'recommended' ? 'bold' : 'normal',
+                        color:  recommendationStatus[index] === 'recommended' ? '#134B84' : '#6A6A6A',
+                        border: recommendationStatus[index] === 'recommended' ? '2px solid #134B84' : '1px solid #F0F0F0',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '9px',
                       }}
                       onClick={(event) => {
                         event.stopPropagation(); // 클릭 이벤트 전파 방지
-                        handleRecommendClick(menu.id);
+                        handleRecommendClick(index);
                       }}>
                       <img src={Recommend} style={{ width: '48px', height: 'auto', padding: '6px' }} alt="추천" />
                       추천
@@ -251,16 +249,16 @@ const handleNotRecommendClick = (index: number) => {
                         borderRadius: '10px',
                         cursor: 'pointer',
                         fontSize: '14px',
-                        fontWeight: isRecommended ? 'bold' : 'normal',
-                        color:  isRecommended ? '#134B84' : '#6A6A6A',
-                        border: isRecommended ? '2px solid #134B84' : '1px solid #F0F0F0',
+                        fontWeight: notRecommendationStatus[index] === 'NotRecommended' ? 'bold' : 'normal',
+                        color:  notRecommendationStatus[index] === 'NotRecommended' ? '#134B84' : '#6A6A6A',
+                        border: notRecommendationStatus[index] === 'NotRecommended' ? '2px solid #134B84' : '1px solid #F0F0F0',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}
                       onClick={(event) => {
                         event.stopPropagation(); // 클릭 이벤트 전파 방지
-                        handleNotRecommendClick(menu.id);
+                        handleNotRecommendClick(index);
                       }}>
                       <img src={NoRecommend} style={{ width: '48px', height: 'auto', padding: '6px' }} alt="추천" />
                       비추천

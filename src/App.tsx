@@ -43,7 +43,7 @@ function App() {
             <Routes>
               {/* main page */}
               <Route path="/" element={<MainPage />} />
-              <Route path="/main-detail/:storeId" element={<MainDetailPage/>} />
+              <Route path="/main-detail/:restaurant/:date" element={<MainDetailPage />} />
               
 
               {/* login page */}
