@@ -74,3 +74,14 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
     throw error;
   }
 };
+
+export const getMenu = async (restaurant: string, date: string) => {
+  try {
+    const response = await axiosInstance.get(`/restaurants/${restaurant}/${date}/ratings/`);
+    console.log(response.data); // 응답 데이터 확인
+    return response.data; // 평점 데이터 반환
+  } catch (error) {
+    console.error("메뉴 데이터를 가져오는데 실패했습니다.", error);
+    return []; // 에러 발생 시 빈 배열 반환
+  }
+};

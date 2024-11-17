@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation  } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import goBack from '@assets/main/goBack.webp';
 import Recommend from '@assets/main/Recommend.webp';
@@ -6,69 +6,66 @@ import NoRecommend from "@assets/main/NoRecommend.webp";
 import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
-import { MainModal } from '@pages/main/mainModal';
+//import { MainModal } from '@pages/main/mainModal';
+import {getMenusWithRatings} from '@apis/mainApi';
 
 export const MainDetailPage = () => {
-    const { restaurant='', date='' } = useParams<{ restaurant: string; date: string }>();
-    const [menuData, setMenuData] = useState<any[]>([]);
-    const navigate = useNavigate(); //페이지 이동하기
-    const [isRecommended, setIsRecommended] = useState(false);//추천
-    const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [ setSelectedMenu] = useState<any | null>(null);
-    const [averageRating, setAverageRating] = useState<number | null>(null); // 종합 평점 상태
+    const { restaurant = '', date = '' } = useParams<{ restaurant: string; date: string }>();
+    const location = useLocation();
+    const selectedMenuSet = location.state?.selectedMenuSet;
+    const [menuData, setMenuData] = useState<any[]>(selectedMenuSet?.foods || []);  
+    const navigate = useNavigate();
+    const [isRecommended, setIsRecommended] = useState(false);
+    const [isNotRecommended, setIsNotRecommended] = useState(false);
+    //const [isModalOpen, setIsModalOpen] = useState(false);
+    //const [selectedMenu, setSelectedMenu] = useState<any | null>(null);
+    const [averageRating, setAverageRating] = useState<number | null>(null);
 
-    const openModal = (menu: any) => {
-        setSelectedMenu(menu); // 선택된 메뉴 설정
-        setIsModalOpen(true); // 모달 열기
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false); // 모달 닫기
-        setSelectedMenu(null); // 선택된 메뉴 초기화
-    };
-
-
-
-    const GoBack =() =>{
+    const GoBack = () => {
         navigate(`/`);
-    }
+    };
+
 
     useEffect(() => {
         const fetchMenusAndRatings = async () => {
             try {
-                // 메뉴 가져오기
-                const menus = await getMenusByRestaurantAndDate(restaurant, date);
-                const filteredMenus = menus.filter(menu => menu.restaurant === restaurant && menu.date === date);
-                setMenuData(filteredMenus);
+                const menus = await getMenusWithRatings(restaurant, date);
+                if (Array.isArray(menus)) {
+                    // 선택된 메뉴 세트만 필터링
+                    const selectedMenuSet = menus.find(menu => menu.restaurant === restaurant && menu.date === date);
+                    if (selectedMenuSet) {
+                        setMenuData(selectedMenuSet.foods); // 선택된 메뉴 세트의 음식만 설정
+                    } else {
+                        console.error("No menu set found for the given restaurant and date.");
+                    }
 
-                // 평점 가져오기
-                const ratingsData = await getRatingsByRestaurantAndDate(restaurant, date);
-                const totalRatings = ratingsData.reduce((acc: number, item: any) => {
-                    item.foods.forEach((food: any) => {
-                        acc += food.total_rating; // 총 평점 합산
-                    });
-                    return acc;
-                }, 0);
+                    // 평점 계산
+                    const totalRatings = menus.reduce((acc: number, menu: any) => {
+                        menu.foods.forEach((food: any) => {
+                            acc += food.total_rating;
+                        });
+                        return acc;
+                    }, 0);
 
-                const totalUsers = ratingsData.reduce((acc: number, item: any) => {
-                    item.foods.forEach((food: any) => {
-                        acc += food.users_count; // 사용자 수 합산
-                    });
-                    return acc;
-                }, 0);
+                    const totalUsers = menus.reduce((acc: number, menu: any) => {
+                        menu.foods.forEach((food: any) => {
+                            acc += food.users_count;
+                        });
+                        return acc;
+                    }, 0);
 
-         // 종합 평점 계산
-         const average = totalUsers > 0 ? (totalRatings / totalUsers) : null; // 0으로 나누기 방지
-         setAverageRating(average ? parseFloat(average.toFixed(2)) : null); // 상태에 저장
+                    const average = totalUsers > 0 ? (totalRatings / totalUsers) : null;
+                    setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
+                } else {
+                    console.error("Expected an array but got:", menus);
+                }
+            } catch (error) {
+                console.error("Error fetching menu and ratings data:", error);
+            }
+        };
 
-     } catch (error) {
-         console.error("Error fetching menu and ratings data:", error);
-     }
- };
-
- fetchMenusAndRatings();
-}, [restaurant, date]);
+        fetchMenusAndRatings();
+    }, [restaurant, date]);
 
 
 
@@ -112,18 +109,15 @@ const handleNotRecommendClick = () => {
                     objectFit: 'cover'}} />
                     <div style={{display:'flex', flexDirection :'column', alignItems : 'flex-start',justifyContent : 'center'}}>
                     <ul>
-                        {menuData.map(menu => (
-                        <li key={menu.id}>
-                            <ul>
-                            {menu.foods.map((food : string, index : number) => (
-                                <li key={index}>
-                                    {food}
-                               </li>
-                            ))}
-                            </ul>
-                        </li>
-                        ))}
-                    </ul>
+                            {menuData.length > 0 ? (
+                                menuData.map((food: { name: string; average_rating: number }, index: number) => (
+                                    <li key={index}>{food.name}</li> // 음식 이름
+                                ))
+                            ) : (
+                                <li>메뉴가 없습니다.</li> // 메뉴가 없을 경우
+                            )}
+                        </ul>
+
                         
                     </div>
                 </div>
@@ -205,7 +199,7 @@ const handleNotRecommendClick = () => {
                 </div>
             </div>
 
-            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={openModal}>
+            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} >
                 <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
                     borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px'
                 }}>
@@ -216,7 +210,6 @@ const handleNotRecommendClick = () => {
                 </div>
                
             </div>
-            <MainModal isOpen={isModalOpen} onClose={closeModal}  />
     </div>
 
   );

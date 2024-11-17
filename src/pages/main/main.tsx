@@ -9,7 +9,6 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import { getAllRestaurants, getMenusWithRatings } from '@apis/mainApi';
-import {Menu} from '@type/menus';
 
 export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -105,10 +104,9 @@ export const MainPage = () => {
 
 
   const handleStoreClick = (menuId: number) => {
-    const selectedMenu = menus.find(menu => menu.id === menuId);
-    if (selectedMenu) {
-      // 메뉴 ID 대신 식당 이름과 날짜를 URL에 포함하여 네비게이트
-      navigate(`/main-detail/${selectedMenu.restaurant}/${selectedMenu.date}`); // 식당 이름과 날짜 전달
+    const selectedMenuSet = menus.find(menu => menu.id === menuId);
+    if (selectedMenuSet) {
+      navigate(`/main-detail/${selectedMenuSet.restaurant}/${selectedMenuSet.date}`, { state: { selectedMenuSet } });
     } else {
       console.error("Invalid menu ID:", menuId);
     }
@@ -191,7 +189,7 @@ const handleNotRecommendClick = (index: number) => {
                     </div>
                     <div style={{ textAlign: 'right', alignItems: 'center', display: 'flex', justifyItems: 'center' }}>
                       <img src={Star} style={{ width: '20px', height: '20px', margin: '5px' }} />
-                      평점: {food.average_rating ? food.average_rating.toFixed(1) : 'N/A'} {/* 평점 표시 */}
+                       {food.average_rating ? food.average_rating.toFixed(1) : 'N/A'} {/* 평점 표시 */}
                     </div>
                   </li>
                 ))}
