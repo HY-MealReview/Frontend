@@ -188,7 +188,7 @@ const handleNotRecommendClick = (index: number) => {
                       • {food.name} {/* 음식 이름 */}
                     </div>
                     <div style={{ textAlign: 'right', alignItems: 'center', display: 'flex', justifyItems: 'center' }}>
-                      <img src={Star} style={{ width: '20px', height: '20px', margin: '5px' }} />
+                      <img src={Star} style={{width :'16px', height :'16px', marginRight : '5px'}}/>
                        {food.average_rating ? food.average_rating.toFixed(1) : 'N/A'} {/* 평점 표시 */}
                     </div>
                   </li>

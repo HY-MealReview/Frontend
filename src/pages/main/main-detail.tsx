@@ -27,35 +27,23 @@ export const MainDetailPage = () => {
 
 
     useEffect(() => {
+        // 메뉴 데이터 초기화
+        if (selectedMenuSet) {
+            setMenuData(selectedMenuSet.foods); // 선택된 메뉴 세트의 음식만 설정
+            return; // 이미 선택된 메뉴 세트가 있으므로 API 호출을 하지 않음
+        }
+
         const fetchMenusAndRatings = async () => {
             try {
                 const menus = await getMenusWithRatings(restaurant, date);
                 if (Array.isArray(menus)) {
-                    // 선택된 메뉴 세트만 필터링
                     const selectedMenuSet = menus.find(menu => menu.restaurant === restaurant && menu.date === date);
                     if (selectedMenuSet) {
-                        setMenuData(selectedMenuSet.foods); // 선택된 메뉴 세트의 음식만 설정
+                        setMenuData(selectedMenuSet.foods);
+                        calculateAverageRating(selectedMenuSet.foods); // 평균 별점 계산
                     } else {
                         console.error("No menu set found for the given restaurant and date.");
                     }
-
-                    // 평점 계산
-                    const totalRatings = menus.reduce((acc: number, menu: any) => {
-                        menu.foods.forEach((food: any) => {
-                            acc += food.total_rating;
-                        });
-                        return acc;
-                    }, 0);
-
-                    const totalUsers = menus.reduce((acc: number, menu: any) => {
-                        menu.foods.forEach((food: any) => {
-                            acc += food.users_count;
-                        });
-                        return acc;
-                    }, 0);
-
-                    const average = totalUsers > 0 ? (totalRatings / totalUsers) : null;
-                    setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
                 } else {
                     console.error("Expected an array but got:", menus);
                 }
@@ -66,6 +54,14 @@ export const MainDetailPage = () => {
 
         fetchMenusAndRatings();
     }, [restaurant, date]);
+
+    const calculateAverageRating = (foods: any[]) => {
+        const totalRatings = foods.reduce((acc, food) => acc + (food.average_rating || 0), 0);
+        const totalFoods = foods.length;
+        const average = totalFoods > 0 ? totalRatings / totalFoods : null;
+        setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
+    };
+
 
 
 
@@ -96,7 +92,7 @@ const handleNotRecommendClick = () => {
             <div className="topper" style={{display : 'flex', padding : '8px'}}>
                 <img src={goBack} style={{width: '24px', marginRight : '16px', cursor : 'pointer'}}                       
                 onClick={GoBack}/>
-                <div style={{fontSize : '16px', fontWeight:'bold'}}>식당</div>
+                <div style={{fontSize : '16px', fontWeight:'bold'}}>{restaurant}</div>
             </div>
             <div style={{display : 'flex',justifyContent : 'center', padding : '8px'}}>
                 <div className='menuContainer' style={{width:'100%', height:'150px', 
@@ -111,7 +107,14 @@ const handleNotRecommendClick = () => {
                     <ul>
                             {menuData.length > 0 ? (
                                 menuData.map((food: { name: string; average_rating: number }, index: number) => (
-                                    <li key={index}>{food.name}</li> // 음식 이름
+                                    <li key={index} style={{width : '184px',marginBottom : '4px',textAlign: 'left', fontSize:'12px', fontWeight : 'normal', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        {/* 음식 이름 */}
+                                        • {food.name}
+                                        <div style={{width :'50px', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <img src={star} style={{ width: '20px', height: '20px', margin: '5px' }} />
+                                        {food.average_rating ? food.average_rating.toFixed(1) : 'N/A'}
+                                        </div>
+                                    </li>
                                 ))
                             ) : (
                                 <li>메뉴가 없습니다.</li> // 메뉴가 없을 경우
@@ -133,7 +136,7 @@ const handleNotRecommendClick = () => {
                     <div className='totalScore' style={{display: 'flex', height : '81px'}}>
                         <div style={{display : 'flex', flexDirection :'column', alignItems : 'center', width : '165px'}}> 
                             <div className='score' style={{fontSize : '24px', color : "#6A6A6A"}}>
-                            <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating !== null ? averageRating : 'N/A'}</span>/5
+                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating !== null ? averageRating : 'N/A'}</span>/5
                             </div>
                             <div style={{fontSize : '12px', color : "#6A6A6A"}}>
                                 메뉴별 종합 별점
@@ -148,8 +151,8 @@ const handleNotRecommendClick = () => {
                             marginLeft : '6px', marginRight :'6px'}}/>
 
                         <div style={{display : 'flex', width :'165px'}}>
-                            <div style={{textAlign:'right', alignItems:'center', display : 'flex', justifyItems : 'center'}}>
-                                국밥류
+                            <div style={{width : '184px',marginBottom : '4px',textAlign: 'left', fontSize:'12px', fontWeight : 'normal', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                국밥류({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
                                 4.4
