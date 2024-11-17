@@ -22,8 +22,7 @@ export const adminLogin = async () => {
   }
 };
 
-
-//식당 id랑 이름
+// 모든 식당 가져오기
 export const getAllRestaurants = async () => {
   try {
     const response = await axiosInstance.get('/restaurant/all/');
@@ -34,52 +33,38 @@ export const getAllRestaurants = async () => {
   }
 };
 
-// 특정 식당의 메뉴 세트를 가져오는 함수
-export const getMenusByRestaurantAndDate = async (restaurant: string, date: string): Promise<Menu[]> => {
+// 특정 식당의 메뉴와 평점을 가져오는 함수
+export const getMenusWithRatings = async (restaurant: string, date: string) => {
   try {
     const tokens = await adminLogin();
-    console.log("발급된 토큰:", tokens);
-
-    // 메뉴 데이터를 가져옵니다.
-    const response = await axiosInstance.get<Menu[]>(`menu/detail/namedate/?restaurant=${restaurant}&date=${date}`, {
+    const menuResponse = await axiosInstance.get<Menu[]>(`menu/detail/namedate/?restaurant=${restaurant}&date=${date}`, {
       headers: {
         Authorization: `Bearer ${tokens.access}`, // 발급된 토큰을 헤더에 추가
       },
     });
 
-    console.log("Menu Data:", response.data);
-    return response.data;
+    const ratingsResponse = await axios.get(`restaurants/${restaurant}/${date}/ratings/`);
+
+    // 메뉴와 평점 결합
+    const menusWithRatings = menuResponse.data.map(menu => {
+      const foodsWithRatings = menu.foods.map((food: Food) => {
+        if (typeof food === 'object' && food !== null) {
+          return {
+            ...food,
+            average_rating: ratingsResponse.data[food.name]?.average_rating || 0, // 평점이 없으면 0으로 설정
+          };
+        }
+        return food; // food가 객체가 아닌 경우 원래 food를 반환 (이 부분은 잘못된 데이터에 대한 안전망)
+      });
+      return {
+        ...menu,
+        foods: foodsWithRatings,
+      };
+    });
+
+    return menusWithRatings;
   } catch (error) {
-    console.error("Failed to fetch menus:", error.response || error.message);
+    console.error("Failed to fetch menus with ratings:", error.response || error.message);
     throw error;
-  }
-};
-
-
-// 특정 식당의 메뉴에 속한 음식들에 대한 평점 출력 -> 한 식당의 메뉴마다의 평점
-export const getRatingsByRestaurantAndDate = async (restaurant: string, date: string) => {
-  try {
-    const response = await axios.get(`restaurants/${restaurant}/${date}/ratings/`);
-    return response.data; // 평점 데이터 반환
-  } catch (error) {
-    console.error("Failed to fetch ratings:", error);
-    throw error;
-  }
-};
-
-
-//별점 가져오기 
-export const fetchAverageRating = async (menuId: number) => {
-  try {
-    const response = await fetch(`/rating/food/${menuId}/average/`);
-    console.log("Response:", await response.text()); // 응답을 텍스트로 출력
-    if (!response.ok) {
-      throw new Error('별점을 가져오는 데 실패했습니다.');
-    }
-    const data = await response.json();
-    return data.average_rating; // 평균 별점 반환
-  } catch (error) {
-    console.error("Error fetching average rating:", error);
-    return null; // 오류 발생 시 null 반환
   }
 };

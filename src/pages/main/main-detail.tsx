@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
-import { getMenusByRestaurantAndDate } from '@apis/mainApi';
 import goBack from '@assets/main/goBack.webp';
 import Recommend from '@assets/main/Recommend.webp';
 import NoRecommend from "@assets/main/NoRecommend.webp";
@@ -8,7 +7,6 @@ import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import { getRatingsByRestaurantAndDate } from '@apis/mainApi';
 
 export const MainDetailPage = () => {
     const { restaurant='', date='' } = useParams<{ restaurant: string; date: string }>();
