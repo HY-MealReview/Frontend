@@ -7,6 +7,7 @@ import Recommend from '@assets/main/Recommend.webp';
 import Review from '@assets/main/review.webp';
 import { menus, Rating } from '@pages/main/main-types';
 import star from "@assets/main/star.webp";
+
 import { MainModal } from '@pages/main/mainModal';
 
 
