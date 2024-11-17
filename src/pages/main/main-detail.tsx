@@ -17,7 +17,7 @@ export const MainDetailPage = () => {
     const [isRecommended, setIsRecommended] = useState(false);//추천
     const [isNotRecommended, setIsNotRecommended] = useState(false);//비추천
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedMenu, setSelectedMenu] = useState<any | null>(null);
+    const [ setSelectedMenu] = useState<any | null>(null);
     const [averageRating, setAverageRating] = useState<number | null>(null); // 종합 평점 상태
 
     const openModal = (menu: any) => {
@@ -35,21 +35,6 @@ export const MainDetailPage = () => {
     const GoBack =() =>{
         navigate(`/`);
     }
-      // 별점 가져오기 함수
-    const fetchAverageRating = async (menuId: number) => {
-        try {
-        const response = await fetch(`/rating/food/${menuId}/average/`);
-        if (!response.ok) {
-            throw new Error('별점을 가져오는 데 실패했습니다.');
-        }
-        const data = await response.json();
-        return data.average_rating; // 평균 별점 반환
-        } catch (error) {
-        console.error("Error fetching average rating:", error);
-        return null; // 오류 발생 시 null 반환
-        }
-    };
-
 
     useEffect(() => {
         const fetchMenusAndRatings = async () => {
