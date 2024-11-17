@@ -77,6 +77,7 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
 
 export const getMenu = async (restaurant: string, date: string) => {
   try {
+    
     const response = await axiosInstance.get(`/restaurants/${restaurant}/${date}/ratings/`);
     console.log(response.data); // 응답 데이터 확인
     return response.data; // 평점 데이터 반환
@@ -88,7 +89,11 @@ export const getMenu = async (restaurant: string, date: string) => {
 
 export const recommendMenu = async (menuId: number, recommendation: boolean) => {
   try {
-    const response = await axios.put(`recommend/${menuId}/update/`, {
+    const tokens = await adminLogin();
+    const response = await axiosInstance.put(`/recommend/${menuId}/update/`, {
+      headers: {
+        Authorization: `Bearer ${tokens.access}`,
+      },
       menu: menuId,
       recommendation: recommendation,
     });
@@ -98,3 +103,4 @@ export const recommendMenu = async (menuId: number, recommendation: boolean) => 
     throw error;
   }
 };
+
