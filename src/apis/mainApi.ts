@@ -1,5 +1,6 @@
 import { axiosInstance } from '@apis/axiosInstance';
 import { Menu } from '@type/menus';
+import axios from 'axios';
 
 // 관리자 로그인 요청 함수
 export const adminLogin = async () => {
@@ -22,6 +23,8 @@ export const adminLogin = async () => {
   }
 };
 
+
+//식당 id랑 이름
 export const getAllRestaurants = async () => {
   try {
     const response = await axiosInstance.get('/restaurant/all/');
@@ -54,15 +57,17 @@ export const getMenusByRestaurantAndDate = async (restaurant: string, date: stri
 };
 
 // 특정 식당의 메뉴에 속한 음식들에 대한 평점 출력 -> 한 식당의 메뉴마다의 평점
-export const getRatingsByRestaurantAndDate = async (restaurant: string, date: string, time: string) => {
+
+export const getRatingsByRestaurantAndDate = async (restaurant: string, date: string) => {
   try {
-    const response = await axiosInstance.get(`food/ratings/?restaurant_name=${restaurant}&date=${date}&time=${time}/`);
-    return response.data;
+    const response = await axios.get(`restaurants/${restaurant}/${date}/ratings/`);
+    return response.data; // 평점 데이터 반환
   } catch (error) {
-    console.error("Failed to fetch ratings for restaurant and date:", error.response || error.message);
+    console.error("Failed to fetch ratings:", error);
     throw error;
   }
 };
+
 
 // 특정 메뉴의 모든 추천/비추천 출력
 export const getRecommendationCount = async (menuId: number): Promise<{ true_count: number; false_count: number; recommendation: boolean }> => {
@@ -92,5 +97,21 @@ export const setRecommendation = async (menuId: number, status: boolean): Promis
   } catch (error) {
     console.error("Failed to set recommendation:", error.response || error.message);
     throw error;
+  }
+};
+
+//별점 가져오기 
+export const fetchAverageRating = async (menuId: number) => {
+  try {
+    const response = await fetch(`/rating/food/${menuId}/average/`);
+    console.log("Response:", await response.text()); // 응답을 텍스트로 출력
+    if (!response.ok) {
+      throw new Error('별점을 가져오는 데 실패했습니다.');
+    }
+    const data = await response.json();
+    return data.average_rating; // 평균 별점 반환
+  } catch (error) {
+    console.error("Error fetching average rating:", error);
+    return null; // 오류 발생 시 null 반환
   }
 };

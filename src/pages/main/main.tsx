@@ -116,7 +116,8 @@ export const MainPage = () => {
   const handleStoreClick = (menuId: number) => {
     const selectedMenu = menus.find(menu => menu.id === menuId);
     if (selectedMenu) {
-      navigate(`/main-detail/${selectedMenu.restaurant}/${selectedMenu.date}`);
+      // 메뉴 ID 대신 식당 이름과 날짜를 URL에 포함하여 네비게이트
+      navigate(`/main-detail/${selectedMenu.restaurant}/${selectedMenu.date}`); // 식당 이름과 날짜 전달
     } else {
       console.error("Invalid menu ID:", menuId);
     }
