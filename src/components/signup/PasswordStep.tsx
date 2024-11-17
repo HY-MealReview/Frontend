@@ -70,6 +70,10 @@ export const PasswordStep = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    setSignupStatus("nickname");
+  };
+
   return (
     <div className="flex flex-col items-start w-[344px] mx-auto my-0 ">
       <strong className="block w-[344px] h-[30px] mb-[12px] text-[20px] font-normal text-[#1D1D1D] ">
@@ -173,7 +177,7 @@ export const PasswordStep = () => {
         className="fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
            text-[14px] font-bold text-white"
         disabled={!(inputValid.pw && inputValid.pwCheck)}
-        onClick={() => setSignupStatus("nickname")}
+        onClick={handleSubmit}
       >
         다음
       </button>

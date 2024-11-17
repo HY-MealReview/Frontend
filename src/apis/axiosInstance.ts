@@ -28,8 +28,8 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // 서버에서 응답을 받은 경우
-    if (error.response) {
+    // 서버에서 응답을 받은 경우 && 토큰 값이 만료된 경우
+    if (error.response?.status === 401) {
       console.log("Server responded with error:", error.response.status);
 
       try {

@@ -18,12 +18,12 @@ export const StudentIdStep = () => {
   };
 
   const handleSubmit = async () => {
-    const response = await checkIdRedundancy(inputValue);
-    // 중복 예외 처리
-    if (!response) {
-      setInputValid(false);
-      return;
-    }
+    // const response = await checkIdRedundancy(inputValue);
+    // // 중복 예외 처리
+    // if (!response) {
+    //   setInputValid(false);
+    //   return;
+    // }
     // 중복 아닐 때
     setSignupStatus("pw");
   };
