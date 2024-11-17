@@ -26,6 +26,25 @@ export const MainPage = () => {
   //const rating = menus.reduce((sum, item) => sum + item.average_rating, 0) /menus.length
   const navigate = useNavigate(); //페이지 이동하기
 
+
+  useEffect(() => {
+    // 오늘 날짜를 설정
+    const now = new Date();
+    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+    setDate(today); // 현재 날짜를 상태에 저장
+    setCurrentDate(now.toLocaleDateString()); // 현재 날짜를 포맷하여 상태에 저장
+
+    // 식사 시간 설정
+    const hours = now.getHours();
+    if (hours >= 0 && hours < 11) {
+      setMealTime('조식');
+    } else if (hours >= 11 && hours < 15) {
+      setMealTime('중식');
+    } else {
+      setMealTime('석식');
+    }
+  }, []);
+
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
