@@ -9,6 +9,10 @@ import NoImage from "@assets/main/NoImage.webp";
 //import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings} from '@apis/mainApi';
 
+interface RatingProps {
+    menuItems?: { name: string; average_rating: number }[]; // 메뉴 이름과 각 점수 (optional)
+  }
+
 export const MainDetailPage = () => {
     const { restaurant = '', date = '' } = useParams<{ restaurant: string; date: string }>();
     const location = useLocation();
@@ -25,27 +29,27 @@ export const MainDetailPage = () => {
         navigate(`/`);
     };
 
-
     useEffect(() => {
-        // 메뉴 데이터 초기화
         if (selectedMenuSet) {
-            setMenuData(selectedMenuSet.foods); // 선택된 메뉴 세트의 음식만 설정
-            return; // 이미 선택된 메뉴 세트가 있으므로 API 호출을 하지 않음
+            setMenuData(selectedMenuSet.foods);
+            calculateAverageRating(selectedMenuSet.foods);
+            return;
         }
 
         const fetchMenusAndRatings = async () => {
             try {
                 const menus = await getMenusWithRatings(restaurant, date);
                 if (Array.isArray(menus)) {
-                    const selectedMenuSet = menus.find(menu => menu.restaurant === restaurant && menu.date === date);
+                    const selectedMenuSet = menus.find(menu => menu.restaurant_name === restaurant && menu.menu_date === date);
                     if (selectedMenuSet) {
-                        setMenuData(selectedMenuSet.foods);
-                        calculateAverageRating(selectedMenuSet.foods); // 평균 별점 계산
-                    } else {
-                        console.error("No menu set found for the given restaurant and date.");
+                        // 메뉴 데이터와 별점 데이터 매핑
+                        const foodsWithRatings = selectedMenuSet.foods.map(food => ({
+                            ...food,
+                            average_rating: food.average_rating || 0, // 평점이 없으면 0으로 설정
+                        }));
+                        setMenuData(foodsWithRatings);
+                        calculateAverageRating(foodsWithRatings);
                     }
-                } else {
-                    console.error("Expected an array but got:", menus);
                 }
             } catch (error) {
                 console.error("Error fetching menu and ratings data:", error);
@@ -55,13 +59,14 @@ export const MainDetailPage = () => {
         fetchMenusAndRatings();
     }, [restaurant, date]);
 
+
+   
     const calculateAverageRating = (foods: any[]) => {
         const totalRatings = foods.reduce((acc, food) => acc + (food.average_rating || 0), 0);
         const totalFoods = foods.length;
         const average = totalFoods > 0 ? totalRatings / totalFoods : null;
         setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
     };
-
 
 
 
@@ -112,7 +117,7 @@ const handleNotRecommendClick = () => {
                                         • {food.name}
                                         <div style={{width :'50px', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                         <img src={star} style={{ width: '20px', height: '20px', margin: '5px' }} />
-                                        {food.average_rating ? food.average_rating.toFixed(1) : 'N/A'}
+                                        {food.average_rating ? food.average_rating.toFixed(1) : '0'}
                                         </div>
                                     </li>
                                 ))
@@ -136,7 +141,7 @@ const handleNotRecommendClick = () => {
                     <div className='totalScore' style={{display: 'flex', height : '81px'}}>
                         <div style={{display : 'flex', flexDirection :'column', alignItems : 'center', width : '165px'}}> 
                             <div className='score' style={{fontSize : '24px', color : "#6A6A6A"}}>
-                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating !== null ? averageRating : 'N/A'}</span>/5
+                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating !== null ? averageRating : '0'}</span>/5
                             </div>
                             <div style={{fontSize : '12px', color : "#6A6A6A"}}>
                                 메뉴별 종합 별점

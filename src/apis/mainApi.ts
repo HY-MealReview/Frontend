@@ -85,3 +85,16 @@ export const getMenu = async (restaurant: string, date: string) => {
     return []; // 에러 발생 시 빈 배열 반환
   }
 };
+
+export const recommendMenu = async (menuId: number, recommendation: boolean) => {
+  try {
+    const response = await axios.put(`/recommend/${menuId}/update/`, {
+      menu: menuId,
+      recommendation: recommendation,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating recommendation:", error);
+    throw error;
+  }
+};

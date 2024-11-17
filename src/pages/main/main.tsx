@@ -8,7 +8,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
-import { getAllRestaurants, getMenusWithRatings } from '@apis/mainApi';
+import { getAllRestaurants, getMenusWithRatings, recommendMenu } from '@apis/mainApi';
 
 export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -19,31 +19,9 @@ export const MainPage = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
   const [date, setDate] = useState<string>('2024-10-29');
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
-  const [recommendationStatus, setRecommendationStatus] = useState<string[]>(Array(menus.length).fill(null));
-  const [notRecommendationStatus, setNotRecommendationStatus] = useState<string[]>(Array(menus.length).fill(null));
-  const [recommendCount, setRecommendCount] = useState(0); //추천수 카운팅
-  const [NotRecommendCount, setNotRecommendCount] = useState(0); //추천수 카운팅
+  const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   //const rating = menus.reduce((sum, item) => sum + item.average_rating, 0) /menus.length
   const navigate = useNavigate(); //페이지 이동하기
-
-
-  useEffect(() => {
-    // 오늘 날짜를 설정
-    const now = new Date();
-    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD 형식
-    setDate(today); // 현재 날짜를 상태에 저장
-    setCurrentDate(now.toLocaleDateString()); // 현재 날짜를 포맷하여 상태에 저장
-
-    // 식사 시간 설정
-    const hours = now.getHours();
-    if (hours >= 0 && hours < 11) {
-      setMealTime('조식');
-    } else if (hours >= 11 && hours < 15) {
-      setMealTime('중식');
-    } else {
-      setMealTime('석식');
-    }
-  }, []);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -73,9 +51,20 @@ export const MainPage = () => {
     setSelectedRestaurant(restaurant);
     setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
 
-    // 상태 배열 초기화
-    setRecommendationStatus(Array(menuData.length).fill(null));
-    setNotRecommendationStatus(Array(menuData.length).fill(null));
+    const initialStates = await Promise.all(menuData.map(async (menu) => {
+      const response = await fetch(`/recommend/menu/${menu.id}/count/`);
+      return response.json();
+    }));
+
+    const updatedMenuStates = menuData.map((menu, i) => ({
+      id: menu.id,
+      recommendCount: initialStates[i].true_count,
+      notRecommendCount: initialStates[i].false_count,
+      recommendationStatus: null,
+      notRecommendationStatus: null,
+    }));
+
+    setMenuStates(updatedMenuStates);
   };
 
 
@@ -133,39 +122,42 @@ export const MainPage = () => {
   
 
 
-  const handleRecommendClick = (index: number) => {
-    setRecommendationStatus(prev => {
-        const newStatus = [...prev];
-        newStatus[index] = newStatus[index] === 'recommended' ? null : 'recommended';
-        // 비추천 상태를 해제
-        const newNotStatus = [...notRecommendationStatus];
-        newNotStatus[index] = null;
-        setNotRecommendationStatus(newNotStatus);
-        
-        const recommendCountChange = newStatus[index] === 'recommended' ? 1 : -1;
-        const newCount = Math.max(recommendCount + recommendCountChange, 0);
-        setRecommendCount(newCount);
-        
-        return newStatus;
-    });
+  const handleRecommendClick = async (index: number, menuId: number) => {
+    const newStatus = menuStates[index]?.recommendationStatus === 'recommended' ? null : 'recommended';
+    
+    // 상태 업데이트
+    const updatedMenuStates = [...menuStates];
+    if (updatedMenuStates[index]) { // 존재하는 경우에만 업데이트
+        updatedMenuStates[index].recommendationStatus = newStatus;
+        if (newStatus) {
+            updatedMenuStates[index].recommendCount += 1; // 추천 수 증가
+        } else {
+            updatedMenuStates[index].recommendCount -= 1; // 추천 수 감소
+        }
+        setMenuStates(updatedMenuStates);
+    }
 
+    // 백엔드에 요청 전송
+    await recommendMenu(menuId, true);
 };
 
-const handleNotRecommendClick = (index: number) => {
-    setNotRecommendationStatus(prev => {
-        const newStatus = [...prev];
-        newStatus[index] = newStatus[index] === 'NotRecommended' ? null : 'NotRecommended';
-        // 추천 상태를 해제
-        const newRecStatus = [...recommendationStatus];
-        newRecStatus[index] = null;
-        setRecommendationStatus(newRecStatus);
-        
-        const NotRecommendCountChange = newStatus[index] === 'NotRecommended' ? 1 : -1;
-        const newCount = Math.max(NotRecommendCount + NotRecommendCountChange, 0);
-        setNotRecommendCount(newCount);
-        
-        return newStatus;
-    });
+const handleNotRecommendClick = async (index: number, menuId: number) => {
+  const newStatus = menuStates[index]?.notRecommendationStatus === 'NotRecommended' ? null : 'NotRecommended';
+
+  // 상태 업데이트
+  const updatedMenuStates = [...menuStates];
+  if (updatedMenuStates[index]) { // 존재하는 경우에만 업데이트
+      updatedMenuStates[index].notRecommendationStatus = newStatus;
+      if (newStatus) {
+          updatedMenuStates[index].notRecommendCount += 1; // 비추천 수 증가
+      } else {
+          updatedMenuStates[index].notRecommendCount -= 1; // 비추천 수 감소
+      }
+      setMenuStates(updatedMenuStates);
+  }
+
+  // 백엔드에 요청 전송
+  await recommendMenu(menuId, false);
 };
 
 
@@ -221,7 +213,7 @@ const handleNotRecommendClick = (index: number) => {
                 
                   <div key={menu.id}  style={{ display: 'flex', flexDirection: 'row', alignItems:'center'}}>
                     <div style={{ fontSize: '12px', color: '#444444', marginBottom: '12px', marginRight : '20px'}}>
-                      추천 
+                      추천 {menuStates[index]?.recommendCount}
                       <div 
                       className="like-button" 
                       style={{
@@ -232,16 +224,16 @@ const handleNotRecommendClick = (index: number) => {
                         borderRadius: '10px',
                         cursor: 'pointer',
                         fontSize: '14px',
-                        fontWeight: recommendationStatus[index] === 'recommended' ? 'bold' : 'normal',
-                        color:  recommendationStatus[index] === 'recommended' ? '#134B84' : '#6A6A6A',
-                        border: recommendationStatus[index] === 'recommended' ? '2px solid #134B84' : '1px solid #F0F0F0',
+                        fontWeight: menuStates[index]?.recommendationStatus === 'recommended' ? 'bold' : 'normal',
+                        color:  menuStates[index]?.recommendationStatus ==='recommended' ? '#134B84' : '#6A6A6A',
+                        border:menuStates[index]?.recommendationStatus ==='recommended' ? '2px solid #134B84' : '1px solid #F0F0F0',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '9px',
                       }}
                       onClick={(event) => {
                         event.stopPropagation(); // 클릭 이벤트 전파 방지
-                        handleRecommendClick(index);
+                        handleRecommendClick(index, menu.id)
                       }}>
                       <img src={Recommend} style={{ width: '48px', height: 'auto', padding: '6px' }} alt="추천" />
                       추천
@@ -250,7 +242,7 @@ const handleNotRecommendClick = (index: number) => {
                     
 
                     <div style={{ fontSize: '12px', color: '#444444', marginBottom: '12px' }}>
-                      비추천
+                      비추천{menuStates[index]?.notRecommendCount}
                       <div 
                       style={{
                         width: '120px',
@@ -258,16 +250,16 @@ const handleNotRecommendClick = (index: number) => {
                         borderRadius: '10px',
                         cursor: 'pointer',
                         fontSize: '14px',
-                        fontWeight: notRecommendationStatus[index] === 'NotRecommended' ? 'bold' : 'normal',
-                        color:  notRecommendationStatus[index] === 'NotRecommended' ? '#134B84' : '#6A6A6A',
-                        border: notRecommendationStatus[index] === 'NotRecommended' ? '2px solid #134B84' : '1px solid #F0F0F0',
+                        fontWeight: menuStates[index]?.notRecommendationStatus ==='NotRecommended' ? 'bold' : 'normal',
+                        color:  menuStates[index]?.notRecommendationStatus ==='NotRecommended' ? '#134B84' : '#6A6A6A',
+                        border: menuStates[index]?.notRecommendationStatus === 'NotRecommended' ? '2px solid #134B84' : '1px solid #F0F0F0',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}
                       onClick={(event) => {
                         event.stopPropagation(); // 클릭 이벤트 전파 방지
-                        handleNotRecommendClick(index);
+                        handleNotRecommendClick(index, menu.id)
                       }}>
                       <img src={NoRecommend} style={{ width: '48px', height: 'auto', padding: '6px' }} alt="추천" />
                       비추천
