@@ -5,9 +5,10 @@ import { ChangeEvent, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
 export const PasswordStep = () => {
-  const { setSignupStatus } = useSignUpStatusStore(
+  const { setSignupStatus, setSignupFormData } = useSignUpStatusStore(
     useShallow((state) => ({
       setSignupStatus: state.setSignupStatus,
+      setSignupFormData: state.setSignupFormData,
     }))
   );
 
@@ -68,6 +69,11 @@ export const PasswordStep = () => {
         }
         break;
     }
+  };
+
+  const handleSubmit = async () => {
+    setSignupStatus("nickname");
+    setSignupFormData({ password: inputValue.pw });
   };
 
   return (
@@ -173,7 +179,7 @@ export const PasswordStep = () => {
         className="fixed bottom-[15%] left-1/2 -translate-x-1/2 w-[344px] h-[48px] rounded-[4px] bg-main disabled:bg-[#9E9E9E]
            text-[14px] font-bold text-white"
         disabled={!(inputValid.pw && inputValid.pwCheck)}
-        onClick={() => setSignupStatus("nickname")}
+        onClick={handleSubmit}
       >
         다음
       </button>
