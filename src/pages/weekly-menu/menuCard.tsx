@@ -20,7 +20,7 @@ function MenuCard({ imageSrc, menuItems }: MenuCardProps) {
     <div className="h-[150px] flex bg-white border-[1px] border-solid border-[#F0F0F0] rounded-lg mb-[8px] items-center">
       <div className="relative w-[148px] h-full flex justify-center items-center">
         <img
-          src={hasMenuItems  && hasImage ? `http://44.223.183.118${imageSrc}` : noImage}
+          src={hasMenuItems  && hasImage ? `https://hymeal.site${imageSrc}` : noImage}
           alt="Menu"
           className="w-full h-full object-cover rounded-l-lg"
         />
