@@ -7,7 +7,7 @@ import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import {getMenusWithRatings, getRecommendCount, recommendMenu} from '@apis/mainApi';
+import {getMenusWithRatings} from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
 
 

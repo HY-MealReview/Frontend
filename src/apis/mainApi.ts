@@ -7,7 +7,11 @@ export const getAllRestaurants = async () => {
   const response = await axiosInstance.get('/restaurant/all/');
   return response.data;
   } catch (error) {
-  console.error("Failed to fetch restaurants:", error.response || error.message);
+    if (error instanceof Error) {
+      console.error("Failed to fetch restaurants:", error.message);
+    } else {
+      console.error("Failed to fetch restaurants:", String(error));
+    }
   throw error;
   }
   };
@@ -19,7 +23,7 @@ export const getAllRestaurants = async () => {
      const menuResponse = await axiosInstance.get<Menu[]>(`menu/detail/namedate/?restaurant=${restaurant}&date=${date}`, {
      });
 
-    // 평점 가져오기
+    // ----평점 가져오기----
     const ratingsResponse = await axiosInstance.get(`restaurants/${restaurant}/${date}/ratings/`);
     
     // 로그를 추가하여 데이터 확인
@@ -32,8 +36,6 @@ export const getAllRestaurants = async () => {
         const foodRating = Array.isArray(ratingsResponse.data) 
           ? ratingsResponse.data.find((rating) => rating.name === foodName) 
           : null; // 배열이 아닐 경우 null로 설정
-      
-
         return {
           name: foodName,
           average_rating: foodRating ? foodRating.average_rating : 0, // 평점이 없으면 0으로 설정
@@ -47,11 +49,14 @@ export const getAllRestaurants = async () => {
 
      return menusWithRatings;
    } catch (error) {
-     console.error("Failed to fetch menus with ratings:", error.response || error.message);
+    if (error instanceof Error) {
+      console.error("Failed to fetch restaurants:", error.message);
+    } else {
+      console.error("Failed to fetch restaurants:", String(error));
+    }
      throw error;
    }
  };
-
 
 
 
@@ -68,6 +73,8 @@ export const getMenu = async (restaurant: string, date: string) => {
   }
 };
 
+
+//----추천 api----
 export const getRecommendCount = async (menu_id: number) => {
   try {
     const response = await axiosInstance.get(`recommend/menu/${menu_id}/count/`);
@@ -95,7 +102,7 @@ export const recommendMenu = async (menuId: number, recommendation: boolean) => 
 };
 
 
-//추천하기 버튼 눌렀을때 반영
+//추천하기 버튼 취소했을때 반영
 export const recommendCancelMenu = async (menuId: number, recommendation: boolean) => {
   try {
     const response = await axiosInstance.put(`/recommend/${menuId}/delete/`, 
