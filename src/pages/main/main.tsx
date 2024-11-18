@@ -96,10 +96,7 @@ export const MainPage = () => {
         console.log("menu.time:", menu.time); // 각 메뉴의 time 값 로그 출력
       });
 
-      // mealTime이 설정되지 않았으면 기본적으로 '중식'으로 설정
-      if (!mealTime) {
-        setMealTime("중식"); // 기본 시간대 설정
-      }
+
 
       // 시간대별 필터링 추가
       let filteredMenus = menuData.filter((menu) => {
@@ -122,7 +119,7 @@ export const MainPage = () => {
         console.log(
           `No ${mealTime} menus found. Trying with a different time.`
         );
-        const alternateMealTime = mealTime === "석식" ? "중식" : "석식";
+        const alternateMealTime = mealTime === "석식" ? "조식" : "석식";
         filteredMenus = menuData.filter((menu) => {
           return (
             menu.time.trim().toLowerCase() ===
