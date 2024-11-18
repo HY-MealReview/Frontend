@@ -48,6 +48,66 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
   }
 };
 
+//----특정 음식의 카테고리를 가져오는 함수-------
+export const getFoodCategory = async (foodName: string, restaurant: string) => {
+  try {
+    // 음식에 해당하는 카테고리 id를 가져오기 위한 food API 요청
+    const foodResponse = await axiosInstance.get(`/food/search/bynamerest`, {
+      params: {
+        food_name: foodName,
+        restaurant_name: restaurant,
+      },
+    });
+    
+    // foodResponse에서 카테고리 id 추출
+    const categoryId = foodResponse.data?.[0]?.category;
+    if (!categoryId) return null;
+
+    // 카테고리 id로 카테고리 name을 가져오는 API 요청
+    const categoryResponse = await axiosInstance.get(`/category/all/`);
+    const category = categoryResponse.data.find((category: { id: number; name: string }) => category.id === categoryId);
+
+    return category ? category.name : null;
+  } catch (error) {
+    console.error("Error fetching food category:", error);
+    return null;
+  }
+};
+
+export const getMenusWithCategories = async (restaurant: string, date: string) => {
+  try {
+    const menusResponse = await axiosInstance.get<Menu[]>(
+      `menu/detail/namedate/?restaurant=${restaurant}&date=${date}`,
+      {}
+    );
+
+    const menusWithCategories = await Promise.all(
+      menusResponse.data.map(async (menu) => {
+        const firstFood = menu.foods[0]; // foods[0]는 객체임
+        let firstFoodCategory = null;
+
+        if (firstFood) {
+          firstFoodCategory = await getFoodCategory(firstFood.name, menu.restaurant_name);
+        }
+
+        return {
+          ...menu,
+          firstFoodCategory,
+        };
+      })
+    );
+
+    return menusWithCategories;
+  } catch (error) {
+    console.error("Error fetching menus with categories:", error);
+    throw error;
+  }
+};
+
+
+
+
+
 export const getMenu = async (restaurant: string, date: string) => {
   try {
     const response = await axiosInstance.get(

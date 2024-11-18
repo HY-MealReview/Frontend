@@ -7,7 +7,7 @@ import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import {getMenusWithRatings} from '@apis/mainApi';
+import {getMenusWithRatings, getFoodCategory } from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
 import axios from "axios";
 
@@ -23,6 +23,7 @@ export const MainDetailPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [averageRating, setAverageRating] = useState<number | null>(null);
+    const [categoryName, setCategoryName] = useState<string | null>(null); // 카테고리명 상태 추가
 
     console.log(setRatings);
     const GoBack = () => {
@@ -58,6 +59,24 @@ export const MainDetailPage = () => {
 
         fetchMenusAndRatings();
     }, [restaurant, date, averageRating]);
+
+
+    //메뉴 배열에서 첫번째 메뉴의 카테고리 가져오기
+    useEffect(() => {
+        if (menuData.length > 0) {
+          // 첫 번째 음식의 카테고리명을 가져옴
+          const fetchCategoryName = async () => {
+            try {
+              const firstFoodName = menuData[0].name; // 첫 번째 음식 이름
+              const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리명 가져오기
+              setCategoryName(category || ""); // 가져온 카테고리명 설정
+            } catch (error) {
+              console.error("Error fetching category name:", error);
+            }
+          };
+          fetchCategoryName();
+        }
+      }, [menuData, restaurant]); 
 
 
    
@@ -135,10 +154,18 @@ const submitReview = async () => {
                     border : '1px solid #F0F0F0', borderRadius :'8px',
                     display : 'flex'
                 }}>
-                    <img src={NoImage} 
-                    style={{width : '148px', height : '150px', marginRight : '12px', 
-                    borderBottomLeftRadius : '8px', borderTopLeftRadius : '8px',
-                    objectFit: 'cover'}} />
+                    <img
+      src={selectedMenuSet?.image || NoImage} // selectedMenuSet의 image가 있으면 그걸 사용하고 없으면 NoImage 사용
+      style={{
+        width: '148px',
+        height: '150px',
+        marginRight: '12px',
+        borderBottomLeftRadius: '8px',
+        borderTopLeftRadius: '8px',
+        objectFit: 'cover',
+      }}
+      alt="Menu Image"
+    />
                     <div style={{display:'flex', flexDirection :'column', alignItems : 'flex-start',justifyContent : 'center'}}>
                     <ul>
                             {menuData.length > 0 ? (
@@ -188,7 +215,7 @@ const submitReview = async () => {
 
                         <div style={{display : 'flex', width :'165px'}}>
                             <div style={{width : '184px',marginBottom : '4px',textAlign: 'left', fontSize:'12px', fontWeight : 'normal', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                국밥류({restaurant})
+                            {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
                                 4.4

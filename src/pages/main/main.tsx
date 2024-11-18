@@ -397,9 +397,9 @@ export const MainPage = () => {
                   }}
                 />
                 <div
-                  style={{ margin: "12px", fontSize: "18px", color: "#888" }}
+                  style={{ margin: "12px", fontSize: "16px", color: "#888", display : 'flex', justifyContent : 'center', justifyItems:'center' }}
                 >
-                  준비된 메뉴가 없습니다
+                  • 오늘의 메뉴가 없습니다
                 </div>
               </div>
             </div>
@@ -429,14 +429,16 @@ export const MainPage = () => {
                   onClick={() => handleStoreClick(menu.id)}
                 >
                   <img
-                    src={NoImage}
+                    src={menu.photo ? menu.photo : NoImage}
                     className="menu-image"
                     style={{
                       width: "328px",
                       height: "auto",
                       alignItems: "center",
                     }}
+                    
                   />
+                  
                   <div style={{ margin: "12px" }}>
                     <ul
                       style={{
@@ -458,9 +460,10 @@ export const MainPage = () => {
                               width: "270px",
                               justifyContent: "space-between",
                               alignItems: "center",
+                              
                             }}
                           >
-                            <div>
+                            <div style={{fontSize : '16px'}}>
                               • {food.name} {/* 음식 이름 */}
                             </div>
                             <div
