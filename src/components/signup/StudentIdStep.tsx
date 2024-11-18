@@ -4,9 +4,10 @@ import { ChangeEvent, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
 export const StudentIdStep = () => {
-  const { setSignupStatus } = useSignUpStatusStore(
+  const { setSignupStatus, setSignupFormData } = useSignUpStatusStore(
     useShallow((state) => ({
       setSignupStatus: state.setSignupStatus,
+      setSignupFormData: state.setSignupFormData,
     }))
   );
   const [showFailedAlert, setShowFailedAlert] = useState<boolean>(false);
@@ -39,6 +40,7 @@ export const StudentIdStep = () => {
 
     // 중복 아닐 때
     setSignupStatus("pw");
+    setSignupFormData({ student_id: inputValue });
     setShowFailedAlert(false);
   };
 

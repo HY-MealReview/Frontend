@@ -2,15 +2,21 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "@assets/common/logo.svg";
 import eyeOpen from "@assets/login/eye_open.svg";
 import eyeClosed from "@assets/login/eye_closed.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSignUpStatusStore } from "@store/signupStore";
 import { requestLogin } from "@apis/login";
+import { useShallow } from "zustand/shallow";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const setSignupStatus = useSignUpStatusStore(
-    (state) => state.setSignupStatus
-  );
+  const { setSignupStatus, setSignupFormData, signupFormData } =
+    useSignUpStatusStore(
+      useShallow((state) => ({
+        setSignupStatus: state.setSignupStatus,
+        setSignupFormData: state.setSignupFormData,
+        signupFormData: state.signupFormData,
+      }))
+    );
   const [inputValue, setInputValue] = useState({
     student_id: "",
     password: "",
@@ -41,8 +47,13 @@ export const LoginPage = () => {
     // 로그인 변경 성공
     setShowFailedAlert(false);
     navigate("/");
-    console.log(response?.data);
   };
+
+  // 회원가입 폼 데이터 초기화
+  useEffect(() => {
+    setSignupFormData({ student_id: "", nickname: "", password: "" });
+    console.log(signupFormData);
+  }, []);
 
   return (
     <div className="relative flex flex-col items-center">

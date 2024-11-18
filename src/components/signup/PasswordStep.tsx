@@ -5,9 +5,10 @@ import { ChangeEvent, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
 export const PasswordStep = () => {
-  const { setSignupStatus } = useSignUpStatusStore(
+  const { setSignupStatus, setSignupFormData } = useSignUpStatusStore(
     useShallow((state) => ({
       setSignupStatus: state.setSignupStatus,
+      setSignupFormData: state.setSignupFormData,
     }))
   );
 
@@ -72,6 +73,7 @@ export const PasswordStep = () => {
 
   const handleSubmit = async () => {
     setSignupStatus("nickname");
+    setSignupFormData({ password: inputValue.pw });
   };
 
   return (

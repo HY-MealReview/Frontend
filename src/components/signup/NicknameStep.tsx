@@ -1,7 +1,17 @@
-import { ChangeEvent, useState } from "react";
+import { useSignUpStatusStore } from "@store/signupStore";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useShallow } from "zustand/shallow";
 
 export const NicknameStep = () => {
+  const { setSignupStatus, signupFormData, setSignupFormData } =
+    useSignUpStatusStore(
+      useShallow((state) => ({
+        setSignupStatus: state.setSignupStatus,
+        setSignupFormData: state.setSignupFormData,
+        signupFormData: state.signupFormData,
+      }))
+    );
   const [inputValue, setInputValue] = useState<string>("");
   const [inputValid, setInputValid] = useState<boolean>(false);
 
@@ -10,6 +20,10 @@ export const NicknameStep = () => {
     setInputValue(value);
     setInputValid(value.trim().length > 0);
   };
+
+  useEffect(() => {
+    console.log(signupFormData);
+  }, []);
 
   return (
     <div className="relative flex flex-col items-center w-full ">
