@@ -8,7 +8,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
-import { getAllRestaurants, getMenusWithRatings, recommendMenu } from '@apis/mainApi';
+import { getAllRestaurants, getMenusWithRatings, getRecommendCount, recommendMenu} from '@apis/mainApi';
 
 export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -30,6 +30,7 @@ export const MainPage = () => {
         if (Array.isArray(restaurantData)) {
           setRestaurants(restaurantData);
           if (restaurantData.length > 0) {
+            console.log("qqqqqq" + restaurantData[0].name)
             fetchMenus(restaurantData[0].name, 0); // 첫 번째 식당의 메뉴 보일 수 있게.
             setSelectedStoreIndex(0); // 첫 번째 식당 버튼을 선택 상태로 설정
           }
@@ -46,26 +47,50 @@ export const MainPage = () => {
 
 
   const fetchMenus = async (restaurant: string, index: number) => {
-    const menuData = await getMenusWithRatings(restaurant, date);
-    setMenus(menuData);
-    setSelectedRestaurant(restaurant);
-    setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
-
-    const initialStates = await Promise.all(menuData.map(async (menu) => {
-      const response = await fetch(`/recommend/menu/${menu.id}/count/`);
-      return response.json();
-    }));
-
-    const updatedMenuStates = menuData.map((menu, i) => ({
-      id: menu.id,
-      recommendCount: initialStates[i].true_count,
-      notRecommendCount: initialStates[i].false_count,
-      recommendationStatus: null,
-      notRecommendationStatus: null,
-    }));
-
-    setMenuStates(updatedMenuStates);
+    try {
+      const menuData = await getMenusWithRatings(restaurant, date);
+      console.log("menuData", menuData); // menuData가 제대로 받았는지 확인
+      setMenus(menuData);
+      setSelectedRestaurant(restaurant);
+      setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
+      console.log("111");
+  
+      const initialStates = await Promise.all(menuData.map(async (menu) => {
+        console.log(menu);
+        const response = await getRecommendCount(menu.id)
+        console.log("아아아아아아")
+        console.log(response);
+        return response;
+        
+      }));
+  
+      console.log("222");
+  
+      const updatedMenuStates = menuData.map((menu, i) => ({
+        id: menu,
+        recommendCount: initialStates[i].true_count,
+        notRecommendCount: initialStates[i].false_count,
+        recommendationStatus: null,
+        notRecommendationStatus: null,
+      }));
+  
+      console.log("ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", updatedMenuStates);
+      setMenuStates(updatedMenuStates);
+    } catch (error) {
+      console.error("fetchMenus에서 오류 발생:", error);
+    }
   };
+  
+
+  useEffect(() => {
+    console.log("zㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ", selectedStoreIndex);
+      // selectedStoreIndex가 null이 아닌 경우에만 접근
+      if (selectedStoreIndex !== null) {
+    console.log("추천 카운트 확인: ", menuStates);
+  }
+    
+  }, [menuStates, selectedStoreIndex]); // menuStates 또는 selectedStoreIndex가 바뀔 때마다 실행
+  
 
 
 
@@ -124,7 +149,6 @@ export const MainPage = () => {
 
   const handleRecommendClick = async (index: number, menuId: number) => {
     const newStatus = menuStates[index]?.recommendationStatus === 'recommended' ? null : 'recommended';
-    
     // 상태 업데이트
     const updatedMenuStates = [...menuStates];
     if (updatedMenuStates[index]) { // 존재하는 경우에만 업데이트
@@ -136,9 +160,8 @@ export const MainPage = () => {
         }
         setMenuStates(updatedMenuStates);
     }
-
     // 백엔드에 요청 전송
-    await recommendMenu(menuId, true);
+      await recommendMenu(menuId, true);
 };
 
 const handleNotRecommendClick = async (index: number, menuId: number) => {
@@ -157,7 +180,9 @@ const handleNotRecommendClick = async (index: number, menuId: number) => {
   }
 
   // 백엔드에 요청 전송
-  await recommendMenu(menuId, false);
+ 
+    await recommendMenu(menuId, false);
+
 };
 
 
