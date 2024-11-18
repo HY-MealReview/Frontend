@@ -102,15 +102,15 @@ export const createRecommend = async (
 };
 
 //추천하기 버튼 눌렀을때 반영
-export const recommendMenu = async (
-  menuId: number,
-  recommendation: boolean
-) => {
+export const recommendMenu = async (menuId: string, recommendation: string) => {
   try {
-    const response = await axiosInstance.put(`/recommend/${menuId}/update/`, {
-      menu: menuId,
-      recommendation: recommendation,
-    });
+    const response = await axiosInstance.put(
+      `/recommend/menu/${menuId}/update/`,
+      {
+        menu: menuId,
+        recommendation: recommendation,
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error updating recommendation:", error);

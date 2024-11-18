@@ -9,7 +9,6 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
-  createRecommend,
   getAllRestaurants,
   getMenusWithRatings,
   getRecommendCount,
@@ -207,8 +206,6 @@ export const MainPage = () => {
       } else if (hours >= 14 && hours < 24) {
         newMealTime = "석식";
       }
-
-      // 처음 상태가 중식으로 잘못 설정될 수 있으므로,
       // mealTime이 비어있으면 변경하는 코드 추가
       if (!mealTime) {
         setMealTime(newMealTime);
