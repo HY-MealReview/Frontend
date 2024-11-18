@@ -24,6 +24,7 @@ export const MainDetailPage = () => {
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [averageRating, setAverageRating] = useState<number | null>(null);
     const [categoryName, setCategoryName] = useState<string | null>(null); // 카테고리명 상태 추가
+    const [categoryRatings, setCategoryRatings] = useState<{ [category: string]: number }>({}); // 카테고리별 평균 평점 저장
 
     console.log(setRatings);
     const GoBack = () => {
@@ -50,6 +51,7 @@ export const MainDetailPage = () => {
                         }));
                         setMenuData(foodsWithRatings);
                         calculateAverageRating(foodsWithRatings);
+                        calculateCategoryRatings(selectedMenuSet.foods);
                     }
                 }
             } catch (error) {
@@ -86,6 +88,33 @@ export const MainDetailPage = () => {
         const average = totalFoods > 0 ? totalRatings / totalFoods : null;
         setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
     };
+
+     // 카테고리별 평점 계산
+     const calculateCategoryRatings = (foods: any[]) => {
+        const categoryScores: { [category: string]: number[] } = {};
+
+        // 음식의 카테고리를 기준으로 평점을 그룹화
+        foods.forEach((food: any) => {
+            const category = food.category; // 각 음식의 카테고리
+            const rating = food.average_rating || 0; // 음식의 평균 평점
+
+            if (!categoryScores[category]) {
+                categoryScores[category] = [];
+            }
+            categoryScores[category].push(rating);
+        });
+
+        // 카테고리별 평균 평점 계산
+        const ratings: { [category: string]: number } = {};
+        Object.keys(categoryScores).forEach((category) => {
+            const ratingsForCategory = categoryScores[category];
+            const averageRating = ratingsForCategory.reduce((acc, score) => acc + score, 0) / ratingsForCategory.length;
+            ratings[category] = parseFloat(averageRating.toFixed(1)); // 소수점 첫째 자리까지 반올림
+        });
+
+        setCategoryRatings(ratings);
+    };
+
 
 
 
@@ -204,6 +233,25 @@ const submitReview = async () => {
                             <div style={{fontSize : '12px', color : "#6A6A6A"}}>
                                 메뉴별 종합 별점
                             </div>
+                            {/* 종합별점에 따라 별채우기 */}
+                <div style={{ display: 'flex', marginTop: '5px' }}>
+                    {[...Array(5)].map((_, index) => {
+                        const ratingForStar = averageRating ? averageRating - index : 0;
+                        return (
+                            <img
+                                key={index}
+                                src={ratingForStar >= 1 ? star : ratingForStar >= 0.5 ? NoImage : star} // `star`는 노란색 별, `NoImage`는 회색 별을 사용
+                                style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    margin: '0 3px',
+                                    filter: ratingForStar >= 1 ? 'none' : 'grayscale(100%)',
+                                }}
+                                alt="Star"
+                            />
+                        );
+                    })}
+                </div>
                             <div>
                             
                                 
@@ -218,7 +266,7 @@ const submitReview = async () => {
                             {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
-                                4.4
+                                {categoryRatings[menuData[0].category] || '0'}
                             </div>
 
                             </div>
