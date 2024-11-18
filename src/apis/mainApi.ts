@@ -1,27 +1,6 @@
 import { axiosInstance } from '@apis/axiosInstance';
 import {Menu} from '@type/menus';
 
-import axios from 'axios';
-
-// 관리자 로그인 요청 함수
-export const adminLogin = async () => {
-  const studentId = "0000000000"; // 관리자 ID 또는 student_id
-  const password = "admin0000"; // 관리자 비밀번호
-  try {
-    const response = await axiosInstance.post('users/token/', {
-      student_id: studentId, // 필수 항목으로 student_id 추가
-      password,
-    });
-    return response.data; // 반환되는 데이터에서 토큰 추출
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Failed to fetch restaurants:", error.message);
-    } else {
-      console.error("Unexpected error:", error);
-    }
-    throw error; 
-  }
-};
 
 
 export const getAllRestaurants = async () => {
@@ -38,47 +17,67 @@ export const getAllRestaurants = async () => {
 // 특정 식당의 메뉴와 평점을 가져오는 함수
  export const getMenusWithRatings = async (restaurant: string, date: string) => {
    try {
-     const tokens = await adminLogin();
      const menuResponse = await axiosInstance.get<Menu[]>(`menu/detail/namedate/?restaurant=${restaurant}&date=${date}`, {
-       headers: {
-         Authorization: `Bearer ${tokens.access}`,
-       },
      });
-     console.log("dsdwdwdwdscxsc")
-     console.log( menuResponse.data[0])
+     console.log("메뉴 데이터 : "+ menuResponse.data[0])
 
-    // 평점 가져오기
-    const ratingsResponse = await axios.get(`restaurants/${restaurant}/${date}/ratings/`);
-    
-    // 로그를 추가하여 데이터 확인
-    console.log(ratingsResponse.data);
-
-    // 메뉴와 평점 결합
-    const menusWithRatings = menuResponse.data.map(menu => {
-      const foodsWithRatings = menu.foods.map(foodName => {
-        // ratingsResponse.data가 배열인지 확인 후 평점 찾기
-        const foodRating = Array.isArray(ratingsResponse.data) 
-          ? ratingsResponse.data.find((rating) => rating.name === foodName) 
-          : null; // 배열이 아닐 경우 null로 설정
-      
-
-        return {
-          name: foodName,
-          average_rating: foodRating ? foodRating.average_rating : 0, // 평점이 없으면 0으로 설정
-                  };
+     menuResponse.data.forEach(menu => {
+      console.log("현재 메뉴:", menu);
+      menu.foods.forEach(food => {
+        console.log("현재 음식:", food);
       });
-      return {
-        ...menu,
-        foods: foodsWithRatings,
-      };
     });
 
-     return menusWithRatings;
-   } catch (error) {
-     console.error("Failed to fetch menus with ratings:", error.response || error.message);
-     throw error;
-   }
- };
+    // 평점 가져오기
+    //const ratingsResponse = await axiosInstance.get(`rating/food/${food.id}}/average/`);
+    
+    // 로그를 추가하여 데이터 확인
+    //console.log("0000000000000000"+ratingsResponse.data);
+
+     // 각 메뉴의 foods 배열을 순회하며 평점 데이터 가져오기
+     const menusWithRatings = await Promise.all(
+      menuResponse.data.map(async (menu) => {
+        console.log("현재 메뉴:", menu);
+        const foodsWithRatings = await Promise.all(
+          menu.foods.map(async (foodName) => {
+            console.log("현재 음식:", foodName);
+
+            try {
+              // 각 음식 ID로 평점 데이터 요청
+              const ratingsResponse = await axiosInstance.get(
+                `rating/food/name/?name=${encodeURIComponent(foodName.average_rating)}`
+              );
+              console.log(`음식 ID ${foodName.id}의 평점 데이터:`, ratingsResponse.data);
+
+              return {
+                ...foodName,
+                average_rating: ratingsResponse.data.average_rating || 0, // 평점이 없으면 0으로 설정
+              };
+            } catch (error) {
+              console.error(
+                `음식 ID ${foodName.id}의 평점을 가져오는 중 오류 발생:`,
+                error.response || error.message
+              );
+        return {
+          ...foodName,
+          average_rating: 0, // 오류 발생 시 기본값 설정
+        };
+      }
+    })
+  );
+
+  return {
+    ...menu,
+    foods: foodsWithRatings,
+  };
+})
+);
+return menusWithRatings;
+} catch (error) {
+  console.error("Failed to fetch menus with ratings:", error.response || error.message);
+  throw error;
+}
+};
 
 
 
