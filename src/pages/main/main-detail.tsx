@@ -9,6 +9,7 @@ import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings} from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
+import axios from "axios";
 
 
 export const MainDetailPage = () => {
@@ -23,6 +24,7 @@ export const MainDetailPage = () => {
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [averageRating, setAverageRating] = useState<number | null>(null);
 
+    console.log(setRatings);
     const GoBack = () => {
         navigate(`/`);
     };
@@ -92,32 +94,33 @@ const openModal = () => {
     setIsModalOpen(true);
 };
 
-const closeModal = () => {
-    setIsModalOpen(false);
-};
-const handleRatingChange = (index: number, rating: number) => {
-    const newRatings = [...ratings];
-    newRatings[index] = rating; // 해당 음식의 별점 업데이트
-    setRatings(newRatings); // 상태 업데이트
-};
-
-const isReviewButtonEnabled = ratings.every(rating => rating > 0);
-
+//const isReviewButtonEnabled = ratings.every(rating => rating > 0);
 const submitReview = async () => {
     try {
-        for (let i = 0; i < menuData.length; i++) {
-            const response = await axiosInstance.post('/rating/', {
-                food: menuData[i].id,
-                rating: ratings[i],
-            });
-            console.log("리뷰가 성공적으로 제출되었습니다:", response.data);
+        const response = await axiosInstance.post('https://hymeal.site/rating/', {
+            food: menuData[0].id, // 첫 번째 음식 id
+            rating: ratings[0] // 첫 번째 음식 별점
+      });
+  
+      // 서버 응답 처리 (예: 성공 메시지)
+      if (response && response.data) {
+        console.log('리뷰 제출 성공:', response.data);
+        // 서버 응답에 따라 추가 작업 수행 (예: 모달 닫기)
+      } else {
+        console.error('서버에서 응답을 받지 못했습니다.');
+      }
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          // AxiosError로 타입 확인
+          console.error("서버 오류:", error.response?.status, error.response?.data);
+        } else {
+          console.error("네트워크 오류 또는 응답 없음");
         }
-        alert("모든 리뷰가 성공적으로 제출되었습니다.");
-    } catch (error) {
         console.error("리뷰 제출 중 오류 발생:", error);
-        alert("리뷰 제출에 실패했습니다.");
-    }
-};
+        return null;
+      }
+  };
+  
 
  return (
 
@@ -237,16 +240,20 @@ const submitReview = async () => {
 
             <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={openModal}>
     <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
-        borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px'
-    }}>
+        borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px',
+        cursor: ratings.every(rating => rating > 0) ? 'pointer' : 'not-allowed',
+    }} onClick={ratings.every(rating => rating > 0) ? submitReview : undefined}>
         <img src ={Review} style={{width :'20px', height : '20px'}}/>
-        <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}  onClick={isReviewButtonEnabled ? submitReview : undefined}>
+        <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}  >
             리뷰하기
         </div>
     </div>
 </div>
-<MainModal isOpen={isModalOpen} onClose={closeModal} menuData={menuData}  onRatingChange={handleRatingChange}   />
-    </div>
+<MainModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        menuData={menuData}
+      />      </div>
 
   );
 };
