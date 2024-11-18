@@ -9,10 +9,9 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
-  getAllRestaurants,
+  createRecommend,
   getMenusWithRatings,
   getRecommendCount,
-  recommendMenu,
 } from "@apis/mainApi";
 
 export const MainPage = () => {
