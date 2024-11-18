@@ -45,7 +45,6 @@ function App() {
               <Route path="/" element={<MainPage />} />
               <Route path="/main-detail/:restaurant/:date" element={<MainDetailPage />} />
               
-
               {/* login page */}
               <Route path="/login" element={<LoginPage />} />
 
