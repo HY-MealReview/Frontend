@@ -32,6 +32,14 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       console.log("Server responded with error:", error.response.status);
 
+      // 요청이 이미 재시도된 경우 중단
+      if (originalRequest._retry) {
+        return Promise.reject(error);
+      }
+
+      // 첫 번째 재시도
+      originalRequest._retry = true;
+
       try {
         const refresh = localStorage.getItem("refreshToken") as string;
         // refresh 토큰 있는 경우만 고려

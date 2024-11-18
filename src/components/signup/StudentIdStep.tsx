@@ -9,6 +9,7 @@ export const StudentIdStep = () => {
       setSignupStatus: state.setSignupStatus,
     }))
   );
+  const [showFailedAlert, setShowFailedAlert] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>("");
   const [inputValid, setInputValid] = useState<boolean>(true);
 
@@ -18,18 +19,31 @@ export const StudentIdStep = () => {
   };
 
   const handleSubmit = async () => {
-    // const response = await checkIdRedundancy(inputValue);
-    // // 중복 예외 처리
-    // if (!response) {
-    //   setInputValid(false);
-    //   return;
-    // }
+    // 학번 형식 확인
+    if (inputValue.length !== 10) {
+      setShowFailedAlert(true);
+      const timer = setTimeout(() => {
+        setShowFailedAlert(false);
+      }, 2000);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+
+    const response = await checkIdRedundancy(inputValue);
+    // 중복 예외 처리
+    if (!response) {
+      setInputValid(false);
+      return;
+    }
+
     // 중복 아닐 때
     setSignupStatus("pw");
+    setShowFailedAlert(false);
   };
 
   return (
-    <div className="flex flex-col items-center w-full ">
+    <div className="relative flex flex-col items-center w-full ">
       <strong className="block w-[344px] h-[60px] mb-[12px] text-[20px] font-normal text-[#1D1D1D] ">
         학생인증을 위해 <br />
         <span className="font-bold">학번</span>을 입력해주세요
@@ -43,8 +57,14 @@ export const StudentIdStep = () => {
         onChange={handleInputValid}
       />
 
+      {showFailedAlert && (
+        <div className="absolute top-1/3 flex justify-center items-center w-[344px] h-[64px] rounded-[8px] bg-black-70 text-[16px] font-medium text-white animate-fadeUpToDown">
+          올바른 학번 형식이 아닙니다
+        </div>
+      )}
+
       {!inputValid && (
-        <span className="absolute top-[115px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
+        <span className="absolute top-[125px] left-[30px] text-[12px] font-medium text-[#FF3B30]">
           ※ 중복된 닉네임입니다
         </span>
       )}
