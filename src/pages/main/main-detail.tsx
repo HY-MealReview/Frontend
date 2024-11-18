@@ -7,8 +7,8 @@ import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import {getMenusWithRatings} from '@apis/mainApi';
-import axios from "axios";
+import {getMenusWithRatings, getRecommendCount, recommendMenu} from '@apis/mainApi';
+import { axiosInstance } from "@apis/axiosInstance";
 
 
 export const MainDetailPage = () => {
@@ -106,7 +106,7 @@ const isReviewButtonEnabled = ratings.every(rating => rating > 0);
 const submitReview = async () => {
     try {
         for (let i = 0; i < menuData.length; i++) {
-            const response = await axios.post('/rating/', {
+            const response = await axiosInstance.post('/rating/', {
                 food: menuData[i].id,
                 rating: ratings[i],
             });

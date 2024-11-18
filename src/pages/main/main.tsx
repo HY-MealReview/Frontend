@@ -20,7 +20,6 @@ export const MainPage = () => {
   const [date, setDate] = useState<string>('2024-10-29');
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0); 
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
-  //const rating = menus.reduce((sum, item) => sum + item.average_rating, 0) /menus.length
   const navigate = useNavigate(); //페이지 이동하기
 
   useEffect(() => {
@@ -30,7 +29,7 @@ export const MainPage = () => {
         if (Array.isArray(restaurantData)) {
           setRestaurants(restaurantData);
           if (restaurantData.length > 0) {
-            console.log("qqqqqq" + restaurantData[0].name)
+            console.log(restaurantData[0].name)
             fetchMenus(restaurantData[0].name, 0); // 첫 번째 식당의 메뉴 보일 수 있게.
             setSelectedStoreIndex(0); // 첫 번째 식당 버튼을 선택 상태로 설정
           }
@@ -50,21 +49,24 @@ export const MainPage = () => {
     try {
       const menuData = await getMenusWithRatings(restaurant, date);
       console.log("menuData", menuData); // menuData가 제대로 받았는지 확인
+
+      // --- 시간대별 필터링 추가 ---
+      const filteredMenus = menuData.filter((menu) => menu.time === mealTime); // 현재 시간대에 맞는 메뉴만 필터링
+      setMenus(filteredMenus);
+
+      setSelectedRestaurant(restaurant);
+      setSelectedStoreIndex(index);
+
+      const initialStates = await Promise.all(
+        filteredMenus.map(async (menu) => {
+          const response = await getRecommendCount(menu.id);
+          return response;
+        })
+      );
+
       setMenus(menuData);
       setSelectedRestaurant(restaurant);
       setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
-      console.log("111");
-  
-      const initialStates = await Promise.all(menuData.map(async (menu) => {
-        console.log(menu);
-        const response = await getRecommendCount(menu.id)
-        console.log("아아아아아아")
-        console.log(response);
-        return response;
-        
-      }));
-  
-      console.log("222");
   
       const updatedMenuStates = menuData.map((menu, i) => ({
         id: menu,
@@ -73,17 +75,22 @@ export const MainPage = () => {
         recommendationStatus: null,
         notRecommendationStatus: null,
       }));
-  
-      console.log("ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ", updatedMenuStates);
-      setMenuStates(updatedMenuStates);
+        setMenuStates(updatedMenuStates);
     } catch (error) {
       console.error("fetchMenus에서 오류 발생:", error);
     }
   };
+
+  // --- 4. 시간대 변경 시 메뉴 데이터 업데이트 ---
+  useEffect(() => {
+    if (selectedRestaurant && selectedStoreIndex !== null) {
+      fetchMenus(selectedRestaurant, selectedStoreIndex);
+    }
+  }, [mealTime, selectedRestaurant, selectedStoreIndex]);
   
 
   useEffect(() => {
-    console.log("zㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ", selectedStoreIndex);
+    console.log( selectedStoreIndex);
       // selectedStoreIndex가 null이 아닌 경우에만 접근
       if (selectedStoreIndex !== null) {
     console.log("추천 카운트 확인: ", menuStates);
@@ -111,7 +118,8 @@ export const MainPage = () => {
     },
   };
 
-  //시간 설정하기
+  
+// --- 1. 시간대 설정 로직 ---
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
@@ -119,27 +127,26 @@ export const MainPage = () => {
       setCurrentDate(now.toLocaleDateString(undefined, options));
 
       const hours = now.getHours();
-      if (hours >= 0 && hours < 10) {
-        setMealTime('아침');
-      } else if (hours >= 10 && hours < 14) {
-        setMealTime('점심');
+      if (hours >= 0 && hours < 11) {
+        setMealTime('조식');
+      } else if (hours >= 11 && hours < 15) {
+        setMealTime('중식');
       } else {
-        setMealTime('저녁');
+        setMealTime('석식');
       }
     };
 
     updateDateTime();
-    const interval = setInterval(updateDateTime, 60000); // 매 분마다 업데이트하기
+    const interval = setInterval(updateDateTime, 60000); // 매 분마다 업데이트
 
     return () => clearInterval(interval);
   }, []);
 
 
-
   const handleStoreClick = (menuId: number) => {
     const selectedMenuSet = menus.find(menu => menu.id === menuId);
     if (selectedMenuSet) {
-      navigate(`/main-detail/${selectedMenuSet.restaurant}/${selectedMenuSet.date}`, { state: { selectedMenuSet } });
+      navigate(`/main-detail/${selectedMenuSet.restaurant}/${selectedMenuSet.date}`, { state: { selectedMenuSet,menuStates } });
     } else {
       console.error("Invalid menu ID:", menuId);
     }
