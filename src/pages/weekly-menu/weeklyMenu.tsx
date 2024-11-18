@@ -8,7 +8,6 @@ import MenuCard from "./menuCard";
 import MenuCardAll from "./menuCardAll";
 import noimage from "../../assets/weekly/noImage.jpg";
 import { getMenu, getMenuByRestaurantAndDate } from "../../apis/weekly";
-import image from "../../assets/weekly/menuImage.webp";
 import noImage from "../../assets/weekly/noImage.jpg";
 
 interface Menu {
@@ -29,7 +28,6 @@ interface ImageResponse {
   photo: string; // 이미지 경로
 }
 
-
 export const WeeklyMenuPage = () => {
   const [selectedDay, setSelectedDay] = useState<string>("월");
   const [selectedDining, setSelectedDining] = useState<string>("전체");
@@ -48,7 +46,9 @@ export const WeeklyMenuPage = () => {
   const getDateForSelectedDay = (selectedDay: string) => {
     const today = new Date();
     const monday = getMonday(today); // 이번 주 월요일 계산
-    const targetDayIndex = ["월", "화", "수", "목", "금", "토", "일"].indexOf(selectedDay);
+    const targetDayIndex = ["월", "화", "수", "목", "금", "토", "일"].indexOf(
+      selectedDay
+    );
     const targetDate = new Date(monday);
     targetDate.setDate(monday.getDate() + targetDayIndex); // 월요일 기준으로 선택한 요일 더함
     return `${targetDate.getFullYear()}-${(targetDate.getMonth() + 1)
@@ -69,40 +69,50 @@ export const WeeklyMenuPage = () => {
     const fetchMenuData = async () => {
       try {
         if (selectedDining === "전체") {
-          const restaurants = ["학생식당", "창업보육센터", "창의인재원식당", "교직원식당"];
+          const restaurants = [
+            "학생식당",
+            "창업보육센터",
+            "창의인재원식당",
+            "교직원식당",
+          ];
           // 모든 식당 데이터를 병렬로 가져오기
           const allData = await Promise.all(
             restaurants.map((restaurant) => getMenu(restaurant, currentDate))
           );
           // 응답 데이터를 병합
-          const mergedData = allData.flat(); 
+          const mergedData = allData.flat();
           setMenuData(mergedData);
         } else {
           // 특정 식당 데이터 가져오기
           const data = await getMenu(selectedDining, currentDate);
-          const imageresponse = await getMenuByRestaurantAndDate(selectedDining, currentDate)
-          const mergedData = data.map((menu:Menu) => {
+          const imageresponse = await getMenuByRestaurantAndDate(
+            selectedDining,
+            currentDate
+          );
+          const mergedData = data.map((menu: Menu) => {
             // imageresponse에서 menu와 매칭되는 항목을 찾음
             const matchingImage = imageresponse.find(
-              (image:ImageResponse) =>
-                image.restaurant === menu.restaurant_name && image.date === menu.menu_date && image.time === menu.time
+              (image: ImageResponse) =>
+                image.restaurant === menu.restaurant_name &&
+                image.date === menu.menu_date &&
+                image.time === menu.time
             );
-            console.log(matchingImage)
+            console.log(matchingImage);
             return {
               ...menu, // 기존 menu 데이터
               photo: matchingImage.photo ? matchingImage.photo : noImage, // 매칭된 photo 추가
             };
           });
-          
+
           console.log(mergedData);
-          setMenuData(mergedData); 
+          setMenuData(mergedData);
         }
       } catch (error) {
         console.error("메뉴 데이터를 가져오는데 실패했습니다.", error);
         setMenuData([]); // 데이터 가져오기 실패 시
       }
     };
-  
+
     if (currentDate) {
       fetchMenuData();
     }
@@ -117,7 +127,7 @@ export const WeeklyMenuPage = () => {
       .filter((menu) => menu && menu.time) // menu와 menu.time이 모두 존재하는지 확인
       .filter((menu) => menu.time === time); // 원하는 time에 따라 필터링
   };
-  
+
   return (
     <div className="p-[8px] font-[Noto Sans] bg-white">
       <div className="flex justify-center items-center mt-[12px] mb-[20px]">
@@ -139,7 +149,6 @@ export const WeeklyMenuPage = () => {
         <div className="text-[12px] font-regular">08:00 - 09:00</div>
       </div>
       <div className="mt-[12px] mb-[12px]">
-
         {filteredMenuData("조식").length > 0 ? (
           filteredMenuData("조식").map((menu, index) =>
             selectedDining === "전체" ? (
@@ -155,10 +164,8 @@ export const WeeklyMenuPage = () => {
                 menuItems={menu.foods}
               />
             )
-            
           )
         ) : (
-          
           <MenuCard imageSrc={noimage} />
         )}
       </div>
@@ -218,7 +225,6 @@ export const WeeklyMenuPage = () => {
           <MenuCard imageSrc={noimage} />
         )}
       </div>
-
     </div>
   );
 };
