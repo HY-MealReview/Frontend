@@ -10,7 +10,7 @@ interface MainModalProps {
 
 export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
   const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
-  const [reviewIds, setReviewIds] = useState<(number | null)[]>(Array(menuData.length).fill(null)); // 리뷰 ID 상태
+  const [reviewIds, setReviewIds] = useState<(number | undefined)[]>(Array(menuData.length).fill(undefined));
 
   console.log(setReviewIds);
   if (!isOpen) return null;
@@ -60,13 +60,10 @@ export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
         const foodId = menuData[i].id;
         const rating = ratings[i];
         const reviewId = reviewIds[i];
-
-        // reviewId가 null이면 undefined로 변환하여 전달
-      const reviewIdToSend = reviewId !== null ? String(reviewId) : undefined;
-
+        
   
         // 리뷰가 있다면 PUT 요청, 없다면 POST 요청
-        const response = await submitReview(foodId, rating, reviewIdToSend);
+        const response = await submitReview(foodId, rating, reviewId);
   
         if (response) {
           console.log("리뷰 처리 성공:", response);

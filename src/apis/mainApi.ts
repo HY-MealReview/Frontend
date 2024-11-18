@@ -1,19 +1,7 @@
 import { axiosInstance } from "@apis/axiosInstance";
 import { Menu } from "@type/menus";
+import axios from "axios";
 
-export const getAllRestaurants = async () => {
-  try {
-    const response = await axiosInstance.get("/restaurant/all/");
-    return response.data;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Failed to fetch restaurants:", error.message);
-    } else {
-      console.error("Failed to fetch restaurants:", String(error));
-    }
-    throw error;
-  }
-};
 
 // 특정 식당의 메뉴와 평점을 가져오는 함수
 export const getMenusWithRatings = async (restaurant: string, date: string) => {
@@ -92,13 +80,14 @@ export const submitReview = async (foodId: number, rating: number, reviewId?: nu
       console.log("리뷰 제출 성공:", response.data);
       return response.data;
     }
-  } catch (error) {
-    console.error("리뷰 제출 중 오류 발생:", error);
-    if (error.response) {
-      console.error("서버 오류:", error.response.status, error.response.data);
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      // AxiosError로 타입 확인
+      console.error("서버 오류:", error.response?.status, error.response?.data);
     } else {
       console.error("네트워크 오류 또는 응답 없음");
     }
+    console.error("리뷰 제출 중 오류 발생:", error);
     return null;
   }
 };

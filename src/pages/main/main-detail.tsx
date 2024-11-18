@@ -9,6 +9,7 @@ import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings} from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
+import axios from "axios";
 
 
 export const MainDetailPage = () => {
@@ -23,6 +24,7 @@ export const MainDetailPage = () => {
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [averageRating, setAverageRating] = useState<number | null>(null);
 
+    console.log(setRatings);
     const GoBack = () => {
         navigate(`/`);
     };
@@ -92,12 +94,6 @@ const openModal = () => {
     setIsModalOpen(true);
 };
 
-const handleRatingChange = (index: number, rating: number) => {
-    const newRatings = [...ratings];
-    newRatings[index] = rating; // 해당 음식의 별점 업데이트
-    setRatings(newRatings); // 상태 업데이트
-};
-
 //const isReviewButtonEnabled = ratings.every(rating => rating > 0);
 const submitReview = async () => {
     try {
@@ -113,13 +109,16 @@ const submitReview = async () => {
       } else {
         console.error('서버에서 응답을 받지 못했습니다.');
       }
-    } catch (error) {
-      console.error('리뷰 제출 중 오류 발생:', error);
-      // error.response가 있을 경우 서버 오류 처리
-      if (error.response) {
-        console.error('서버 오류:', error.response.status, error.response.data);
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          // AxiosError로 타입 확인
+          console.error("서버 오류:", error.response?.status, error.response?.data);
+        } else {
+          console.error("네트워크 오류 또는 응답 없음");
+        }
+        console.error("리뷰 제출 중 오류 발생:", error);
+        return null;
       }
-    }
   };
   
 
@@ -254,7 +253,6 @@ const submitReview = async () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         menuData={menuData}
-        submitReview={submitReview}
       />      </div>
 
   );
