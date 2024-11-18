@@ -49,6 +49,9 @@ export const MainPage = () => {
     try {
       const menuData = await getMenusWithRatings(restaurant, date);
       console.log("menuData", menuData); // menuData가 제대로 받았는지 확인
+      setMenus(menuData);
+      setSelectedRestaurant(restaurant);
+      setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
 
       // --- 시간대별 필터링 추가 ---
       const filteredMenus = menuData.filter((menu) => menu.time === mealTime); // 현재 시간대에 맞는 메뉴만 필터링
@@ -58,15 +61,17 @@ export const MainPage = () => {
       setSelectedStoreIndex(index);
 
       const initialStates = await Promise.all(
-        filteredMenus.map(async (menu) => {
-          const response = await getRecommendCount(menu.id);
-          return response;
+        menuData.map(async (menu) => {
+          try {
+            const response = await getRecommendCount(menu.id);
+            return response;
+          } catch (error) {
+            console.error(`Failed to fetch recommend count for menu ID ${menu.id}:`, error);
+            return { true_count: 0, false_count: 0 }; // 기본값 반환
+          }
         })
       );
 
-      setMenus(menuData);
-      setSelectedRestaurant(restaurant);
-      setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
   
       const updatedMenuStates = menuData.map((menu, i) => ({
         id: menu,
