@@ -11,6 +11,7 @@ import { getMenu, getMenuByRestaurantAndDate } from "../../apis/weekly";
 import noImage from "../../assets/weekly/noImage.jpg";
 
 interface Menu {
+  menu_id: number;
   menu_date: string; // 메뉴 날짜
   restaurant_name: string; // 식당 이름
   time: string; // 식사 시간 (조식/중식/석식)
@@ -22,6 +23,7 @@ interface Menu {
 }
 
 interface ImageResponse {
+  id: number;
   restaurant: string; // 식당 이름
   date: string; // 메뉴 날짜
   time: string; // 식사 시간 (조식/중식/석식)
@@ -89,23 +91,36 @@ export const WeeklyMenuPage = () => {
             selectedDining,
             currentDate
           );
+          console.log(data)
+          console.log(imageresponse)
           const mergedData = data.map((menu: Menu) => {
             // imageresponse에서 menu와 매칭되는 항목을 찾음
             const matchingImage = imageresponse.find(
               (image: ImageResponse) =>
                 image.restaurant === menu.restaurant_name &&
                 image.date === menu.menu_date &&
-                image.time === menu.time
+                image.time === menu.time && image.id === menu.menu_id
             );
             console.log(matchingImage);
             return {
               ...menu, // 기존 menu 데이터
-              photo: matchingImage.photo ? matchingImage.photo : noImage, // 매칭된 photo 추가
+              photo: matchingImage?.photo || noImage, // 매칭된 photo 추가
             };
           });
 
-          console.log(mergedData);
-          setMenuData(mergedData);
+          const filteredFoods = mergedData.map((menu: Menu) => {
+            if (menu.foods && menu.foods.length > 0) {
+              const uniqueFoods = menu.foods.filter(
+                (food, index, self) =>
+                  index === self.findIndex((f) => f.id === food.id)
+              );
+              return { ...menu, foods: uniqueFoods };
+            }
+            return menu;
+          });
+  
+          console.log(filteredFoods);
+          setMenuData(filteredFoods);
         }
       } catch (error) {
         console.error("메뉴 데이터를 가져오는데 실패했습니다.", error);

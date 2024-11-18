@@ -21,7 +21,7 @@ export const getAllMenus = async () => {
     result.push(...response1.data);
     result.push(...response2.data);
     result.push(...response3.data);
-    return result;
+    return response1.data;
   };
   
   // 날짜와 메뉴 타입에 따라 메뉴 출력
