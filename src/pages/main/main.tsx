@@ -195,7 +195,7 @@ useEffect(() => {
 useEffect(() => {
   // mealTime이 변경될 때마다 메뉴를 다시 불러오는 로직
   console.log("Filtering menu with time:", mealTime);  // 디버깅용 로그 추가
-  if (selectedRestaurant && mealTime) {
+  if (selectedRestaurant && mealTime && selectedStoreIndex !== null) {
     console.log("Current mealTime:", mealTime);  // 디버깅용 로그 추가
     fetchMenus(selectedRestaurant, selectedStoreIndex);
   }
