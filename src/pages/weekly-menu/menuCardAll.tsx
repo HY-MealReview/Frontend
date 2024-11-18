@@ -1,10 +1,13 @@
 interface MenuCardProps {
   restaurant: string; // 식당 이름
-  rating: number; // 전체 별점
-  menuItems: { name: string; score: number }[]; // 메뉴 이름과 각 점수
+  menuItems: { name: string; average_rating:number; }[]; // 메뉴 이름과 각 점수
 }
 
-function MenuCardAll({ restaurant, rating, menuItems }: MenuCardProps) {
+function MenuCardAll({ restaurant, menuItems }: MenuCardProps) {
+
+  const rating = menuItems.reduce((sum, item) => sum + item.average_rating, 0) /menuItems.length
+   
+  
   return (
     <div className=" bg-white border-[1px] border-[#F0F0F0] border-solid px-[12px] py-[10px] rounded-lg mb-[8px] font-medium">
       {/* 식당 이름 */}
@@ -21,7 +24,7 @@ function MenuCardAll({ restaurant, rating, menuItems }: MenuCardProps) {
         {/* 전체 별점 */}
         <div className="flex justify-end items-center">
           <span className="text-[#F0F900] text-[20px]">★</span>
-          <span className="ml-[4px] text-[14px] font-bold">{rating}</span>
+          <span className="ml-[4px] text-[14px] font-bold">{rating.toFixed(1)}</span>
         </div>
       </div>
     </div>
