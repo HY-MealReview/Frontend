@@ -14,6 +14,14 @@ import {
   getRecommendCount,
 } from "@apis/mainApi";
 
+// 날짜를 `YYYY-MM-DD` 형식으로 포맷하는 함수
+const formatDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // 월은 0부터 시작하므로 +1
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export const MainPage = () => {
   const [currentDate, setCurrentDate] = useState<string>("");
   const [mealTime, setMealTime] = useState<string>("");
@@ -25,13 +33,19 @@ export const MainPage = () => {
   const [selectedStoreIndex, setSelectedStoreIndex] = useState<number | null>(
     null
   );
-  const [date, setDate] = useState<string>("2024-10-29");
+  const [date, setDate] = useState<string>(formatDate(new Date())); // 현재 날짜로 초기화
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   const navigate = useNavigate(); //페이지 이동하기
 
   console.log(setDate);
   console.log(currentSlideIndex);
+
+  // 날짜가 갱신될 때마다 동기화
+  useEffect(() => {
+    const today = new Date();
+    setDate(formatDate(today)); // 오늘 날짜로 설정
+  }, []);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -74,7 +88,7 @@ export const MainPage = () => {
 
   const fetchMenus = async (restaurant: string, index: number) => {
     try {
-      const menuData = await getMenusWithRatings(restaurant, date);
+      const menuData = await getMenusWithRatings(restaurant, date); // 동적으로 업데이트된 `date` 사용   
       console.log("menuData:", menuData); // 전체 메뉴 데이터를 확인
 
       // 메뉴 데이터에서 각 메뉴의 time 값을 출력하여 확인
@@ -263,6 +277,8 @@ export const MainPage = () => {
         updatedMenuStates[index].recommendCount -= 1; // 추천 수 감소
       }
       setMenuStates(updatedMenuStates);
+       // 로컬 스토리지에 상태 저장
+      localStorage.setItem('menuStates', JSON.stringify(updatedMenuStates));
     }
     // 백엔드에 요청 전송
     await createRecommend(menuId, true);
@@ -285,11 +301,15 @@ export const MainPage = () => {
         updatedMenuStates[index].notRecommendCount -= 1; // 비추천 수 감소
       }
       setMenuStates(updatedMenuStates);
+
+      // 로컬 스토리지에 상태 저장
+      localStorage.setItem('menuStates', JSON.stringify(updatedMenuStates));
     }
 
     // 백엔드에 요청 전송
     await createRecommend(menuId, false);
   };
+
 
   return (
     <div
