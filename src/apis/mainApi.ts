@@ -72,8 +72,38 @@ export const getMenu = async (restaurant: string, date: string) => {
     return []; // 에러 발생 시 빈 배열 반환
   }
 };
+//---------평점 보내기 -------
+export const submitReview = async (foodId: number, rating: number, reviewId?: number) => {
+  try {
+    if (reviewId) {
+      // PUT 요청: 리뷰 수정
+      const response = await axiosInstance.put(`/rating/${reviewId}/update/`, {
+        food: foodId,
+        rating: rating,
+      });
+      console.log("리뷰 수정 성공:", response.data);
+      return response.data;
+    } else {
+      // POST 요청: 리뷰 새로 추가
+      const response = await axiosInstance.post(`/rating/`, {
+        food: foodId,
+        rating: rating,
+      });
+      console.log("리뷰 제출 성공:", response.data);
+      return response.data;
+    }
+  } catch (error) {
+    console.error("리뷰 제출 중 오류 발생:", error);
+    if (error.response) {
+      console.error("서버 오류:", error.response.status, error.response.data);
+    } else {
+      console.error("네트워크 오류 또는 응답 없음");
+    }
+    return null;
+  }
+};
 
-//----추천 api----
+//-----------추천 api------------
 export const getRecommendCount = async (menu_id: number) => {
   try {
     const response = await axiosInstance.get(

@@ -92,32 +92,36 @@ const openModal = () => {
     setIsModalOpen(true);
 };
 
-const closeModal = () => {
-    setIsModalOpen(false);
-};
 const handleRatingChange = (index: number, rating: number) => {
     const newRatings = [...ratings];
     newRatings[index] = rating; // 해당 음식의 별점 업데이트
     setRatings(newRatings); // 상태 업데이트
 };
 
-const isReviewButtonEnabled = ratings.every(rating => rating > 0);
-
+//const isReviewButtonEnabled = ratings.every(rating => rating > 0);
 const submitReview = async () => {
     try {
-        for (let i = 0; i < menuData.length; i++) {
-            const response = await axiosInstance.post('/rating/', {
-                food: menuData[i].id,
-                rating: ratings[i],
-            });
-            console.log("리뷰가 성공적으로 제출되었습니다:", response.data);
-        }
-        alert("모든 리뷰가 성공적으로 제출되었습니다.");
+        const response = await axiosInstance.post('https://hymeal.site/rating/', {
+            food: menuData[0].id, // 첫 번째 음식 id
+            rating: ratings[0] // 첫 번째 음식 별점
+      });
+  
+      // 서버 응답 처리 (예: 성공 메시지)
+      if (response && response.data) {
+        console.log('리뷰 제출 성공:', response.data);
+        // 서버 응답에 따라 추가 작업 수행 (예: 모달 닫기)
+      } else {
+        console.error('서버에서 응답을 받지 못했습니다.');
+      }
     } catch (error) {
-        console.error("리뷰 제출 중 오류 발생:", error);
-        alert("리뷰 제출에 실패했습니다.");
+      console.error('리뷰 제출 중 오류 발생:', error);
+      // error.response가 있을 경우 서버 오류 처리
+      if (error.response) {
+        console.error('서버 오류:', error.response.status, error.response.data);
+      }
     }
-};
+  };
+  
 
  return (
 
@@ -237,16 +241,21 @@ const submitReview = async () => {
 
             <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={openModal}>
     <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
-        borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px'
-    }}>
+        borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px',
+        cursor: ratings.every(rating => rating > 0) ? 'pointer' : 'not-allowed',
+    }} onClick={ratings.every(rating => rating > 0) ? submitReview : undefined}>
         <img src ={Review} style={{width :'20px', height : '20px'}}/>
-        <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}  onClick={isReviewButtonEnabled ? submitReview : undefined}>
+        <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}  >
             리뷰하기
         </div>
     </div>
 </div>
-<MainModal isOpen={isModalOpen} onClose={closeModal} menuData={menuData}  onRatingChange={handleRatingChange}   />
-    </div>
+<MainModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        menuData={menuData}
+        submitReview={submitReview}
+      />      </div>
 
   );
 };
