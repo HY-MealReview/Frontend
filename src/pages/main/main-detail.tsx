@@ -2,12 +2,14 @@ import { useParams, useNavigate, useLocation  } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import goBack from '@assets/main/goBack.webp';
 import Recommend from '@assets/main/Recommend.webp';
+import RecommendClick from '@assets/main/RecommendedClicked.webp';
 import NoRecommend from "@assets/main/NoRecommend.webp";
+import NoRecommendClicked from "@assets/main/NoRecommendClicked.webp"
 import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import {getMenusWithRatings, getFoodCategory } from '@apis/mainApi';
+import {getMenusWithRatings, getFoodCategory, getRecommendCount} from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
 import axios from "axios";
 
@@ -20,6 +22,7 @@ export const MainDetailPage = () => {
     const navigate = useNavigate();
     const [isRecommended, setIsRecommended] = useState(false);
     const [isNotRecommended, setIsNotRecommended] = useState(false);
+    const [recommendCount, setRecommendCount] = useState<any | null>(null); // 추천 수 상태
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [averageRating, setAverageRating] = useState<number | null>(null);
@@ -30,6 +33,24 @@ export const MainDetailPage = () => {
     const GoBack = () => {
         navigate(`/`);
     };
+
+    useEffect(() => {
+        if (selectedMenuSet) {
+          fetchRecommendCount(selectedMenuSet.id); // 메뉴 세트의 ID로 추천 수 가져오기
+        }
+      }, [selectedMenuSet]);
+    
+
+      // 메뉴 세트 추천 수를 불러오는 함수
+  const fetchRecommendCount = async (menuSetId: number) => {
+    try {
+      const count = await getRecommendCount(menuSetId); // 메뉴 세트 ID로 추천 수 가져오기
+      setRecommendCount(count); // 추천 수 상태 업데이트
+    } catch (error) {
+      console.error("Error fetching recommend count:", error);
+    }
+  };
+
 
     useEffect(() => {
         if (selectedMenuSet) {
@@ -89,21 +110,25 @@ export const MainDetailPage = () => {
         setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
     };
 
-     // 카테고리별 평점 계산
-     const calculateCategoryRatings = (foods: any[]) => {
+    const calculateCategoryRatings = (foods: any[]) => {
         const categoryScores: { [category: string]: number[] } = {};
-
+    
         // 음식의 카테고리를 기준으로 평점을 그룹화
         foods.forEach((food: any) => {
             const category = food.category; // 각 음식의 카테고리
+    
+            if (!category) {
+                console.warn(`Category is missing for food: ${food.name}`);
+                return; // 카테고리가 없으면 건너뛰기
+            }
+    
             const rating = food.average_rating || 0; // 음식의 평균 평점
-
             if (!categoryScores[category]) {
                 categoryScores[category] = [];
             }
             categoryScores[category].push(rating);
         });
-
+    
         // 카테고리별 평균 평점 계산
         const ratings: { [category: string]: number } = {};
         Object.keys(categoryScores).forEach((category) => {
@@ -111,10 +136,23 @@ export const MainDetailPage = () => {
             const averageRating = ratingsForCategory.reduce((acc, score) => acc + score, 0) / ratingsForCategory.length;
             ratings[category] = parseFloat(averageRating.toFixed(1)); // 소수점 첫째 자리까지 반올림
         });
-
-        setCategoryRatings(ratings);
+    
+        console.log("Category ratings:", ratings); // 디버깅을 위한 로그 추가
+        setCategoryRatings(ratings); // 평점 계산 후 상태 설정
     };
+    
 
+    useEffect(() => {
+        if (selectedMenuSet) {
+            setMenuData(selectedMenuSet.foods);
+            calculateAverageRating(selectedMenuSet.foods);
+            calculateCategoryRatings(selectedMenuSet.foods);  // 여기에 categoryRatings를 설정하는 로직을 호출
+            return;
+        }
+    }, [selectedMenuSet]);
+    
+    
+    
 
 
 
@@ -168,7 +206,10 @@ const submitReview = async () => {
         return null;
       }
   };
-  
+  console.log("000000000000000000000"+categoryRatings); // categoryRatings 확인
+  console.log("000000000000000000000"+JSON.stringify(categoryRatings, null, 2));
+
+
 
  return (
 
@@ -204,7 +245,7 @@ const submitReview = async () => {
                                         • {food.name}
                                         <div style={{width :'50px', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                         <img src={star} style={{ width: '20px', height: '20px', margin: '5px' }} />
-                                        {food.average_rating ? food.average_rating.toFixed(1) : '0'}
+                                        {food.average_rating.toFixed(1)}
                                         </div>
                                     </li>
                                 ))
@@ -266,8 +307,9 @@ const submitReview = async () => {
                             {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
-                                {categoryRatings[menuData[0].category] || '0'}
-                            </div>
+                                {(categoryRatings[categoryName || ''] !== undefined ? categoryRatings[categoryName || ''].toFixed(1) : 'N/A')} 
+                                                           
+                                </div>
 
                             </div>
                         </div>
@@ -275,6 +317,7 @@ const submitReview = async () => {
                     </div>
                 </div>
             </div>
+            
 
             <div style={{border : '0.5px solid #f0f0f0', width : '100%'}}/>
 
@@ -282,8 +325,14 @@ const submitReview = async () => {
             {/* 추천/비추천 섹션 */}
             <div className='recommandBox' style={{height: '182px', display : 'flex', gap : '24px', justifyContent : 'center', alignItems : 'center'}}>
                 <div className='good' style={{width:'124px', height :'134px', display: 'flex', flexDirection : 'column',justifyContent : 'center', alignItems : 'center'}}>
-                    <div style={{color : '#444444', fontSize : '12px', marginBottom : '12px'}}>
+                    <div style={{color : '#444444', fontSize : '12px', marginBottom : '12px', display:'flex', gap:'5px'}}>
                         추천
+                        {recommendCount ? (
+        <div>{recommendCount.true_count}
+        </div>
+      ) : (
+        <p>불러오는 중...</p>
+      )}
                     </div>
                     <div style={{border : isRecommended ? '2px solid #134B84' : '1px solid #F0F0F0', 
                     fontWeight : isRecommended ? 'bold' : 'normal',
@@ -292,13 +341,24 @@ const submitReview = async () => {
                     cursor : 'pointer',
                         display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
                     }} onClick={handleRecommendClick}>
-                        <img src = {Recommend} style={{width:'48px', height : '48px'}}/>
+                        <img 
+                        src={
+                            isRecommended ?  RecommendClick // 추천 상태일 때의 이미지
+                            : Recommend // 추천되지 않은 상태일 때의 이미지
+                        }
+                        style={{width:'48px', height : '48px'}}/>
                         <div style={{fontSize:'14px'}}>추천</div>
                     </div>
                 </div>
                 <div className='bad' style={{width:'124px', height :'134px', display: 'flex', flexDirection : 'column',justifyContent : 'center', alignItems : 'center'}}>
-                    <div style={{color : '#444444', fontSize : '12px', marginBottom : '12px'}}>
+                    <div style={{color : '#444444', fontSize : '12px', marginBottom : '12px',display :'flex', gap:'5px'}}>
                         비추천
+                        {recommendCount ? (
+        <div>{recommendCount.false_count}
+        </div>
+      ) : (
+        <p>불러오는 중...</p>
+      )}
                     </div>
                     <div style={{border : isNotRecommended ? '2px solid #134B84' : '1px solid #F0F0F0', 
                     color : isNotRecommended ? '#134B84' : '#6A6A6A',
@@ -307,7 +367,12 @@ const submitReview = async () => {
                     cursor : 'pointer',
                         display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
                     }} onClick={handleNotRecommendClick}>
-                        <img src = {NoRecommend} style={{width:'48px', height : '48px'}}/>
+                        <img 
+                        src={
+                            isNotRecommended ?  NoRecommendClicked // 추천 상태일 때의 이미지
+                            : NoRecommend // 추천되지 않은 상태일 때의 이미지
+                        }
+                        style={{width:'48px', height : '48px'}}/>
                         <div style={{fontSize:'14px'}}>비추천</div>
                     </div>
                 </div>
