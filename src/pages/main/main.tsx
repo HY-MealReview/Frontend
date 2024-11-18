@@ -9,7 +9,6 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
-  getAllRestaurants,
   getMenusWithRatings,
   getRecommendCount,
   recommendMenu,
@@ -34,7 +33,7 @@ export const MainPage = () => {
   console.log(setDate);
   console.log(currentSlideIndex);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchRestaurants = async () => {
       try {
         const restaurantData = [
@@ -197,16 +196,14 @@ export const MainPage = () => {
       const hours = now.getHours();
       let newMealTime = mealTime;
 
-    // 시간에 맞는 mealTime 설정
-    if (hours >= 0 && hours < 11) {
-      newMealTime = '조식';
-    } else if (hours >= 11 && hours < 14) {
-      newMealTime = '중식';
-    } else if (hours >= 14 && hours < 24) {
-      newMealTime = '석식';
-    }
-    
- // 처음 상태가 중식으로 잘못 설정될 수 있으므로, 
+      // 시간에 맞는 mealTime 설정
+      if (hours >= 0 && hours < 11) {
+        newMealTime = "조식";
+      } else if (hours >= 11 && hours < 14) {
+        newMealTime = "중식";
+      } else if (hours >= 14 && hours < 24) {
+        newMealTime = "석식";
+      }
       // mealTime이 비어있으면 변경하는 코드 추가
       if (!mealTime) {
         setMealTime(newMealTime);

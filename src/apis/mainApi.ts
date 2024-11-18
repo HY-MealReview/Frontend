@@ -2,19 +2,6 @@ import { axiosInstance } from '@apis/axiosInstance';
 import {Menu} from '@type/menus';
 
 
-export const getAllRestaurants = async () => {
-  try {
-  const response = await axiosInstance.get('/restaurant/all/');
-  return response.data;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Failed to fetch restaurants:", error.message);
-    } else {
-      console.error("Failed to fetch restaurants:", String(error));
-    }
-  throw error;
-  }
-  };
 
 
 // 특정 식당의 메뉴와 평점을 가져오는 함수
@@ -86,9 +73,9 @@ export const getRecommendCount = async (menu_id: number) => {
 };
 
 //추천하기 버튼 눌렀을때 반영
-export const recommendMenu = async (menuId: number, recommendation: boolean) => {
+export const recommendMenu = async (menuId: string, recommendation: string) => {
   try {
-    const response = await axiosInstance.put(`/recommend/${menuId}/update/`, 
+    const response = await axiosInstance.put(`/recommend/menu/${menuId}/update/`, 
       {
         menu: menuId,
         recommendation: recommendation
