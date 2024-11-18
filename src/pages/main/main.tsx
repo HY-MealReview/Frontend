@@ -9,6 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
+  createRecommend,
   getAllRestaurants,
   getMenusWithRatings,
   getRecommendCount,
@@ -121,6 +122,7 @@ export const MainPage = () => {
       console.log("filteredMenus:", filteredMenus); // 필터링된 메뉴 확인
 
       setMenus(filteredMenus);
+      console.log(menus);
       setSelectedRestaurant(restaurant);
       setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
 
@@ -267,7 +269,7 @@ export const MainPage = () => {
       setMenuStates(updatedMenuStates);
     }
     // 백엔드에 요청 전송
-    await recommendMenu(menuId, true);
+    await createRecommend(menuId, true);
   };
 
   const handleNotRecommendClick = async (index: number, menuId: number) => {
@@ -290,8 +292,7 @@ export const MainPage = () => {
     }
 
     // 백엔드에 요청 전송
-
-    await recommendMenu(menuId, false);
+    await createRecommend(menuId, false);
   };
 
   return (
