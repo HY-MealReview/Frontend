@@ -171,9 +171,9 @@ useEffect(() => {
     // 시간에 맞는 mealTime 설정
     if (hours >= 0 && hours < 11) {
       newMealTime = '조식';
-    } else if (hours >= 11 && hours < 14) {
+    } else if (hours >= 11 && hours < 20) {
       newMealTime = '중식';
-    } else if (hours >= 14 && hours < 24) {
+    } else if (hours >= 20 && hours < 24) {
       newMealTime = '석식';
     }
     
