@@ -9,7 +9,6 @@ export const SignUpPage = () => {
   const { signupStatus } = useSignUpStatusStore(
     useShallow((state) => ({ signupStatus: state.signupStatus }))
   );
-  console.log(signupStatus);
 
   return (
     <SignUpLayout>
