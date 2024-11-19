@@ -12,7 +12,6 @@ import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings, getFoodCategory, getRecommendCount, createRecommend, recommendCancelMenu, getCategoryAverageRating} from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
 import axios from "axios";
-
 interface Food {
     name: string;
     average_rating: number;
@@ -24,17 +23,16 @@ export const MainDetailPage = () => {
     const location = useLocation();
     const selectedMenuSet = location.state?.selectedMenuSet;
     const [menuData, setMenuData] = useState<any[]>(selectedMenuSet?.foods || []);  
+    const menuSetId = selectedMenuSet?.id;
     const navigate = useNavigate();
-    const [isNotRecommended, setIsNotRecommended] = useState(false);
-    const [recommendCount, setRecommendCount] = useState<any | null>(null); // 추천 수 상태
-    const [isRecommended, setIsRecommended] = useState<boolean | null>(null); // 추천 여부 상태
+    const [isRecommended, setIsRecommended] = useState<boolean | null>(null); // 추천 상태
+    const [recommendCount, setRecommendCount] = useState<{ true_count: number; false_count: number } | null>(null); // 추천/비추천 수
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
     const [averageRating, setAverageRating] = useState<number>(0); // 카테고리 평균 평점 상태
     const openModal = () => setIsModalOpen(true);
 
-    console.log(setRatings);
     const GoBack = () => {
         navigate(`/`);
     };
@@ -44,10 +42,12 @@ export const MainDetailPage = () => {
           fetchRecommendCount(selectedMenuSet.id); // 메뉴 세트의 ID로 추천 수 가져오기
         }
       }, [selectedMenuSet]);
+
     
 
       // 메뉴 세트 추천 수를 불러오는 함수
   const fetchRecommendCount = async (menuSetId: number) => {
+    
     try {
       const count = await getRecommendCount(menuSetId); // 메뉴 세트 ID로 추천 수 가져오기
       setRecommendCount(count); // 추천 수 상태 업데이트
@@ -56,22 +56,40 @@ export const MainDetailPage = () => {
     }
   };
 
-  
-// 추천 클릭 처리
-const handleRecommendClick = async () => {
-    if (isRecommended === true) return; // 이미 추천이 눌러졌으면 다시 클릭하지 않음
-    if (isNotRecommended === false) return; // 비추천 상태에서는 추천 클릭이 불가능함
-  
-    try {
-      // 추천하기
-      await createRecommend(menuId, true); // menuId가 number이므로 변환할 필요 없음
-      setRecommendCount((prev) => ({ ...prev, true_count: prev.true_count + 1 }));
-      setIsRecommended(true); // 추천 상태로 설정
-      setIsNotRecommended(null); // 비추천 상태 초기화
-    } catch (error) {
-      console.error("추천에 실패했습니다.", error);
-    }
-  };
+    // 추천/비추천 클릭 핸들러
+    const handleRecommendClick = async (recommendation: boolean) => {
+        if (isRecommended === recommendation) {
+          // 이미 선택된 경우 취소
+          try {
+            await recommendCancelMenu(menuSetId, recommendation);
+            setIsRecommended(null);
+            setRecommendCount((prev) => 
+              prev ? {
+                true_count: recommendation ? prev.true_count - 1 : prev.true_count,
+                false_count: recommendation ? prev.false_count : prev.false_count - 1,
+              } : null
+            );
+          } catch (error) {
+            console.error("Error cancelling recommendation:", error);
+          }
+        } else {
+          // 선택되지 않은 경우 API 호출
+          try {
+            await createRecommend(menuSetId, recommendation);
+            setIsRecommended(recommendation);
+            setRecommendCount((prev) => 
+              prev ? {
+                true_count: recommendation ? prev.true_count + 1 : prev.true_count,
+                false_count: recommendation ? prev.false_count : prev.false_count + 1,
+              } : null
+            );
+          } catch (error) {
+            console.error("Error creating recommendation:", error);
+          }
+        }
+      };
+    
+
 
 
     useEffect(() => {
@@ -156,7 +174,7 @@ const handleRecommendClick = async () => {
 //const isReviewButtonEnabled = ratings.every(rating => rating > 0);
 const submitReview = async () => {
     try {
-        const response = await axiosInstance.post('https://hymeal.site/rating/', {
+        const response = await axiosInstance.post(`/rating/`, {
             food: menuData[0].id, // 첫 번째 음식 id
             rating: ratings[0] // 첫 번째 음식 별점
       });
@@ -304,16 +322,16 @@ const submitReview = async () => {
         <p>불러오는 중...</p>
       )}
                     </div>
-                    <div style={{border : isRecommended ? '2px solid #134B84' : '1px solid #F0F0F0', 
-                    fontWeight : isRecommended ? 'bold' : 'normal',
-                    color : isRecommended ? '#134B84' : '#6A6A6A',
+                    <div style={{border : isRecommended === true ?  '2px solid #134B84' : '1px solid #F0F0F0', 
+                    fontWeight : isRecommended === true ?  'bold' : 'normal',
+                    color : isRecommended === true ?  '#134B84' : '#6A6A6A',
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
                         display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
-                    }} onClick={handleRecommendClick}>
+                    }} onClick={() => handleRecommendClick(true)}>
                         <img 
                         src={
-                            isRecommended ?  RecommendClick // 추천 상태일 때의 이미지
+                            isRecommended === true ?   RecommendClick // 추천 상태일 때의 이미지
                             : Recommend // 추천되지 않은 상태일 때의 이미지
                         }
                         style={{width:'48px', height : '48px'}}/>
@@ -330,16 +348,16 @@ const submitReview = async () => {
         <p>불러오는 중...</p>
       )}
                     </div>
-                    <div style={{border : isNotRecommended ? '2px solid #134B84' : '1px solid #F0F0F0', 
-                    color : isNotRecommended ? '#134B84' : '#6A6A6A',
-                    fontWeight : isNotRecommended ? 'bold' : 'normal',
+                    <div style={{border : isRecommended === false ? '2px solid #134B84' : '1px solid #F0F0F0', 
+                    color : isRecommended === false ? '#134B84' : '#6A6A6A',
+                    fontWeight : isRecommended === false ? 'bold' : 'normal',
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
                         display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
-                    }} onClick={() => handleRecommendation(selectedMenuSet.id, true)}>
+                    }} onClick={() => handleRecommendClick(false)}>
                         <img 
                         src={
-                            isNotRecommended ?  NoRecommendClicked // 추천 상태일 때의 이미지
+                            isRecommended === false ? NoRecommendClicked // 추천 상태일 때의 이미지
                             : NoRecommend // 추천되지 않은 상태일 때의 이미지
                         }
                         style={{width:'48px', height : '48px'}}/>

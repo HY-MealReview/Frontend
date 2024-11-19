@@ -1,6 +1,5 @@
 import { axiosInstance } from "@apis/axiosInstance";
 import { Menu } from "@type/menus";
-import axios from "axios";
 
 
 // 특정 식당의 메뉴와 평점을 가져오는 함수
@@ -145,7 +144,7 @@ export const getMenusWithCategories = async (restaurant: string, date: string) =
 
 
 //------mainModal의 평점 매기기를 백으로 전달하는 api------------
-export const submitReviewAPI = async (foodId: number, rating: number) => {
+export const submitReviewAPI = async (foodId: string, rating: number) => {
   if (!foodId || !rating) {
       console.error("Missing foodId or rating:", { foodId, rating });
       return; // `foodId`나 `rating`이 없으면 리뷰를 제출하지 않음
