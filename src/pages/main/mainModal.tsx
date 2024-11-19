@@ -81,7 +81,7 @@ export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
   
   return (
     <div style={{ display: 'flex', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: '0', bottom: '0', width: '100%' }} onClick={onClose}>
-      <div style={{ backgroundColor: 'white', width: '100%', maxWidth: '400px', position: 'fixed', bottom: '54px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '8px' }} onClick={(event) => event.stopPropagation()}>
+      <div style={{ backgroundColor: 'white', width: '100%', maxWidth: '400px', position: 'fixed', bottom: '65px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '8px' }} onClick={(event) => event.stopPropagation()}>
         <div style={{ margin: '8px', display: 'flex', width: '344px', height: '48px', alignItems: 'center' }}>
           <img src={close} style={{ width: '20px', height: '20px', cursor: 'pointer' }} onClick={onClose} />
           <div style={{ fontWeight: 'bold', justifyContent: 'center', display: 'flex', flex: 1 }}>

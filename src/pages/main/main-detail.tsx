@@ -216,7 +216,7 @@ const submitReview = async () => {
                     display : 'flex'
                 }}>
                     <img
-      src={selectedMenuSet?.image || NoImage} // selectedMenuSet의 image가 있으면 그걸 사용하고 없으면 NoImage 사용
+      src={selectedMenuSet?.photo ? `https://hymeal.site/${selectedMenuSet.photo}` : NoImage}// selectedMenuSet의 image가 있으면 그걸 사용하고 없으면 NoImage 사용
       style={{
         width: '148px',
         height: '150px',
