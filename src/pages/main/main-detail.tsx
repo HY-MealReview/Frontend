@@ -9,9 +9,13 @@ import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import {getMenusWithRatings, getFoodCategory, getRecommendCount, createRecommend, recommendCancelMenu, getCategoryAverageRating} from '@apis/mainApi';
-import { axiosInstance } from "@apis/axiosInstance";
-import axios from "axios";
+import {getMenusWithRatings, 
+    getFoodCategory, 
+    getRecommendCount, 
+    createRecommend,
+    getFoodIdByName,
+    postRating
+} from '@apis/mainApi';
 interface Food {
     name: string;
     average_rating: number;
@@ -28,17 +32,24 @@ export const MainDetailPage = () => {
     const [isRecommended, setIsRecommended] = useState<boolean | null>(null); // 추천 상태
     const [recommendCount, setRecommendCount] = useState<{ true_count: number; false_count: number } | null>(null); // 추천/비추천 수
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
+    const [ratings, setRatings] = useState<{ [key: number]: number }>({}); // 각 음식 항목에 대한 별점 상태
     const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
     const [averageRating, setAverageRating] = useState<number | null>(null);
+
     
-    const openModal = () => setIsModalOpen(true);
-    console.log(setRatings);
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+      };
+      
+      const handleCloseModal = () => {
+        setIsModalOpen(false);
+      };    console.log(setRatings);
 
     const GoBack = () => {
         navigate(`/`);
     };
 
+    // 메뉴 세트의 ID로 추천 수 가져오기
     useEffect(() => {
         if (selectedMenuSet) {
           fetchRecommendCount(selectedMenuSet.id); // 메뉴 세트의 ID로 추천 수 가져오기
@@ -57,13 +68,12 @@ export const MainDetailPage = () => {
       console.error("Error fetching recommend count:", error);
     }
   };
-
     // 추천/비추천 클릭 핸들러
     const handleRecommendClick = async (recommendation: boolean) => {
         if (isRecommended === recommendation) {
           // 이미 선택된 경우 취소
           try {
-            await recommendCancelMenu(menuSetId, recommendation);
+            //await recommendCancelMenu(menuSetId, recommendation);
             setIsRecommended(null);
             setRecommendCount((prev) => 
               prev ? {
@@ -90,6 +100,28 @@ export const MainDetailPage = () => {
           }
         }
       };
+
+
+// -----메뉴 데이터에 menu_id(number)추가-----
+  useEffect(() => {
+    const addMenuIdToMenuData = async () => {
+      try {
+        const updatedMenuData = await Promise.all(
+          menuData.map(async (menuItem) => {
+            const menuId = await getFoodIdByName(menuItem.name);
+            return { ...menuItem, menu_id: menuId };
+          })
+        );
+        setMenuData(updatedMenuData);
+      } catch (error) {
+        console.error("Error adding menu_id to menuData:", error);
+      }
+    };
+    if (menuData.length > 0) {
+      addMenuIdToMenuData();
+    }
+  }, [menuData]);
+  
     
 
 
@@ -98,9 +130,9 @@ export const MainDetailPage = () => {
         if (selectedMenuSet) {
             setMenuData(selectedMenuSet.foods);
             calculateAverageRating(selectedMenuSet.foods);
+            categoryAverageRating(selectedMenuSet.foods);
             return;
         }
-
         const fetchMenusAndRatings = async () => {
             try {
                 const menus = await getMenusWithRatings(restaurant, date);
@@ -124,28 +156,25 @@ export const MainDetailPage = () => {
     }, [restaurant, date, averageRating]);
 
 
-    //메뉴 배열에서 첫번째 메뉴의 카테고리 가져오기
-    useEffect(() => {
-        if (menuData.length > 0) {
-          // 첫 번째 음식의 카테고리명을 가져옴
-          const fetchCategoryName = async () => {
-            try {
-              const firstFoodName = menuData[0].name; // 첫 번째 음식 이름
-              const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리명 가져오기
-              setCategoryName(category || ""); // 가져온 카테고리명 설정
-              if (category) {
-                // 카테고리 평균 평점 계산
-                const { averageRating } = await getCategoryAverageRating(firstFoodName);
-                setAverageRating(averageRating ?? null); // 평균값이 없으면 null 설정
-              }
-            } catch (error) {
-              console.error("Error fetching category data:", error);
-            }
-          };
+
+    //카테고리 Id를 가지고 카테고리의 이름 가져오기
+    const categoryAverageRating = (foods: Food[]) => {
+        if (!foods || foods.length === 0) return;
     
-          fetchCategoryName();
-        }
-      }, [menuData, restaurant]); 
+        const fetchCategoryNameAndRating = async () => {
+          try {
+            const firstFoodName = foods[0].name; // 첫 번째 음식 이름 가져오기
+            const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리 가져오기
+            setCategoryName(category || ""); // 가져온 카테고리 설정
+
+          } catch (error) {
+            console.error("Error fetching category data:", error);
+          }
+        };
+    
+        fetchCategoryNameAndRating();
+      };
+
 
 
 //----------------메뉴별 종합 평점----------------
@@ -173,33 +202,28 @@ export const MainDetailPage = () => {
     
 
 
-//const isReviewButtonEnabled = ratings.every(rating => rating > 0);
-const submitReview = async () => {
-    try {
-        const response = await axiosInstance.post(`/rating/`, {
-            food: menuData[0].id, // 첫 번째 음식 id
-            rating: ratings[0] // 첫 번째 음식 별점
-      });
-  
-      // 서버 응답 처리 (예: 성공 메시지)
-      if (response && response.data) {
-        console.log('리뷰 제출 성공:', response.data);
-        // 서버 응답에 따라 추가 작업 수행 (예: 모달 닫기)
-      } else {
-        console.error('서버에서 응답을 받지 못했습니다.');
-      }
-    } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-          // AxiosError로 타입 확인
-          console.error("서버 오류:", error.response?.status, error.response?.data);
-        } else {
-          console.error("네트워크 오류 또는 응답 없음");
-        }
-        console.error("리뷰 제출 중 오류 발생:", error);
-        return null;
-      }
+//---------별점 제출하기------------
+const handleRatingChange = (foodId: number, rating: number) => {
+    setRatings((prevRatings) => ({
+      ...prevRatings,
+      [foodId]: rating,
+    }));
   };
-  console.log("Menu Data:", menuData); // 메뉴 데이터의 확인용 로그 추가
+  
+  const handleReviewSubmit = () => {
+    // '리뷰 제출' 버튼 클릭 시, 음식 ID와 별점을 백엔드로 전송
+    const ratingRequests = Object.entries(ratings).map(([foodId, rating]) => ({
+      food: parseInt(foodId), // foodId를 숫자로 변환하여 전달
+      rating,
+    }));
+  
+    // 각 음식에 대한 별점 정보를 백엔드로 전송
+    ratingRequests.forEach((ratingData) => {
+      postRating(ratingData); // 여기서 food는 number로 전달됨
+    });
+  };
+  
+
 
 
  return (
@@ -289,7 +313,6 @@ const submitReview = async () => {
                                 
                             </div>
                         </div>
-
                         <div style = {{border : '0.5px solid #F0f0f0', height : '81px',
                             marginLeft : '6px', marginRight :'6px'}}/>
 
@@ -298,7 +321,7 @@ const submitReview = async () => {
                             {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
-                                {averageRating !== null ? averageRating.toFixed(1) : "N/A"}                                
+                                <div style={{fontSize:'8px', color:'gray'}}>No Info</div> 
                                 </div>
 
                             </div>
@@ -368,22 +391,27 @@ const submitReview = async () => {
                 </div>
             </div>
 
-            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={openModal}>
+            <div className='reviewButton' style={{padding : '8px', cursor :'pointer'}} onClick={handleOpenModal}>
     <div style={{width : '100%', height : '48px', backgroundColor : '#134B84',
         borderRadius : '4px', display :'flex', alignItems : 'center', justifyContent :'center', gap : '4px',
-        cursor: ratings.every(rating => rating > 0) ? 'pointer' : 'not-allowed',
-    }} onClick={ratings.every(rating => rating > 0) ? submitReview : undefined}>
+        cursor:  'pointer' ,
+    }} onClick={() => setIsModalOpen(true)}>
         <img src ={Review} style={{width :'20px', height : '20px'}}/>
         <div style={{color :'white', fontWeight :'bold', fontSize :'12px'}}  >
             리뷰하기
         </div>
     </div>
 </div>
-<MainModal
+{isModalOpen && (
+      <MainModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         menuData={menuData}
-      />      </div>
+        ratings={ratings}
+        onRatingChange={handleRatingChange}
+        onSubmit={handleReviewSubmit}
+      />
+    )}    </div>
 
   );
 };
