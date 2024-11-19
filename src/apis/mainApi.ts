@@ -144,7 +144,21 @@ export const getMenusWithCategories = async (restaurant: string, date: string) =
 };
 
 
+//------mainModal의 평점 매기기를 백으로 전달하는 api------------
+export const submitReviewAPI = async (foodId: number, rating: number) => {
+  if (!foodId || !rating) {
+      console.error("Missing foodId or rating:", { foodId, rating });
+      return; // `foodId`나 `rating`이 없으면 리뷰를 제출하지 않음
+  }
 
+  try {
+      const response = await axiosInstance.post(`/rating/`, { food: foodId, rating });
+      return response?.data || {}; // 응답이 없으면 빈 객체 반환
+  } catch (error) {
+      console.error("Error submitting review:", error);
+      throw error;
+  }
+};
 
 
 
@@ -164,37 +178,6 @@ export const getMenu = async (restaurant: string, date: string) => {
   } catch (error) {
     console.error("메뉴 데이터를 가져오는데 실패했습니다.", error);
     return []; // 에러 발생 시 빈 배열 반환
-  }
-};
-//---------평점 보내기 -------
-export const submitReview = async (foodId: number, rating: number, reviewId?: number) => {
-  try {
-    if (reviewId) {
-      // PUT 요청: 리뷰 수정
-      const response = await axiosInstance.put(`/rating/${reviewId}/update/`, {
-        food: foodId,
-        rating: rating,
-      });
-      console.log("리뷰 수정 성공:", response.data);
-      return response.data;
-    } else {
-      // POST 요청: 리뷰 새로 추가
-      const response = await axiosInstance.post(`/rating/`, {
-        food: foodId,
-        rating: rating,
-      });
-      console.log("리뷰 제출 성공:", response.data);
-      return response.data;
-    }
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      // AxiosError로 타입 확인
-      console.error("서버 오류:", error.response?.status, error.response?.data);
-    } else {
-      console.error("네트워크 오류 또는 응답 없음");
-    }
-    console.error("리뷰 제출 중 오류 발생:", error);
-    return null;
   }
 };
 

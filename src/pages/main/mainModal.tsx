@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import close from '@assets/main/close.webp';
-import { submitReview } from '@apis/mainApi';
+import { submitReviewAPI } from '@apis/mainApi'; 
 
 interface MainModalProps {
   isOpen: boolean;
@@ -10,9 +10,7 @@ interface MainModalProps {
 
 export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
   const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
-  const [reviewIds, setReviewIds] = useState<(number | undefined)[]>(Array(menuData.length).fill(undefined));
 
-  console.log(setReviewIds);
   if (!isOpen) return null;
 
   // 별점 변경 처리 함수
@@ -23,6 +21,28 @@ export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
     console.log(`음식 ${menuData[index].name}의 별점: ${rating}`);
     console.log('현재 선택된 별점들:', newRatings);
   };
+
+  const handleSubmitReview = async () => {
+    try {
+      for (let i = 0; i < menuData.length; i++) {
+        const foodId = menuData[i].name;  // 이름을 foodId로 사용
+        const rating = ratings[i];
+  
+        if (!foodId || !rating) {
+          console.error("Missing foodId or rating:", { foodId, rating });
+          continue;
+        }
+  
+        // submitReviewAPI 호출
+        await submitReviewAPI(foodId, rating);
+      }
+      console.log("모든 리뷰 제출 완료");
+    } catch (error) {
+      console.error('Error submitting review:', error);
+    }
+  };
+  
+  
 
   // -------- StarRating 컴포넌트 ---------
   const StarRating = ({ onRatingChange, initialRating }: { onRatingChange: (rating: number) => void, initialRating: number }) => {
@@ -53,33 +73,12 @@ export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
     );
   };
 
-  // 서버로 리뷰 제출 함수
-  const handleSubmitReview = async () => {
-    try {
-      for (let i = 0; i < menuData.length; i++) {
-        const foodId = menuData[i].id;
-        const rating = ratings[i];
-        const reviewId = reviewIds[i];
-        
-  
-        // 리뷰가 있다면 PUT 요청, 없다면 POST 요청
-        const response = await submitReview(foodId, rating, reviewId);
-  
-        if (response) {
-          console.log("리뷰 처리 성공:", response);
-        } else {
-          console.error("리뷰 처리 실패");
-        }
-      }
-    } catch (error) {
-      console.error("리뷰 제출 중 오류 발생:", error);
-    }
-  };
   
 
   // 모든 음식에 대해 별점이 선택되었는지 확인하는 함수
-  const isAllRatingsSelected = ratings.every((rating) => rating > 0);
+  const isAllRatingsSelected = ratings.every(rating => rating > 0);
 
+  
   return (
     <div style={{ display: 'flex', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: '0', bottom: '0', width: '100%' }} onClick={onClose}>
       <div style={{ backgroundColor: 'white', width: '100%', maxWidth: '400px', position: 'fixed', bottom: '54px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', padding: '8px' }} onClick={(event) => event.stopPropagation()}>
@@ -91,6 +90,7 @@ export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
         </div>
 
         <div>
+          <ul>
           {menuData.map((item, index) => (
             <li key={index} style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column' }}>
               <div style={{ textAlign: 'left', fontSize: '14px', fontWeight: 'normal' }}>"{item.name}" (은)는 어떠셨나요?</div>
@@ -102,6 +102,7 @@ export const MainModal = ({ isOpen, onClose, menuData }: MainModalProps) => {
               </div>
             </li>
           ))}
+        </ul>
         </div>
 
         <div className='summitButton' style={{ height: '48px', borderRadius: '4px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0', backgroundColor: isAllRatingsSelected ? '#134B84' : '#9E9E9E' }}>

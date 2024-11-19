@@ -32,7 +32,7 @@ export const MainDetailPage = () => {
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
     const [averageRating, setAverageRating] = useState<number>(0); // 카테고리 평균 평점 상태
-    const [categoryRatings, setCategoryRatings] = useState<{ [category: string]: number }>({}); // 카테고리별 평균 평점 저장
+    const openModal = () => setIsModalOpen(true);
 
     console.log(setRatings);
     const GoBack = () => {
@@ -72,42 +72,7 @@ const handleRecommendClick = async () => {
       console.error("추천에 실패했습니다.", error);
     }
   };
-  
-  // 비추천 클릭 처리
-  const handleNotRecommendClick = async () => {
-    if (isNotRecommended === false) return; // 이미 비추천이 눌러졌으면 다시 클릭하지 않음
-    if (isRecommended === true) return; // 추천 상태에서는 비추천 클릭이 불가능함
-  
-    try {
-      // 비추천하기
-      await createRecommend(menuId, false); // menuId가 number이므로 변환할 필요 없음
-      setRecommendCount((prev) => ({ ...prev, false_count: prev.false_count + 1 }));
-      setIsNotRecommended(false); // 비추천 상태로 설정
-      setIsRecommended(null); // 추천 상태 초기화
-    } catch (error) {
-      console.error("비추천에 실패했습니다.", error);
-    }
-  };
-  
-  // 추천/비추천 취소
-  const handleCancelRecommendation = async () => {
-    try {
-      if (isRecommended === null && isNotRecommended === null) return; // 선택되지 않은 경우 취소할 필요 없음
-  
-      await recommendCancelMenu(menuId, isRecommended !== null ? isRecommended : isNotRecommended);
-  
-      // 추천/비추천 취소 후 상태 초기화
-      setIsRecommended(null);
-      setIsNotRecommended(null);
-      setRecommendCount((prev) => ({
-        true_count: isRecommended ? prev.true_count - 1 : prev.true_count,
-        false_count: isNotRecommended ? prev.false_count - 1 : prev.false_count,
-      }));
-    } catch (error) {
-      console.error("추천 취소에 실패했습니다.", error);
-    }
-  };
-  
+
 
     useEffect(() => {
         if (selectedMenuSet) {
@@ -128,7 +93,6 @@ const handleRecommendClick = async () => {
                             average_rating: food.average_rating || 0, // 평점이 없으면 0으로 설정
                         }));
                         setMenuData(foodsWithRatings);
-                        calculateAverageRating(foodsWithRatings);
                     }
                 }
             } catch (error) {
@@ -187,14 +151,7 @@ const handleRecommendClick = async () => {
         }
     }, [selectedMenuSet]);
     
-    
-    
 
-
-
-const openModal = () => {
-    setIsModalOpen(true);
-};
 
 //const isReviewButtonEnabled = ratings.every(rating => rating > 0);
 const submitReview = async () => {
@@ -222,9 +179,7 @@ const submitReview = async () => {
         return null;
       }
   };
-  console.log("000000000000000000000"+categoryRatings); // categoryRatings 확인
-  console.log("000000000000000000000"+JSON.stringify(categoryRatings, null, 2));
-
+  console.log("Menu Data:", menuData); // 메뉴 데이터의 확인용 로그 추가
 
 
  return (
