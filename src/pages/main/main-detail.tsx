@@ -30,7 +30,8 @@ export const MainDetailPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
     const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
-    const [averageRating, setAverageRating] = useState<number>(0); // 카테고리 평균 평점 상태
+    const [averageRating, setAverageRating] = useState<number | null>(null);
+    
     const openModal = () => setIsModalOpen(true);
     console.log(setRatings);
 
@@ -134,7 +135,7 @@ export const MainDetailPage = () => {
               setCategoryName(category || ""); // 가져온 카테고리명 설정
               if (category) {
                 // 카테고리 평균 평점 계산
-                const { averageRating } = await getCategoryAverageRating(firstFoodName, restaurant);
+                const { averageRating } = await getCategoryAverageRating(firstFoodName);
                 setAverageRating(averageRating ?? null); // 평균값이 없으면 null 설정
               }
             } catch (error) {

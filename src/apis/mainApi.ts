@@ -227,15 +227,16 @@ export const recommendMenu = async (menuId: string, recommendation: string) => {
   }
 };
 
-//추천하기 버튼 취소했을때 반영
 export const recommendCancelMenu = async (
   menuId: number,
   recommendation: boolean
 ) => {
   try {
     const response = await axiosInstance.delete(`/recommend/${menuId}/delete/`, {
-      menu: menuId,
-      recommendation: recommendation,
+      data: {
+        menu: menuId,
+        recommendation: recommendation,
+      },
     });
     return response.data;
   } catch (error) {
