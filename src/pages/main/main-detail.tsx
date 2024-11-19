@@ -32,6 +32,7 @@ export const MainDetailPage = () => {
     const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
     const [averageRating, setAverageRating] = useState<number>(0); // 카테고리 평균 평점 상태
     const openModal = () => setIsModalOpen(true);
+    console.log(setRatings);
 
     const GoBack = () => {
         navigate(`/`);
@@ -311,7 +312,7 @@ const submitReview = async () => {
 
 
             {/* 추천/비추천 섹션 */}
-            <div className='recommandBox' style={{height: '182px', display : 'flex', gap : '24px', justifyContent : 'center', alignItems : 'center'}}>
+            <div className='recommndBox' style={{height: '182px', display : 'flex', gap : '24px', justifyContent : 'center', alignItems : 'center'}}>
                 <div className='good' style={{width:'124px', height :'134px', display: 'flex', flexDirection : 'column',justifyContent : 'center', alignItems : 'center'}}>
                     <div style={{color : '#444444', fontSize : '12px', marginBottom : '12px', display:'flex', gap:'5px'}}>
                         추천

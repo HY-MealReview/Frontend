@@ -2,6 +2,14 @@ import { axiosInstance } from "@apis/axiosInstance";
 import { Menu } from "@type/menus";
 
 
+interface Food {
+  id: number;
+}
+
+interface RatingResponse {
+  average_rating: number;
+}
+
 // 특정 식당의 메뉴와 평점을 가져오는 함수
 export const getMenusWithRatings = async (restaurant: string, date: string) => {
   try {
@@ -79,14 +87,15 @@ export const getCategoryAverageRating = async (category: string) => {
   try {
     // 1. 카테고리 이름으로 해당 카테고리의 모든 음식들 가져오기
     const foodsResponse = await axiosInstance.get(`/food/search/bycategory/?name=${category}/`);
+    const foods: Food[] = foodsResponse.data;
 
-    if (foodsResponse.data.length === 0) {
+    if (foods.length === 0) {
       return { averageRating: null }; // 음식이 없으면 평균 평점 없음
     }
 
     // 2. 각 음식의 평점 정보 가져오기
-    const ratingsPromises = foodsResponse.data.map((food: { id: number }) =>
-      axiosInstance.get(`/rating/food/${food.id}/average/`)
+    const ratingsPromises = foods.map((food) =>
+      axiosInstance.get<RatingResponse>(`/rating/food/${food.id}/average/`)
     );
 
     // 평점 정보를 모두 가져옴
@@ -94,33 +103,26 @@ export const getCategoryAverageRating = async (category: string) => {
 
     // 3. 모든 음식들의 평점 합산 및 평균 계산
     const totalRating = ratingsResponse.reduce(
-      (acc: number, response: any) => acc + response.data.average_rating,
+      (acc, response) => acc + response.data.average_rating,
       0
     );
-
-    const averageRating = totalRating / ratingsResponse.length; // 평균 평점 계산
-
-    // 4. 결과 반환
-    return {
-      averageRating: parseFloat(averageRating.toFixed(1)), // 소수점 첫째 자리까지
-    };
+    const averageRating = totalRating / foods.length;
+    return { averageRating };
   } catch (error) {
-    console.error("카테고리 평균 평점 계산 중 오류 발생:", error);
-    return { averageRating: null }; // 오류 시 평균값 없음 반환
+    console.error("Error fetching category average rating:", error);
+    return { averageRating: null }; // 에러 발생 시 null 반환
   }
 };
 
-
-
 export const getMenusWithCategories = async (restaurant: string, date: string) => {
   try {
-    const menusResponse = await axiosInstance.get(
+    const menusResponse = await axiosInstance.get<Menu[]>(
       `menu/detail/namedate/?restaurant=${restaurant}&date=${date}`,
       {}
     );
 
     const menusWithCategories = await Promise.all(
-      menusResponse.data.map(async (menu) => {
+      menusResponse.data.map(async (menu:Menu) => {
         const firstFood = menu.foods[0]; // foods[0]는 객체임
         let firstFoodCategory = null;
 
@@ -231,7 +233,7 @@ export const recommendCancelMenu = async (
   recommendation: boolean
 ) => {
   try {
-    const response = await axiosInstance.put(`/recommend/${menuId}/delete/`, {
+    const response = await axiosInstance.delete(`/recommend/${menuId}/delete/`, {
       menu: menuId,
       recommendation: recommendation,
     });

@@ -38,6 +38,7 @@ export const MainPage = () => {
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   const navigate = useNavigate(); //페이지 이동하기
   const [savedMenuStates, setSavedMenuStates] = useState<any[]>([]);
+  console.log(currentSlideIndex);
 
   const restaurantData = [
     {
@@ -234,8 +235,30 @@ const handleRecommendClick = async (index: number, menuId: number) => {
   // 백엔드에 상태 업데이트 요청
   await createRecommend(menuId, true);
 };
+// 추천 버튼 클릭 핸들러 수정
+const handleNotRecommendClick = async (index: number, menuId: number) => {
+  const newStatus =
+    menuStates[index]?.recommendationStatus === "notRecommended" ? null : "notRecommended";
 
-  
+  const updatedMenuStates = [...menuStates];
+  if (updatedMenuStates[index]) {
+    updatedMenuStates[index].recommendationStatus = newStatus;
+    if (newStatus) {
+      updatedMenuStates[index].recommendCount += 1;
+    } else {
+      updatedMenuStates[index].recommendCount -= 1;
+    }
+    console.log("click 후 updatedMenuStates값 (setMenuStates) ->")
+    console.log(updatedMenuStates)
+    setMenuStates(updatedMenuStates);
+    //recommendationStatus 잘저장됨
+  }
+
+  // 백엔드에 상태 업데이트 요청
+  await createRecommend(menuId, false);
+};
+
+
 
   // mealTime 값 확인용 로그
   useEffect(() => {
