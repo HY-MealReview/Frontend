@@ -49,6 +49,7 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
 };
 
 //----특정 음식의 카테고리를 가져오는 함수-------
+// 특정 음식의 카테고리를 가져오는 함수
 export const getFoodCategory = async (foodName: string, restaurant: string) => {
   try {
     // 음식에 해당하는 카테고리 id를 가져오기 위한 food API 요청
@@ -74,9 +75,47 @@ export const getFoodCategory = async (foodName: string, restaurant: string) => {
   }
 };
 
+// 특정 카테고리의 음식들에 대한 평균 평점 계산 함수
+export const getCategoryAverageRating = async (category: string) => {
+  try {
+    // 1. 카테고리 이름으로 해당 카테고리의 모든 음식들 가져오기
+    const foodsResponse = await axiosInstance.get(`/food/search/bycategory/?name=${category}/`);
+
+    if (foodsResponse.data.length === 0) {
+      return { averageRating: null }; // 음식이 없으면 평균 평점 없음
+    }
+
+    // 2. 각 음식의 평점 정보 가져오기
+    const ratingsPromises = foodsResponse.data.map((food: { id: number }) =>
+      axiosInstance.get(`/rating/food/${food.id}/average/`)
+    );
+
+    // 평점 정보를 모두 가져옴
+    const ratingsResponse = await Promise.all(ratingsPromises);
+
+    // 3. 모든 음식들의 평점 합산 및 평균 계산
+    const totalRating = ratingsResponse.reduce(
+      (acc: number, response: any) => acc + response.data.average_rating,
+      0
+    );
+
+    const averageRating = totalRating / ratingsResponse.length; // 평균 평점 계산
+
+    // 4. 결과 반환
+    return {
+      averageRating: parseFloat(averageRating.toFixed(1)), // 소수점 첫째 자리까지
+    };
+  } catch (error) {
+    console.error("카테고리 평균 평점 계산 중 오류 발생:", error);
+    return { averageRating: null }; // 오류 시 평균값 없음 반환
+  }
+};
+
+
+
 export const getMenusWithCategories = async (restaurant: string, date: string) => {
   try {
-    const menusResponse = await axiosInstance.get<Menu[]>(
+    const menusResponse = await axiosInstance.get(
       `menu/detail/namedate/?restaurant=${restaurant}&date=${date}`,
       {}
     );
@@ -89,7 +128,6 @@ export const getMenusWithCategories = async (restaurant: string, date: string) =
         if (firstFood) {
           firstFoodCategory = await getFoodCategory(firstFood.name, menu.restaurant_name);
         }
-
         return {
           ...menu,
           firstFoodCategory,
@@ -97,12 +135,20 @@ export const getMenusWithCategories = async (restaurant: string, date: string) =
       })
     );
 
+
     return menusWithCategories;
   } catch (error) {
     console.error("Error fetching menus with categories:", error);
     throw error;
   }
 };
+
+
+
+
+
+
+
 
 
 

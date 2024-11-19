@@ -482,9 +482,7 @@ export const MainPage = () => {
                                   marginRight: "5px",
                                 }}
                               />
-                              {food.average_rating
-                                ? food.average_rating.toFixed(1)
-                                : "N/A"}{" "}
+                              {food.average_rating.toFixed(1)}{" "}
                               {/* 평점 표시 */}
                             </div>
                           </li>

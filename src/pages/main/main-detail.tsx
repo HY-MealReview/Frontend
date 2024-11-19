@@ -9,7 +9,7 @@ import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
-import {getMenusWithRatings, getFoodCategory, getRecommendCount} from '@apis/mainApi';
+import {getMenusWithRatings, getFoodCategory, getRecommendCount, createRecommend, recommendCancelMenu, getCategoryAverageRating} from '@apis/mainApi';
 import { axiosInstance } from "@apis/axiosInstance";
 import axios from "axios";
 
@@ -20,13 +20,13 @@ export const MainDetailPage = () => {
     const selectedMenuSet = location.state?.selectedMenuSet;
     const [menuData, setMenuData] = useState<any[]>(selectedMenuSet?.foods || []);  
     const navigate = useNavigate();
-    const [isRecommended, setIsRecommended] = useState(false);
     const [isNotRecommended, setIsNotRecommended] = useState(false);
     const [recommendCount, setRecommendCount] = useState<any | null>(null); // 추천 수 상태
+    const [isRecommended, setIsRecommended] = useState<boolean | null>(null); // 추천 여부 상태
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [ratings, setRatings] = useState<number[]>(Array(menuData.length).fill(0)); // 각 음식별 별점
-    const [averageRating, setAverageRating] = useState<number | null>(null);
-    const [categoryName, setCategoryName] = useState<string | null>(null); // 카테고리명 상태 추가
+    const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
+    const [averageRating, setAverageRating] = useState<number>(0); // 카테고리 평균 평점 상태
     const [categoryRatings, setCategoryRatings] = useState<{ [category: string]: number }>({}); // 카테고리별 평균 평점 저장
 
     console.log(setRatings);
@@ -51,6 +51,58 @@ export const MainDetailPage = () => {
     }
   };
 
+  
+// 추천 클릭 처리
+const handleRecommendClick = async () => {
+    if (isRecommended === true) return; // 이미 추천이 눌러졌으면 다시 클릭하지 않음
+    if (isNotRecommended === false) return; // 비추천 상태에서는 추천 클릭이 불가능함
+  
+    try {
+      // 추천하기
+      await createRecommend(menuId, true); // menuId가 number이므로 변환할 필요 없음
+      setRecommendCount((prev) => ({ ...prev, true_count: prev.true_count + 1 }));
+      setIsRecommended(true); // 추천 상태로 설정
+      setIsNotRecommended(null); // 비추천 상태 초기화
+    } catch (error) {
+      console.error("추천에 실패했습니다.", error);
+    }
+  };
+  
+  // 비추천 클릭 처리
+  const handleNotRecommendClick = async () => {
+    if (isNotRecommended === false) return; // 이미 비추천이 눌러졌으면 다시 클릭하지 않음
+    if (isRecommended === true) return; // 추천 상태에서는 비추천 클릭이 불가능함
+  
+    try {
+      // 비추천하기
+      await createRecommend(menuId, false); // menuId가 number이므로 변환할 필요 없음
+      setRecommendCount((prev) => ({ ...prev, false_count: prev.false_count + 1 }));
+      setIsNotRecommended(false); // 비추천 상태로 설정
+      setIsRecommended(null); // 추천 상태 초기화
+    } catch (error) {
+      console.error("비추천에 실패했습니다.", error);
+    }
+  };
+  
+  // 추천/비추천 취소
+  const handleCancelRecommendation = async () => {
+    try {
+      if (isRecommended === null && isNotRecommended === null) return; // 선택되지 않은 경우 취소할 필요 없음
+  
+      await recommendCancelMenu(menuId, isRecommended !== null ? isRecommended : isNotRecommended);
+  
+      // 추천/비추천 취소 후 상태 초기화
+      setIsRecommended(null);
+      setIsNotRecommended(null);
+      setRecommendCount((prev) => ({
+        true_count: isRecommended ? prev.true_count - 1 : prev.true_count,
+        false_count: isNotRecommended ? prev.false_count - 1 : prev.false_count,
+      }));
+    } catch (error) {
+      console.error("추천 취소에 실패했습니다.", error);
+    }
+  };
+  
 
     useEffect(() => {
         if (selectedMenuSet) {
@@ -72,7 +124,6 @@ export const MainDetailPage = () => {
                         }));
                         setMenuData(foodsWithRatings);
                         calculateAverageRating(foodsWithRatings);
-                        calculateCategoryRatings(selectedMenuSet.foods);
                     }
                 }
             } catch (error) {
@@ -93,10 +144,16 @@ export const MainDetailPage = () => {
               const firstFoodName = menuData[0].name; // 첫 번째 음식 이름
               const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리명 가져오기
               setCategoryName(category || ""); // 가져온 카테고리명 설정
+              if (category) {
+                // 카테고리 평균 평점 계산
+                const { averageRating } = await getCategoryAverageRating(firstFoodName, restaurant);
+                setAverageRating(averageRating ?? null); // 평균값이 없으면 null 설정
+              }
             } catch (error) {
-              console.error("Error fetching category name:", error);
+              console.error("Error fetching category data:", error);
             }
           };
+    
           fetchCategoryName();
         }
       }, [menuData, restaurant]); 
@@ -110,43 +167,14 @@ export const MainDetailPage = () => {
         setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
     };
 
-    const calculateCategoryRatings = (foods: any[]) => {
-        const categoryScores: { [category: string]: number[] } = {};
-    
-        // 음식의 카테고리를 기준으로 평점을 그룹화
-        foods.forEach((food: any) => {
-            const category = food.category; // 각 음식의 카테고리
-    
-            if (!category) {
-                console.warn(`Category is missing for food: ${food.name}`);
-                return; // 카테고리가 없으면 건너뛰기
-            }
-    
-            const rating = food.average_rating || 0; // 음식의 평균 평점
-            if (!categoryScores[category]) {
-                categoryScores[category] = [];
-            }
-            categoryScores[category].push(rating);
-        });
-    
-        // 카테고리별 평균 평점 계산
-        const ratings: { [category: string]: number } = {};
-        Object.keys(categoryScores).forEach((category) => {
-            const ratingsForCategory = categoryScores[category];
-            const averageRating = ratingsForCategory.reduce((acc, score) => acc + score, 0) / ratingsForCategory.length;
-            ratings[category] = parseFloat(averageRating.toFixed(1)); // 소수점 첫째 자리까지 반올림
-        });
-    
-        console.log("Category ratings:", ratings); // 디버깅을 위한 로그 추가
-        setCategoryRatings(ratings); // 평점 계산 후 상태 설정
-    };
+   
+
     
 
     useEffect(() => {
         if (selectedMenuSet) {
             setMenuData(selectedMenuSet.foods);
             calculateAverageRating(selectedMenuSet.foods);
-            calculateCategoryRatings(selectedMenuSet.foods);  // 여기에 categoryRatings를 설정하는 로직을 호출
             return;
         }
     }, [selectedMenuSet]);
@@ -155,26 +183,6 @@ export const MainDetailPage = () => {
     
 
 
-
-  
-
-  const handleRecommendClick = () => {
-    if (isRecommended) {
-      setIsRecommended(false); // 다시 누르면 해제하기
-    } else {
-      setIsRecommended(true);  // 추천 버튼 활성화
-      setIsNotRecommended(false); // 비추천 버튼 비활성화
-    }
-};
-
-const handleNotRecommendClick = () => {
-  if (isNotRecommended) {
-    setIsNotRecommended(false); // 다시 누르면 해제하기
-  } else {
-    setIsRecommended(false); // 추천 버튼 비활성화
-    setIsNotRecommended(true);// 비추천 버튼활성화
-  }
-};
 
 const openModal = () => {
     setIsModalOpen(true);
@@ -307,8 +315,7 @@ const submitReview = async () => {
                             {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
-                                {(categoryRatings[categoryName || ''] !== undefined ? categoryRatings[categoryName || ''].toFixed(1) : 'N/A')} 
-                                                           
+                                {averageRating !== null ? averageRating.toFixed(1) : "N/A"}                                                         
                                 </div>
 
                             </div>
@@ -366,7 +373,7 @@ const submitReview = async () => {
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
                         display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
-                    }} onClick={handleNotRecommendClick}>
+                    }} onClick={() => handleRecommendation(selectedMenuSet.id, true)}>
                         <img 
                         src={
                             isNotRecommended ?  NoRecommendClicked // 추천 상태일 때의 이미지
