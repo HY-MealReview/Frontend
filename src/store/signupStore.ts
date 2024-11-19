@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 type Store = {
   signupStatus: string;
-  setSignupStatus: (netStatus: string) => void;
+  setSignupStatus: (newStatus: string) => void;
   signupFormData: {
     student_id: string;
     nickname: string;
