@@ -160,13 +160,20 @@ const handleRecommendClick = async () => {
 
 
    
-    const calculateAverageRating = (foods: any[]) => {
+      const calculateAverageRating = (foods: any[]) => {
+        if (!foods || foods.length === 0) {
+            setAverageRating(100); // 메뉴가 없을 경우 평균 평점 100으로 설정(알아보는용)
+            return;
+        }
         const totalRatings = foods.reduce((acc, food) => acc + (food.average_rating || 0), 0);
-        const totalFoods = foods.length;
-        const average = totalFoods > 0 ? totalRatings / totalFoods : null;
-        setAverageRating(average ? parseFloat(average.toFixed(2)) : null);
+        const average = totalRatings / foods.length;
+        setAverageRating(parseFloat(average.toFixed(1))); // 소수점 1자리까지 저장
     };
-
+    useEffect(() => {
+        console.log("menuData:", menuData);
+        console.log("averageRating:", averageRating);
+    }, [menuData, averageRating]);
+    
    
 
     
@@ -277,7 +284,7 @@ const submitReview = async () => {
                     <div className='totalScore' style={{display: 'flex', height : '81px'}}>
                         <div style={{display : 'flex', flexDirection :'column', alignItems : 'center', width : '165px'}}> 
                             <div className='score' style={{fontSize : '24px', color : "#6A6A6A"}}>
-                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating !== null ? averageRating : '0'}</span>/5
+                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating}</span>/5
                             </div>
                             <div style={{fontSize : '12px', color : "#6A6A6A"}}>
                                 메뉴별 종합 별점
@@ -315,7 +322,7 @@ const submitReview = async () => {
                             {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
-                                {averageRating !== null ? averageRating.toFixed(1) : "N/A"}                                                         
+                                {averageRating !== null ? averageRating.toFixed(1) : "N/A"}                                
                                 </div>
 
                             </div>
