@@ -1,7 +1,14 @@
 import { axiosInstance } from "@apis/axiosInstance";
 import { Menu } from "@type/menus";
-import axios from "axios";
 
+
+interface Food {
+  id: number;
+}
+
+interface RatingResponse {
+  average_rating: number;
+}
 
 // 특정 식당의 메뉴와 평점을 가져오는 함수
 export const getMenusWithRatings = async (restaurant: string, date: string) => {
@@ -48,6 +55,120 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
   }
 };
 
+//----특정 음식의 카테고리를 가져오는 함수-------
+// 특정 음식의 카테고리를 가져오는 함수
+export const getFoodCategory = async (foodName: string, restaurant: string) => {
+  try {
+    // 음식에 해당하는 카테고리 id를 가져오기 위한 food API 요청
+    const foodResponse = await axiosInstance.get(`/food/search/bynamerest`, {
+      params: {
+        food_name: foodName,
+        restaurant_name: restaurant,
+      },
+    });
+    
+    // foodResponse에서 카테고리 id 추출
+    const categoryId = foodResponse.data?.[0]?.category;
+    if (!categoryId) return null;
+
+    // 카테고리 id로 카테고리 name을 가져오는 API 요청
+    const categoryResponse = await axiosInstance.get(`/category/all/`);
+    const category = categoryResponse.data.find((category: { id: number; name: string }) => category.id === categoryId);
+
+    return category ? category.name : null;
+  } catch (error) {
+    console.error("Error fetching food category:", error);
+    return null;
+  }
+};
+
+// 특정 카테고리의 음식들에 대한 평균 평점 계산 함수
+export const getCategoryAverageRating = async (category: string) => {
+  try {
+    // 1. 카테고리 이름으로 해당 카테고리의 모든 음식들 가져오기
+    const foodsResponse = await axiosInstance.get(`/food/search/bycategory/?name=${category}/`);
+    const foods: Food[] = foodsResponse.data;
+
+    if (foods.length === 0) {
+      return { averageRating: null }; // 음식이 없으면 평균 평점 없음
+    }
+
+    // 2. 각 음식의 평점 정보 가져오기
+    const ratingsPromises = foods.map((food) =>
+      axiosInstance.get<RatingResponse>(`/rating/food/${food.id}/average/`)
+    );
+
+    // 평점 정보를 모두 가져옴
+    const ratingsResponse = await Promise.all(ratingsPromises);
+
+    // 3. 모든 음식들의 평점 합산 및 평균 계산
+    const totalRating = ratingsResponse.reduce(
+      (acc, response) => acc + response.data.average_rating,
+      0
+    );
+    const averageRating = totalRating / foods.length;
+    return { averageRating };
+  } catch (error) {
+    console.error("Error fetching category average rating:", error);
+    return { averageRating: null }; // 에러 발생 시 null 반환
+  }
+};
+
+export const getMenusWithCategories = async (restaurant: string, date: string) => {
+  try {
+    const menusResponse = await axiosInstance.get<Menu[]>(
+      `menu/detail/namedate/?restaurant=${restaurant}&date=${date}`,
+      {}
+    );
+
+    const menusWithCategories = await Promise.all(
+      menusResponse.data.map(async (menu:Menu) => {
+        const firstFood = menu.foods[0]; // foods[0]는 객체임
+        let firstFoodCategory = null;
+
+        if (firstFood) {
+          firstFoodCategory = await getFoodCategory(firstFood.name, menu.restaurant_name);
+        }
+        return {
+          ...menu,
+          firstFoodCategory,
+        };
+      })
+    );
+
+
+    return menusWithCategories;
+  } catch (error) {
+    console.error("Error fetching menus with categories:", error);
+    throw error;
+  }
+};
+
+
+//------mainModal의 평점 매기기를 백으로 전달하는 api------------
+export const submitReviewAPI = async (foodId: string, rating: number) => {
+  if (!foodId || !rating) {
+      console.error("Missing foodId or rating:", { foodId, rating });
+      return; // `foodId`나 `rating`이 없으면 리뷰를 제출하지 않음
+  }
+
+  try {
+      const response = await axiosInstance.post(`/rating/`, { food: foodId, rating });
+      return response?.data || {}; // 응답이 없으면 빈 객체 반환
+  } catch (error) {
+      console.error("Error submitting review:", error);
+      throw error;
+  }
+};
+
+
+
+
+
+
+
+
+
 export const getMenu = async (restaurant: string, date: string) => {
   try {
     const response = await axiosInstance.get(
@@ -58,37 +179,6 @@ export const getMenu = async (restaurant: string, date: string) => {
   } catch (error) {
     console.error("메뉴 데이터를 가져오는데 실패했습니다.", error);
     return []; // 에러 발생 시 빈 배열 반환
-  }
-};
-//---------평점 보내기 -------
-export const submitReview = async (foodId: number, rating: number, reviewId?: number) => {
-  try {
-    if (reviewId) {
-      // PUT 요청: 리뷰 수정
-      const response = await axiosInstance.put(`/rating/${reviewId}/update/`, {
-        food: foodId,
-        rating: rating,
-      });
-      console.log("리뷰 수정 성공:", response.data);
-      return response.data;
-    } else {
-      // POST 요청: 리뷰 새로 추가
-      const response = await axiosInstance.post(`/rating/`, {
-        food: foodId,
-        rating: rating,
-      });
-      console.log("리뷰 제출 성공:", response.data);
-      return response.data;
-    }
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      // AxiosError로 타입 확인
-      console.error("서버 오류:", error.response?.status, error.response?.data);
-    } else {
-      console.error("네트워크 오류 또는 응답 없음");
-    }
-    console.error("리뷰 제출 중 오류 발생:", error);
-    return null;
   }
 };
 
@@ -137,15 +227,16 @@ export const recommendMenu = async (menuId: string, recommendation: string) => {
   }
 };
 
-//추천하기 버튼 취소했을때 반영
 export const recommendCancelMenu = async (
   menuId: number,
   recommendation: boolean
 ) => {
   try {
-    const response = await axiosInstance.put(`/recommend/${menuId}/delete/`, {
-      menu: menuId,
-      recommendation: recommendation,
+    const response = await axiosInstance.delete(`/recommend/${menuId}/delete/`, {
+      data: {
+        menu: menuId,
+        recommendation: recommendation,
+      },
     });
     return response.data;
   } catch (error) {
