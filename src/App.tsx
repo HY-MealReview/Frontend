@@ -13,8 +13,15 @@ import { MainDetailPage } from "@pages/main/main-detail";
 import { ChangeNickname } from "@components/setting/ChangeNickname";
 import { ChangePasswords } from "@components/setting/ChangePassword";
 import { MyReviewPage } from "@pages/setting/my-reveiw";
+import { useTabBarStore } from "@store/tabBarStore";
+import { useShallow } from "zustand/shallow";
 
 function App() {
+  const { isTabBarVisible } = useTabBarStore(
+    useShallow((state) => ({
+      isTabBarVisible: state.isTabBarVisible,
+    }))
+  );
   const [isSplashVisible, setIsSplashVisible] = useState<boolean>(true);
 
   useEffect(() => {
@@ -43,8 +50,11 @@ function App() {
             <Routes>
               {/* main page */}
               <Route path="/" element={<MainPage />} />
-              <Route path="/main-detail/:restaurant/:date" element={<MainDetailPage />} />
-              
+              <Route
+                path="/main-detail/:restaurant/:date"
+                element={<MainDetailPage />}
+              />
+
               {/* login page */}
               <Route path="/login" element={<LoginPage />} />
 
@@ -63,7 +73,7 @@ function App() {
               {/* error page */}
               <Route path="*" element={<Errorpage />} />
             </Routes>
-            <TabNavigator />
+            {isTabBarVisible && <TabNavigator />}
           </>
         )}
       </Layout>

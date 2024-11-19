@@ -21,7 +21,11 @@ export const TabNavigator = () => {
         className="flex flex-col items-center w-[60px] h-[42px]"
       >
         <img
-          src={path === "/" ? mainActiveIcon : mainUnactiveIcon}
+          src={
+            path === "/" || path.startsWith("/main-detail")
+              ? mainActiveIcon
+              : mainUnactiveIcon
+          }
           alt="main-icon"
           className="w-[24px] h-[24px] mb-[2px]"
         />

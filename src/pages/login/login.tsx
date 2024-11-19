@@ -9,14 +9,12 @@ import { useShallow } from "zustand/shallow";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { setSignupStatus, setSignupFormData, signupFormData } =
-    useSignUpStatusStore(
-      useShallow((state) => ({
-        setSignupStatus: state.setSignupStatus,
-        setSignupFormData: state.setSignupFormData,
-        signupFormData: state.signupFormData,
-      }))
-    );
+  const { setSignupStatus, setSignupFormData } = useSignUpStatusStore(
+    useShallow((state) => ({
+      setSignupStatus: state.setSignupStatus,
+      setSignupFormData: state.setSignupFormData,
+    }))
+  );
   const [inputValue, setInputValue] = useState({
     student_id: "",
     password: "",
@@ -52,7 +50,6 @@ export const LoginPage = () => {
   // 회원가입 폼 데이터 초기화
   useEffect(() => {
     setSignupFormData({ student_id: "", nickname: "", password: "" });
-    console.log(signupFormData);
   }, []);
 
   return (
