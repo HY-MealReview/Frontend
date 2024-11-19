@@ -73,11 +73,11 @@ export const MainPage = () => {
         let newMealTime = mealTime;
   
         // 시간에 맞는 mealTime 설정
-        if (hours >= 0 && hours < 11) {
+        if (hours >= 0 && hours < 10) {
           newMealTime = "조식";
-        } else if (hours >= 11 && hours < 14) {
+        } else if (hours >= 10 && hours < 15) {
           newMealTime = "중식";
-        } else if (hours >= 14 && hours < 24) {
+        } else if (hours >= 15 && hours < 24) {
           newMealTime = "석식";
         }
         // mealTime이 비어있으면 변경하는 코드 추가
@@ -423,12 +423,14 @@ const handleNotRecommendClick = async (index: number, menuId: number) => {
                   onClick={() => handleStoreClick(menu.id)}
                 >
                   <img
-                    src={menu.photo ? menu.photo : NoImage}
+                    src={`https://hymeal.site/${menu.photo}`}
                     className="menu-image"
                     style={{
                       width: "328px",
                       height: "auto",
                       alignItems: "center",
+                      borderTopLeftRadius :'12px' ,
+                      borderTopRightRadius :'12px'
                     }}
                     
                   />
