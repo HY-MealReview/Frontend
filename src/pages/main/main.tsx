@@ -37,88 +37,133 @@ export const MainPage = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   const navigate = useNavigate(); //페이지 이동하기
+  const [savedMenuStates, setSavedMenuStates] = useState<any[]>([]);
 
-  console.log(setDate);
-  console.log(currentSlideIndex);
+  const restaurantData = [
+    {
+      id: 1,
+      name: "창의인재원식당",
+    },
+    {
+      id: 2,
+      name: "교직원식당",
+    },
+    {
+      id: 3,
+      name: "학생식당",
+    },
+    {
+      id: 4,
+      name: "창업보육센터",
+    },
+  ];
+    // --- 1. 시간대 설정 로직 ---
+    useEffect(() => {
+      // 처음 컴포넌트가 마운트될 때나 시간 변경 시 mealTime 설정
+      const updateDateTime = () => {
+        const now = new Date();
+        const options: Intl.DateTimeFormatOptions = {
+          month: "long",
+          day: "numeric",
+        };
+        setCurrentDate(now.toLocaleDateString(undefined, options));
+  
+        const hours = now.getHours();
+        let newMealTime = mealTime;
+  
+        // 시간에 맞는 mealTime 설정
+        if (hours >= 0 && hours < 11) {
+          newMealTime = "조식";
+        } else if (hours >= 11 && hours < 14) {
+          newMealTime = "중식";
+        } else if (hours >= 14 && hours < 24) {
+          newMealTime = "석식";
+        }
+        // mealTime이 비어있으면 변경하는 코드 추가
+        if (!mealTime) {
+          setMealTime(newMealTime);
+        } else if (mealTime !== newMealTime) {
+          setMealTime(newMealTime); // mealTime이 다르면 변경
+        }
+      };
+  
+      updateDateTime(); // 초기 실행
+      const interval = setInterval(updateDateTime, 60000); // 1분마다 갱신
+      return () => clearInterval(interval); // 컴포넌트 언마운트 시 클린업
+    }, []); // 한 번만 실행되도록 빈 배열로 설정
+  
+    useEffect(() => {
+      // mealTime이 변경될 때마다 메뉴를 다시 불러오는 로직
+      //console.log("Filtering menu with time:", mealTime); // 디버깅용 로그 추가
+      if (selectedRestaurant && mealTime && selectedStoreIndex !== null) {
+        //console.log("Current mealTime:", mealTime); // 디버깅용 로그 추가
+        fetchMenus(selectedRestaurant, selectedStoreIndex);
+      }
+    }, [mealTime, selectedRestaurant, selectedStoreIndex]); // mealTime, selectedRestaurant, selectedStoreIndex 값이 변경될 때만 실행
+  
+    // 4. 시간대별 메뉴 업데이트 후, 메뉴가 없을 경우 메시지 표시
+    useEffect(() => {
+      // mealTime이나 selectedRestaurant, selectedStoreIndex가 변경될 때마다 메뉴를 갱신합니다.
+      if (selectedRestaurant && selectedStoreIndex !== null && mealTime) {
+        fetchMenus(selectedRestaurant, selectedStoreIndex); // mealTime 반영
+      }
+    }, [mealTime, selectedRestaurant, selectedStoreIndex]); // mealTime 의존성 추가
 
   // 날짜가 갱신될 때마다 동기화
   useEffect(() => {
     const today = new Date();
     setDate(formatDate(today)); // 오늘 날짜로 설정
-  }, []);
 
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        const restaurantData = [
-          {
-            id: 1,
-            name: "창의인재원식당",
-          },
-          {
-            id: 2,
-            name: "교직원식당",
-          },
-          {
-            id: 3,
-            name: "학생식당",
-          },
-          {
-            id: 4,
-            name: "창업보육센터",
-          },
-        ];
-        if (Array.isArray(restaurantData)) {
-          setRestaurants(restaurantData);
-          if (restaurantData.length > 0) {
-            console.log(restaurantData[0].name);
-            fetchMenus(restaurantData[0].name, 0); // 첫 번째 식당의 메뉴 보일 수 있게.
-            setSelectedStoreIndex(0); // 첫 번째 식당 버튼을 선택 상태로 설정
-          }
-        } else {
-          console.error("Expected an array but got:", restaurantData);
-        }
-      } catch (error) {
-        console.error("Error fetching restaurants:", error);
-      }
-    };
+    console.log("localStorage.getItem(menuStates, JSON.stringify(menuStates))");
+    const savedData = localStorage.getItem("menuStates");
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      console.log("복원된 menuStates:", parsedData);
+      setSavedMenuStates(parsedData); 
+    }
 
     fetchRestaurants();
+    fetchMenus(restaurantData[0].name, 0);
   }, []);
 
+  const fetchRestaurants = async () => {
+    try {
+      if (Array.isArray(restaurantData)) {
+        setRestaurants(restaurantData);
+        if (restaurantData.length > 0) {
+          //console.log(restaurantData[0].name);
+           // 첫 번째 식당의 메뉴 보일 수 있게.
+          setSelectedStoreIndex(0); // 첫 번째 식당 버튼을 선택 상태로 설정
+        }
+      } else {
+        console.error("Expected an array but got:", restaurantData);
+      }
+    } catch (error) {
+      console.error("Error fetching restaurants:", error);
+    }
+  };
+
+useEffect(() => {
+    console.log("localStorage.setItem(menuStates, JSON.stringify(menuStates))")
+    console.log(menuStates)
+    localStorage.setItem("menuStates", JSON.stringify(menuStates));
+  }, [menuStates]);  
+  
   const fetchMenus = async (restaurant: string, index: number) => {
     try {
-      const menuData = await getMenusWithRatings(restaurant, date); // 동적으로 업데이트된 `date` 사용   
-      console.log("menuData:", menuData); // 전체 메뉴 데이터를 확인
-
-      // 메뉴 데이터에서 각 메뉴의 time 값을 출력하여 확인
-      menuData.forEach((menu) => {
-        console.log("menu.time:", menu.time); // 각 메뉴의 time 값 로그 출력
-      });
-
-
-
+      console.log("fetchMenus 실행")
+      const menuData = await getMenusWithRatings(restaurant, date); // 동적으로 업데이트된 date 사용
+  
       // 시간대별 필터링 추가
       let filteredMenus = menuData.filter((menu) => {
-        console.log("Filtering menu with time:", menu.time); // menu.time 값 확인
-        console.log("Current mealTime:", mealTime); // mealTime 값 확인
-
-        // mealTime이 null이 아니어야 필터링 진행
-        if (
+        return (
           mealTime &&
           menu.time.trim().toLowerCase() === mealTime.trim().toLowerCase()
-        ) {
-          return true; // 시간대가 맞다면 필터링
-        } else {
-          return false;
-        }
-      });
-
-      // 만약 필터링된 메뉴가 없으면, 다른 시간대의 메뉴를 시도
-      if (filteredMenus.length === 0) {
-        console.log(
-          `No ${mealTime} menus found. Trying with a different time.`
         );
+      });
+  
+      // 필터링된 메뉴가 없을 경우 다른 시간대의 메뉴를 시도
+      if (filteredMenus.length === 0) {
         const alternateMealTime = mealTime === "석식" ? "조식" : "석식";
         filteredMenus = menuData.filter((menu) => {
           return (
@@ -127,14 +172,11 @@ export const MainPage = () => {
           );
         });
       }
-
-      console.log("filteredMenus:", filteredMenus); // 필터링된 메뉴 확인
-
+  
       setMenus(filteredMenus);
-      console.log(menus);
       setSelectedRestaurant(restaurant);
-      setSelectedStoreIndex(index); // 선택된 식당 인덱스 업데이트
-
+      setSelectedStoreIndex(index);
+      // 새 상태를 생성하면서 기존 상태를 반영
       const initialStates = await Promise.all(
         filteredMenus.map(async (menu) => {
           try {
@@ -145,35 +187,66 @@ export const MainPage = () => {
               `Failed to fetch recommend count for menu ID ${menu.id}:`,
               error
             );
-            return { true_count: 0, false_count: 0 }; // 기본값 반환
+            return { true_count: 0, false_count: 0 };
           }
         })
       );
-
-      const updatedMenuStates = filteredMenus.map((menu, i) => ({
-        id: menu,
-        recommendCount: initialStates[i].true_count,
-        notRecommendCount: initialStates[i].false_count,
-        recommendationStatus: null,
-        notRecommendationStatus: null,
-      }));
-
+      
+  
+      const updatedMenuStates = filteredMenus.map((menu, i) => {
+        const savedState = savedMenuStates?.find(
+          (state) => state?.id?.id === menu.id // `savedMenuStates`의 구조를 반영
+        );
+        return {
+          id: menu,
+          recommendCount: initialStates[i].true_count,
+          notRecommendCount: initialStates[i].false_count,
+          recommendationStatus: savedState?.recommendationStatus || null, 
+          notRecommendationStatus: savedState?.notRecommendationStatus || null,
+        };
+      });
+  
       setMenuStates(updatedMenuStates);
     } catch (error) {
       console.error("fetchMenus에서 오류 발생:", error);
     }
   };
 
+  // 추천 버튼 클릭 핸들러 수정
+const handleRecommendClick = async (index: number, menuId: number) => {
+  const newStatus =
+    menuStates[index]?.recommendationStatus === "recommended" ? null : "recommended";
+
+  const updatedMenuStates = [...menuStates];
+  if (updatedMenuStates[index]) {
+    updatedMenuStates[index].recommendationStatus = newStatus;
+    if (newStatus) {
+      updatedMenuStates[index].recommendCount += 1;
+    } else {
+      updatedMenuStates[index].recommendCount -= 1;
+    }
+    console.log("click 후 updatedMenuStates값 (setMenuStates) ->")
+    console.log(updatedMenuStates)
+    setMenuStates(updatedMenuStates);
+    //recommendationStatus 잘저장됨
+  }
+
+  // 백엔드에 상태 업데이트 요청
+  await createRecommend(menuId, true);
+};
+
+  
+
   // mealTime 값 확인용 로그
   useEffect(() => {
-    console.log("현재 mealTime 값:", mealTime); // mealTime 값 확인
+    //console.log("현재 mealTime 값:", mealTime); // mealTime 값 확인
   }, [mealTime]);
 
   useEffect(() => {
-    console.log(selectedStoreIndex);
+    //console.log(selectedStoreIndex);
     // selectedStoreIndex가 null이 아닌 경우에만 접근
     if (selectedStoreIndex !== null) {
-      console.log("추천 카운트 확인: ", menuStates);
+      //console.log("추천 카운트 확인: ", menuStates);
     }
   }, [menuStates, selectedStoreIndex]); // menuStates 또는 selectedStoreIndex가 바뀔 때마다 실행
 
@@ -194,58 +267,6 @@ export const MainPage = () => {
     },
   };
 
-  // --- 1. 시간대 설정 로직 ---
-  useEffect(() => {
-    // 처음 컴포넌트가 마운트될 때나 시간 변경 시 mealTime 설정
-    const updateDateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        month: "long",
-        day: "numeric",
-      };
-      setCurrentDate(now.toLocaleDateString(undefined, options));
-
-      const hours = now.getHours();
-      let newMealTime = mealTime;
-
-      // 시간에 맞는 mealTime 설정
-      if (hours >= 0 && hours < 11) {
-        newMealTime = "조식";
-      } else if (hours >= 11 && hours < 14) {
-        newMealTime = "중식";
-      } else if (hours >= 14 && hours < 24) {
-        newMealTime = "석식";
-      }
-      // mealTime이 비어있으면 변경하는 코드 추가
-      if (!mealTime) {
-        setMealTime(newMealTime);
-      } else if (mealTime !== newMealTime) {
-        setMealTime(newMealTime); // mealTime이 다르면 변경
-      }
-    };
-
-    updateDateTime(); // 초기 실행
-    const interval = setInterval(updateDateTime, 60000); // 1분마다 갱신
-    return () => clearInterval(interval); // 컴포넌트 언마운트 시 클린업
-  }, []); // 한 번만 실행되도록 빈 배열로 설정
-
-  useEffect(() => {
-    // mealTime이 변경될 때마다 메뉴를 다시 불러오는 로직
-    console.log("Filtering menu with time:", mealTime); // 디버깅용 로그 추가
-    if (selectedRestaurant && mealTime && selectedStoreIndex !== null) {
-      console.log("Current mealTime:", mealTime); // 디버깅용 로그 추가
-      fetchMenus(selectedRestaurant, selectedStoreIndex);
-    }
-  }, [mealTime, selectedRestaurant, selectedStoreIndex]); // mealTime, selectedRestaurant, selectedStoreIndex 값이 변경될 때만 실행
-
-  // 4. 시간대별 메뉴 업데이트 후, 메뉴가 없을 경우 메시지 표시
-  useEffect(() => {
-    // mealTime이나 selectedRestaurant, selectedStoreIndex가 변경될 때마다 메뉴를 갱신합니다.
-    if (selectedRestaurant && selectedStoreIndex !== null && mealTime) {
-      fetchMenus(selectedRestaurant, selectedStoreIndex); // mealTime 반영
-    }
-  }, [mealTime, selectedRestaurant, selectedStoreIndex]); // mealTime 의존성 추가
-
   const handleStoreClick = (menuId: number) => {
     const selectedMenuSet = menus.find((menu) => menu.id === menuId);
     if (selectedMenuSet) {
@@ -257,56 +278,6 @@ export const MainPage = () => {
       console.error("Invalid menu ID:", menuId);
     }
   };
-
-  const handleRecommendClick = async (index: number, menuId: number) => {
-    const newStatus =
-      menuStates[index]?.recommendationStatus === "recommended"
-        ? null
-        : "recommended";
-    // 상태 업데이트
-    const updatedMenuStates = [...menuStates];
-    if (updatedMenuStates[index]) {
-      // 존재하는 경우에만 업데이트
-      updatedMenuStates[index].recommendationStatus = newStatus;
-      if (newStatus) {
-        updatedMenuStates[index].recommendCount += 1; // 추천 수 증가
-      } else {
-        updatedMenuStates[index].recommendCount -= 1; // 추천 수 감소
-      }
-      setMenuStates(updatedMenuStates);
-       // 로컬 스토리지에 상태 저장
-      localStorage.setItem('menuStates', JSON.stringify(updatedMenuStates));
-    }
-    // 백엔드에 요청 전송
-    await createRecommend(menuId, true);
-  };
-
-  const handleNotRecommendClick = async (index: number, menuId: number) => {
-    const newStatus =
-      menuStates[index]?.notRecommendationStatus === "NotRecommended"
-        ? null
-        : "NotRecommended";
-
-    // 상태 업데이트
-    const updatedMenuStates = [...menuStates];
-    if (updatedMenuStates[index]) {
-      // 존재하는 경우에만 업데이트
-      updatedMenuStates[index].notRecommendationStatus = newStatus;
-      if (newStatus) {
-        updatedMenuStates[index].notRecommendCount += 1; // 비추천 수 증가
-      } else {
-        updatedMenuStates[index].notRecommendCount -= 1; // 비추천 수 감소
-      }
-      setMenuStates(updatedMenuStates);
-
-      // 로컬 스토리지에 상태 저장
-      localStorage.setItem('menuStates', JSON.stringify(updatedMenuStates));
-    }
-
-    // 백엔드에 요청 전송
-    await createRecommend(menuId, false);
-  };
-
 
   return (
     <div
