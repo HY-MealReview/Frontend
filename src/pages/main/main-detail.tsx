@@ -13,6 +13,11 @@ import {getMenusWithRatings, getFoodCategory, getRecommendCount, createRecommend
 import { axiosInstance } from "@apis/axiosInstance";
 import axios from "axios";
 
+interface Food {
+    name: string;
+    average_rating: number;
+}
+
 
 export const MainDetailPage = () => {
     const { restaurant = '', date = '' } = useParams<{ restaurant: string; date: string }>();
@@ -159,8 +164,8 @@ const handleRecommendClick = async () => {
       }, [menuData, restaurant]); 
 
 
-   
-      const calculateAverageRating = (foods: any[]) => {
+//----------------메뉴별 종합 평점----------------
+      const calculateAverageRating = (foods: Food[]) => {
         if (!foods || foods.length === 0) {
             setAverageRating(100); // 메뉴가 없을 경우 평균 평점 100으로 설정(알아보는용)
             return;
@@ -173,10 +178,6 @@ const handleRecommendClick = async () => {
         console.log("menuData:", menuData);
         console.log("averageRating:", averageRating);
     }, [menuData, averageRating]);
-    
-   
-
-    
 
     useEffect(() => {
         if (selectedMenuSet) {
