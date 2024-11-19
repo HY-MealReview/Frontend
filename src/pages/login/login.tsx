@@ -6,15 +6,9 @@ import { useEffect, useState } from "react";
 import { useSignUpStatusStore } from "@store/signupStore";
 import { requestLogin } from "@apis/login";
 import { useShallow } from "zustand/shallow";
-import { useTabBarStore } from "@store/tabBarStore";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { setIsTabBarVisible } = useTabBarStore(
-    useShallow((state) => ({
-      setIsTabBarVisible: state.setIsTabBarVisible,
-    }))
-  );
   const { setSignupStatus, setSignupFormData } = useSignUpStatusStore(
     useShallow((state) => ({
       setSignupStatus: state.setSignupStatus,
@@ -56,7 +50,6 @@ export const LoginPage = () => {
   // 회원가입 폼 데이터 초기화
   useEffect(() => {
     setSignupFormData({ student_id: "", nickname: "", password: "" });
-    setIsTabBarVisible(false);
   }, []);
 
   return (
