@@ -35,7 +35,7 @@ export const MainModal = ({ isOpen, onClose, menuData, ratings, onRatingChange, 
             key={star}
             style={{
               cursor: 'pointer',
-              fontSize: '52px', // 별 크기 설정
+              fontSize: '60px', // 별 크기 설정
               color: star <= currentRating ? '#F0F900' : '#9E9E9E', // 선택된 별은 금색으로 표시
             }}
             onClick={() => handleStarClick(star)}
@@ -49,12 +49,13 @@ export const MainModal = ({ isOpen, onClose, menuData, ratings, onRatingChange, 
 
   // 모든 음식에 대해 별점이 선택되었는지 확인하는 함수
   const isAllRatingsSelected = Object.values(ratings).every((rating) => rating > 0);
+  
 
   // 리뷰 제출 시 호출되는 함수
   const handleSubmitReview = async () => {
     // 모든 음식에 대해 별점 데이터를 백엔드로 보내기
     const ratingRequests = Object.entries(ratings).map(([foodId, rating]) => ({
-      food: parseInt(foodId), // foodId는 숫자여야 하므로, string을 number로 변환
+      food: parseInt(foodId), // foodId string을 number로 변환
       rating: rating, // 2배로 계산된 별점
     }));
 
@@ -73,6 +74,9 @@ export const MainModal = ({ isOpen, onClose, menuData, ratings, onRatingChange, 
     onSubmit(); // 리뷰 제출 후 부모 컴포넌트에서 처리
     onClose(); // 모달 닫기
   };
+  console.log("Is all ratings selected:", isAllRatingsSelected);
+console.log("Ratings state:", ratings);
+
 
   return (
     <div
@@ -135,30 +139,26 @@ export const MainModal = ({ isOpen, onClose, menuData, ratings, onRatingChange, 
           </ul>
         </div>
 
-        <div
+        <button
           className="summitButton"
+          onClick={handleSubmitReview}
+          disabled={!isAllRatingsSelected}
           style={{
             height: '48px',
+            width:'100%',
             borderRadius: '4px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             margin: '0',
-            backgroundColor: isAllRatingsSelected ? '#134B84' : '#9E9E9E',
-          }}
-        >
-          <button
-            onClick={handleSubmitReview}
-            disabled={!isAllRatingsSelected}
-            style={{
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '14px',
-            }}
-          >
+            backgroundColor: isAllRatingsSelected ? '#134B84' : '#9E9E9E',            
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            cursor: isAllRatingsSelected ? 'pointer' : 'not-allowed'
+          }}>
             리뷰 제출
-          </button>
-        </div>
+        </button>
       </div>
     </div>
   );
