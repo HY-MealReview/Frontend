@@ -2,8 +2,9 @@ import { axiosInstance } from "@apis/axiosInstance";
 import { Menu } from "@type/menus";
 import axios from "axios";
 
+// 음식 평점 데이터의 타입 정의
 interface FoodRating {
-  id: number;
+  id: number; // ID는 number 타입
   name: string;
   total_rating: number;
   average_rating: number;
@@ -12,22 +13,30 @@ interface FoodRating {
   restaurant_name: string;
 }
 
-// 전체 평점 응답 데이터 구조 정의
 interface Rating {
   menu_date: string;
   restaurant_name: string;
   time: string;
   foods: FoodRating[];
 }
+
+// 메뉴 데이터의 타입 정의
+interface MenuData {
+  id: number;
+  restaurant: string;
+  date: string;
+  foods: string[];
+}
+
 // 특정 식당의 메뉴와 평점을 가져오는 함수
 export const getMenusWithRatings = async (restaurant: string, date: string) => {
   try {
     // 메뉴 데이터 가져오기
-    const menuResponse = await axiosInstance.get<Menu[]>(
+    const menuResponse = await axiosInstance.get<MenuData[]>(
       `menu/detail/namedate/?restaurant=${restaurant}&date=${date}`,
       {}
     );
-    
+
     // 평점 데이터 가져오기
     const ratingsResponse = await axiosInstance.get<Rating[]>(
       `restaurants/${restaurant}/${date}/ratings/`
@@ -42,15 +51,15 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
 
       const foodsWithRatings = menu.foods.map((foodName) => {
         // 평점 데이터에서 음식별 평점 찾기
-        const foodRating = allFoodsRatings.find((food) => food.name === foodName);
+        const foodRating = allFoodsRatings.find((food: FoodRating) => food.name === foodName);
 
         // 평점이 없으면 0으로 설정, 음식의 id는 평점 데이터에서 가져오거나 기본값으로 설정
-        const foodId = foodRating ? foodRating.id : foodName;
+        const foodId = foodRating ? foodRating.id : 0; // ID는 평점에서 가져오거나 기본값으로 설정
 
         return {
           name: foodName,
           average_rating: foodRating ? foodRating.average_rating : 0, // 평점 없으면 0
-          id: foodId, // ID는 평점에서 가져오거나 foodName으로 대체
+          id: foodId, // ID는 평점에서 가져오거나 기본값으로 대체
         };
       });
 
@@ -70,7 +79,6 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
     throw error;
   }
 };
-
 
 
 //----특정 음식의 카테고리를 가져오는 함수-------

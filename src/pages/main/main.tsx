@@ -466,8 +466,8 @@ const handleNotRecommendClick = async (index: number, menuId: number) => {
                                   marginRight: "5px",
                                 }}
                               />
-                              {food.average_rating.toFixed(1)}{" "}
-                              {/* 평점 표시 */}
+                          {(food.average_rating / 2).toFixed(1)}{" "}                              
+                          {/* 평점 표시 */}
                             </div>
                           </li>
                         )
