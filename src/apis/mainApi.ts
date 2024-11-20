@@ -11,29 +11,36 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
       `menu/detail/namedate/?restaurant=${restaurant}&date=${date}`,
       {}
     );
+    
     // 평점 데이터 가져오기
     const ratingsResponse = await axiosInstance.get(
       `restaurants/${restaurant}/${date}/ratings/`
     );
-    const menusWithRatings = menuResponse.data.map((menu) => {    // 메뉴와 평점 결합
-      const foodsWithRatings = menu.foods.map((foodName) => {
-        // 평점 데이터에서 음식별 평점을 찾아오는 코드
-        const foodRating = Array.isArray(ratingsResponse.data)
-          ? ratingsResponse.data.find((rating) => rating.name === foodName)
-          : null;
 
-        // foodId를 추가할 수 있는 방법 (id가 별도로 제공되지 않는 경우 foodName 기반으로 ID 생성 등)
-        const foodId = foodName; // 예시로 foodName을 foodId로 사용할 수 있음. 실제 API에서 foodId가 제공된다면 수정 필요.
+    // 메뉴와 평점 결합
+    const menusWithRatings = menuResponse.data.map((menu) => {
+      // 평점 데이터를 가져오기 위해, ratingsResponse.data의 모든 foods 배열을 평탄화
+      const allFoodsRatings = ratingsResponse.data.flatMap(
+        (rating) => rating.foods // 각 "menu_date"에 해당하는 foods 배열을 평탄화
+      );
+
+      const foodsWithRatings = menu.foods.map((foodName) => {
+        // 평점 데이터에서 음식별 평점 찾기
+        const foodRating = allFoodsRatings.find((food) => food.name === foodName);
+
+        // 평점이 없으면 0으로 설정, 음식의 id는 평점 데이터에서 가져오거나 기본값으로 설정
+        const foodId = foodRating ? foodRating.id : foodName;
 
         return {
           name: foodName,
-          average_rating: foodRating ? foodRating.average_rating : 0, // 평점이 없으면 0으로 설정
-          id: foodId, // 음식의 id를 추가
+          average_rating: foodRating ? foodRating.average_rating : 0, // 평점 없으면 0
+          id: foodId, // ID는 평점에서 가져오거나 foodName으로 대체
         };
       });
+
       return {
-        ...menu,
-        foods: foodsWithRatings,
+        ...menu, // 기존 메뉴 데이터 그대로
+        foods: foodsWithRatings, // 평점 추가된 음식들
       };
     });
 
@@ -47,7 +54,6 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
     throw error;
   }
 };
-
 
 
 

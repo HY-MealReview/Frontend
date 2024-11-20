@@ -27,17 +27,14 @@ export const MainPage = () => {
   const [mealTime, setMealTime] = useState<string>("");
   const [restaurants, setRestaurants] = useState<any[]>([]); // 초기값을 빈 배열로 설정
   const [menus, setMenus] = useState<any[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
-    null
-  );
-  const [selectedStoreIndex, setSelectedStoreIndex] = useState<number | null>(
-    null
-  );
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+  const [selectedStoreIndex, setSelectedStoreIndex] = useState<number | null>(null);
   const [date, setDate] = useState<string>(formatDate(new Date())); // 현재 날짜로 초기화
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   const navigate = useNavigate(); //페이지 이동하기
   const [savedMenuStates, setSavedMenuStates] = useState<any[]>([]);
+
   console.log(currentSlideIndex);
 
   const restaurantData = [
@@ -95,16 +92,13 @@ export const MainPage = () => {
   
     useEffect(() => {
       // mealTime이 변경될 때마다 메뉴를 다시 불러오는 로직
-      //console.log("Filtering menu with time:", mealTime); // 디버깅용 로그 추가
       if (selectedRestaurant && mealTime && selectedStoreIndex !== null) {
-        //console.log("Current mealTime:", mealTime); // 디버깅용 로그 추가
         fetchMenus(selectedRestaurant, selectedStoreIndex);
       }
     }, [mealTime, selectedRestaurant, selectedStoreIndex]); // mealTime, selectedRestaurant, selectedStoreIndex 값이 변경될 때만 실행
   
     // 4. 시간대별 메뉴 업데이트 후, 메뉴가 없을 경우 메시지 표시
     useEffect(() => {
-      // mealTime이나 selectedRestaurant, selectedStoreIndex가 변경될 때마다 메뉴를 갱신합니다.
       if (selectedRestaurant && selectedStoreIndex !== null && mealTime) {
         fetchMenus(selectedRestaurant, selectedStoreIndex); // mealTime 반영
       }
@@ -132,7 +126,6 @@ export const MainPage = () => {
       if (Array.isArray(restaurantData)) {
         setRestaurants(restaurantData);
         if (restaurantData.length > 0) {
-          //console.log(restaurantData[0].name);
            // 첫 번째 식당의 메뉴 보일 수 있게.
           setSelectedStoreIndex(0); // 첫 번째 식당 버튼을 선택 상태로 설정
         }
@@ -259,11 +252,6 @@ const handleNotRecommendClick = async (index: number, menuId: number) => {
 };
 
 
-
-  // mealTime 값 확인용 로그
-  useEffect(() => {
-    //console.log("현재 mealTime 값:", mealTime); // mealTime 값 확인
-  }, [mealTime]);
 
   useEffect(() => {
     //console.log(selectedStoreIndex);
@@ -423,7 +411,7 @@ const handleNotRecommendClick = async (index: number, menuId: number) => {
                   onClick={() => handleStoreClick(menu.id)}
                 >
                   <img
-                    src={`https://hymeal.site/${menu.photo}`}
+                    src={menu.id?.photo ? `https://hymeal.site/${menu.photo}` : NoImage}
                     className="menu-image"
                     style={{
                       width: "328px",
