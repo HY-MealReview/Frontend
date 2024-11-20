@@ -2,7 +2,23 @@ import { axiosInstance } from "@apis/axiosInstance";
 import { Menu } from "@type/menus";
 import axios from "axios";
 
+interface FoodRating {
+  id: number;
+  name: string;
+  total_rating: number;
+  average_rating: number;
+  users_count: number;
+  category_name: string;
+  restaurant_name: string;
+}
 
+// 전체 평점 응답 데이터 구조 정의
+interface Rating {
+  menu_date: string;
+  restaurant_name: string;
+  time: string;
+  foods: FoodRating[];
+}
 // 특정 식당의 메뉴와 평점을 가져오는 함수
 export const getMenusWithRatings = async (restaurant: string, date: string) => {
   try {
@@ -13,7 +29,7 @@ export const getMenusWithRatings = async (restaurant: string, date: string) => {
     );
     
     // 평점 데이터 가져오기
-    const ratingsResponse = await axiosInstance.get(
+    const ratingsResponse = await axiosInstance.get<Rating[]>(
       `restaurants/${restaurant}/${date}/ratings/`
     );
 
