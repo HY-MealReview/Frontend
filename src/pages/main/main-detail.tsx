@@ -7,6 +7,7 @@ import NoRecommend from "@assets/main/NoRecommend.webp";
 import NoRecommendClicked from "@assets/main/NoRecommendClicked.webp"
 import Review from '@assets/main/review.webp';
 import star from "@assets/main/star.webp";
+import halfStar from "@assets/main/halfStar.webp"
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings, 
@@ -208,6 +209,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
       ...prevRatings,
       [foodId]: rating,
     }));
+    setRatings(updatedRatings);
   };
   
   const handleReviewSubmit = () => {
@@ -227,7 +229,6 @@ const handleRatingChange = (foodId: number, rating: number) => {
 
 
  return (
-
     <div style={{margin : '0px'}}>
             <div className="topper" style={{display : 'flex', padding : '8px'}}>
                 <img src={goBack} style={{width: '24px', marginRight : '16px', cursor : 'pointer'}}                       
@@ -260,7 +261,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
                                         • {food.name}
                                         <div style={{width :'50px', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                         <img src={star} style={{ width: '20px', height: '20px', margin: '5px' }} />
-                                        {food.average_rating.toFixed(1)}
+                                        {(food.average_rating/2).toFixed(1)}
                                         </div>
                                     </li>
                                 ))
@@ -284,7 +285,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
                     <div className='totalScore' style={{display: 'flex', height : '81px'}}>
                         <div style={{display : 'flex', flexDirection :'column', alignItems : 'center', width : '165px'}}> 
                             <div className='score' style={{fontSize : '24px', color : "#6A6A6A"}}>
-                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{averageRating}</span>/5
+                                <span style={{color : '#1D1D1D', fontWeight : 'bold '}}>{((averageRating??0)/2).toFixed(1)}</span>/5
                             </div>
                             <div style={{fontSize : '12px', color : "#6A6A6A"}}>
                                 메뉴별 종합 별점
@@ -292,16 +293,17 @@ const handleRatingChange = (foodId: number, rating: number) => {
                             {/* 종합별점에 따라 별채우기 */}
                 <div style={{ display: 'flex', marginTop: '5px' }}>
                     {[...Array(5)].map((_, index) => {
-                        const ratingForStar = averageRating ? averageRating - index : 0;
+                        const averageRatingHalf = (averageRating ?? 0) /2;
+                        const ratingForStar = averageRatingHalf ? averageRatingHalf - index : 0;
                         return (
                             <img
                                 key={index}
-                                src={ratingForStar >= 1 ? star : ratingForStar >= 0.5 ? NoImage : star} // `star`는 노란색 별, `NoImage`는 회색 별을 사용
+                                src={ratingForStar >= 1 ? star : ratingForStar >= 0.5 ? halfStar : star} // `star`는 노란색 별, `NoImage`는 회색 별을 사용
                                 style={{
                                     width: '20px',
                                     height: '20px',
                                     margin: '0 3px',
-                                    filter: ratingForStar >= 1 ? 'none' : 'grayscale(100%)',
+                                    filter: ratingForStar >= 0.5 ? 'none' : 'grayscale(100%)',
                                 }}
                                 alt="Star"
                             />
