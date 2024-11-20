@@ -209,7 +209,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
       ...prevRatings,
       [foodId]: rating,
     }));
-    setRatings(updatedRatings);
+    
   };
   
   const handleReviewSubmit = () => {
