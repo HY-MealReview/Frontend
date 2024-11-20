@@ -137,7 +137,7 @@ export const MainDetailPage = () => {
             try {
                 const menus = await getMenusWithRatings(restaurant, date);
                 if (Array.isArray(menus)) {
-                    const selectedMenuSet = menus.find(menu => menu.restaurant_name === restaurant && menu.menu_date === date);
+                    const selectedMenuSet = menus.find(menu => menu.restaurant === restaurant && menu.date === date);
                     if (selectedMenuSet) {
                         // 메뉴 데이터와 별점 데이터 매핑
                         const foodsWithRatings = selectedMenuSet.foods.map(food => ({

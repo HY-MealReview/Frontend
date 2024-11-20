@@ -21,12 +21,15 @@ interface Rating {
 }
 
 // 메뉴 데이터의 타입 정의
+
 interface MenuData {
   id: number;
   restaurant: string;
   date: string;
   foods: string[];
+  time: string; // time 속성 추가
 }
+
 
 // 특정 식당의 메뉴와 평점을 가져오는 함수
 export const getMenusWithRatings = async (restaurant: string, date: string) => {
