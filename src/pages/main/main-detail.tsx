@@ -13,7 +13,7 @@ import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings, 
     getFoodCategory, 
     getRecommendCount, 
-    createRecommend,
+    createRecommend,deleteRecommend, updateRecommend,
     getFoodIdByName,
     postRating
 } from '@apis/mainApi';
@@ -69,38 +69,62 @@ export const MainDetailPage = () => {
       console.error("Error fetching recommend count:", error);
     }
   };
-    // 추천/비추천 클릭 핸들러
-    const handleRecommendClick = async (recommendation: boolean) => {
-        if (isRecommended === recommendation) {
-          // 이미 선택된 경우 취소
-          try {
-            //await recommendCancelMenu(menuSetId, recommendation);
-            setIsRecommended(null);
-            setRecommendCount((prev) => 
-              prev ? {
+
+
+//추천 핸들러
+  const handleRecommendClick = async (recommendation: boolean) => {
+    if (isRecommended === recommendation) {
+      // 이미 선택된 경우 취소
+      try {
+        await deleteRecommend(menuSetId); // 상태 삭제
+        setIsRecommended(null); // 추천 상태 초기화
+        setRecommendCount((prev) =>
+          prev
+            ? {
                 true_count: recommendation ? prev.true_count - 1 : prev.true_count,
                 false_count: recommendation ? prev.false_count : prev.false_count - 1,
-              } : null
-            );
-          } catch (error) {
-            console.error("Error cancelling recommendation:", error);
-          }
-        } else {
-          // 선택되지 않은 경우 API 호출
-          try {
-            await createRecommend(menuSetId, recommendation);
-            setIsRecommended(recommendation);
-            setRecommendCount((prev) => 
-              prev ? {
+              }
+            : null
+        );
+      } catch (error) {
+        console.error("Error cancelling recommendation:", error);
+      }
+    } else if (isRecommended === null) {
+      // 최초 추천할떄
+      try {
+        await createRecommend(menuSetId, recommendation); // 추천 생성
+        setIsRecommended(recommendation); // 새로운 상태 설정
+        setRecommendCount((prev) =>
+          prev
+            ? {
                 true_count: recommendation ? prev.true_count + 1 : prev.true_count,
                 false_count: recommendation ? prev.false_count : prev.false_count + 1,
-              } : null
-            );
-          } catch (error) {
-            console.error("Error creating recommendation:", error);
-          }
-        }
-      };
+              }
+            : null
+        );
+      } catch (error) {
+        console.error("Error creating recommendation:", error);
+      }
+    } else {
+      // 추천 상태 전환하기
+      try {
+        await updateRecommend(menuSetId, recommendation); // 상태 업데이트
+        setIsRecommended(recommendation); // 새로운 상태 설정
+        setRecommendCount((prev) =>
+          prev
+            ? {
+                true_count: recommendation ? prev.true_count + 1 : prev.true_count - 1,
+                false_count: recommendation ? prev.false_count - 1 : prev.false_count + 1,
+              }
+            : null
+        );
+      } catch (error) {
+        console.error("Error updating recommendation:", error);
+      }
+    }
+  };
+  
+
 
 
 // -----메뉴 데이터에 menu_id(number)추가-----
