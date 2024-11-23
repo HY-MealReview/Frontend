@@ -9,7 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
-  createRecommend,
+  createRecommend,updateRecommend, deleteRecommend,
   getMenusWithRatings,
   getRecommendCount,
 } from "@apis/mainApi";
@@ -206,48 +206,78 @@ useEffect(() => {
     }
   };
 
-  // 추천 버튼 클릭 핸들러 수정
-const handleRecommendClick = async (index: number, menuId: number) => {
-  const newStatus =
-    menuStates[index]?.recommendationStatus === "recommended" ? null : "recommended";
-
+//추천 핸들러
+const handleRecommendClick = async (index: number, menu_id: number) => {
+  const currentStatus = menuStates[index]?.recommendationStatus;
   const updatedMenuStates = [...menuStates];
-  if (updatedMenuStates[index]) {
-    updatedMenuStates[index].recommendationStatus = newStatus;
-    if (newStatus) {
-      updatedMenuStates[index].recommendCount += 1;
-    } else {
-      updatedMenuStates[index].recommendCount -= 1;
-    }
-    console.log("click 후 updatedMenuStates값 (setMenuStates) ->")
-    console.log(updatedMenuStates)
+
+  if (currentStatus === "recommended") {
+    // 현재 추천 상태 -> 추천 취소
+    updatedMenuStates[index].recommendationStatus = null;
+    updatedMenuStates[index].recommendCount -= 1;
     setMenuStates(updatedMenuStates);
-  }
-  // 백엔드에 상태 업데이트 요청
-  await createRecommend(menuId, true);
-};
 
-// 비추천 버튼 클릭 핸들러 수정
-const handleNotRecommendClick = async (index: number, menuId: number) => {
-  const newStatus =
-    menuStates[index]?.notRecommendationStatus === "notRecommended" ? null : "notRecommended";
-
-  const updatedMenuStates = [...menuStates];
-  if (updatedMenuStates[index]) {
-    updatedMenuStates[index].notRecommendationStatus = newStatus;
-    if (newStatus) {
-      updatedMenuStates[index].notRecommendCount += 1;
-    } else {
+    await deleteRecommend(menu_id); // 추천 삭제
+  } else {
+    // 현재 추천 상태가 아니거나 null -> 추천 활성화
+    if (updatedMenuStates[index]?.notRecommendationStatus === "notRecommended") {
+      // 비추천 상태였다면 비추천 취소
+      updatedMenuStates[index].notRecommendationStatus = null;
       updatedMenuStates[index].notRecommendCount -= 1;
+      await deleteRecommend(menu_id);
     }
-    console.log("click 후 updatedMenuStates값 (setMenuStates) ->")
-    console.log(updatedMenuStates)
-    setMenuStates(updatedMenuStates);
-  }
 
-  // 백엔드에 상태 업데이트 요청
-  await createRecommend(menuId, false);
+    updatedMenuStates[index].recommendationStatus = "recommended";
+    updatedMenuStates[index].recommendCount += 1;
+    setMenuStates(updatedMenuStates);
+
+    if (currentStatus === null) {
+      // 최초 추천 생성
+      await createRecommend(menu_id, true);
+    } else {
+      // 기존 추천 상태 업데이트
+      await updateRecommend(menu_id, true);
+    }
+  }
 };
+//비추천 핸들러 
+const handleNotRecommendClick = async (index: number, menu_id: number) => {
+  const currentStatus = menuStates[index]?.notRecommendationStatus;
+  const updatedMenuStates = [...menuStates];
+
+  if (currentStatus === "notRecommended") {
+    // 현재 비추천 상태 -> 비추천 취소
+    updatedMenuStates[index].notRecommendationStatus = null;
+    updatedMenuStates[index].notRecommendCount -= 1;
+    setMenuStates(updatedMenuStates);
+
+    await deleteRecommend(menu_id); // 비추천 삭제
+  } else {
+    // 현재 비추천 상태가 아니거나 null -> 비추천 활성화
+    if (updatedMenuStates[index]?.recommendationStatus === "recommended") {
+      // 추천 상태였다면 추천 취소
+      updatedMenuStates[index].recommendationStatus = null;
+      updatedMenuStates[index].recommendCount -= 1;
+      await deleteRecommend(menu_id);
+    }
+
+    updatedMenuStates[index].notRecommendationStatus = "notRecommended";
+    updatedMenuStates[index].notRecommendCount += 1;
+    setMenuStates(updatedMenuStates);
+
+    if (currentStatus === null) {
+      // 최초 비추천 생성
+      await createRecommend(menu_id, false);
+    } else {
+      // 기존 비추천 상태 업데이트
+      await updateRecommend(menu_id, false);
+    }
+  }
+};
+
+
+
+
 
 
 

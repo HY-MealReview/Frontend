@@ -210,7 +210,7 @@ export const getRecommendCount = async (menu_id: number) => {
     return []; // 에러 발생 시 빈 배열 반환
   }
 };
-
+//최초 추천
 export const createRecommend = async (
   menuId: number,
   recommendation: boolean
@@ -225,7 +225,28 @@ export const createRecommend = async (
     console.error("추천 오류", error);
   }
 };
+//추천 수정
+export const updateRecommend = async (menu_id: number, recommendation: boolean) => {
+  try {
+    const response = await axiosInstance.put(`recommend/${menu_id}/update/`, {
+      menu: String(menu_id),
+      recommendation: String(recommendation),
+    });
+    return response;
+  } catch (error) {
+    console.error("추천 수정 오류", error);
+  }
+};
 
+//추천 삭제
+export const deleteRecommend = async (menu_id: number) => {
+  try {
+    const response = await axiosInstance.delete(`recommend/${menu_id}/delete/`);
+    return response;
+  } catch (error) {
+    console.error("추천 삭제 오류", error);
+  }
+};
 
 
 
