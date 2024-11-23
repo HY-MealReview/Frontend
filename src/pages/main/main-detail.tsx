@@ -20,6 +20,7 @@ import {getMenusWithRatings,
 interface Food {
     name: string;
     average_rating: number;
+    category_name: string;
 }
 
 
@@ -184,21 +185,28 @@ export const MainDetailPage = () => {
 
     //카테고리 Id를 가지고 카테고리의 이름 가져오기
     const categoryAverageRating = (foods: Food[]) => {
-        if (!foods || foods.length === 0) return;
+      if (!foods || foods.length === 0) return;
     
-        const fetchCategoryNameAndRating = async () => {
+      const fetchCategoryNameAndRating = async () => {
           try {
-            const firstFoodName = foods[0].name; // 첫 번째 음식 이름 가져오기
-            const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리 가져오기
-            setCategoryName(category || ""); // 가져온 카테고리 설정
-
+              const firstFoodName = foods[0].name; // 첫 번째 음식 이름 가져오기
+              const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리 가져오기
+              setCategoryName(category || ""); // 카테고리 이름 설정
+  
+              // 카테고리에 속한 음식들의 평점 평균 계산
+              const categoryFoods = foods.filter(food => food.category_name === category);
+              const totalRating = categoryFoods.reduce((sum, food) => sum + food.average_rating, 0);
+              const averageCategoryRating = totalRating / categoryFoods.length;
+              setAverageRating(averageCategoryRating); // 카테고리 평균 평점 설정
+  
           } catch (error) {
-            console.error("Error fetching category data:", error);
+              console.error("Error fetching category data:", error);
           }
-        };
-    
-        fetchCategoryNameAndRating();
       };
+  
+      fetchCategoryNameAndRating();
+  };
+  
 
 
 
@@ -347,7 +355,9 @@ const handleRatingChange = (foodId: number, rating: number) => {
                             {categoryName} ({restaurant})
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
-                                <div style={{fontSize:'8px', color:'gray'}}>No Info</div> 
+                                <div>
+                                {averageRating !== null ? (averageRating/2).toFixed(1) : "No Info"}
+                                  </div> 
                                 </div>
 
                             </div>
