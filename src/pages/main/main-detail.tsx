@@ -44,6 +44,7 @@ export const MainDetailPage = () => {
     const [averageRating, setAverageRating] = useState<number | null>(null);
     const [userId, setUserId] = useState<string | null>(null); // 추천 스타일 로직을 위해서 사용자 ID 불러오기
 
+    console.log(userId);
     
     const handleOpenModal = () => {
         setIsModalOpen(true);
