@@ -122,7 +122,7 @@ export const getMenusWithCategories = async (restaurant: string, date: string) =
 
     const menusWithCategories = await Promise.all(
       menusResponse.data.map(async (menu:Menu) => {
-        const firstFood = menu.foods[0];
+        const firstFood = menu.foods[0]; // foods[0]는 객체임
         let firstFoodCategory = null;
 
         if (firstFood) {
@@ -135,16 +135,13 @@ export const getMenusWithCategories = async (restaurant: string, date: string) =
       })
     );
 
+
     return menusWithCategories;
   } catch (error) {
     console.error("Error fetching menus with categories:", error);
     throw error;
   }
 };
-
-
-//카테고리의 평점 출력
-
 
 
 //------mainModal의 평점 매기기를 백으로 전달하는 api------------
@@ -163,7 +160,11 @@ export const getFoodIdByName = async (foodName: string) => {
   try {
     // 모든 음식 데이터를 가져옴
     const response = await axiosInstance.get(`/food/all/`);
-
+    
+    // 응답 전체 구조 출력
+    console.log("API Response:", response);
+    
+    // 응답 객체의 구조를 명확하게 확인
     if (!response || !response.data) {
       return null; // 응답이 없거나 구조가 잘못되었으면 null 반환
     }
@@ -249,24 +250,38 @@ export const deleteRecommend = async (menu_id: number) => {
 
 
 
-// 로그인된 사용자 정보 조회
-export const getUserDetails = async () => {
-  try {
-    const response = await axiosInstance.get(`users/detail/`);
-    return response.data;
-  } catch (error) {
-    console.error("사용자 정보 로딩 실패", error);
-    throw error;
-  }
-};
 
-// 사용자 추천 정보 조회
-export const getUserRecommendations = async () => {
-  try {
-    const response = await axiosInstance.get(`recommend/user/`);
-    return response.data;
-  } catch (error) {
-    console.error("사용자 추천 정보 로딩 실패", error);
-    throw error;
-  }
-};
+// // 특정 카테고리의 음식들에 대한 평균 평점 계산 함수
+// export const getCategoryAverageRating = async (category_name: string) => {
+//   try {
+//     // 1. 카테고리 이름으로 해당 카테고리의 모든 음식들 가져오기
+//     const encodedCategoryName = encodeURIComponent(category_name); // URL 인코딩
+//     const foodsAllResponse = await axiosInstance.get(`/food/search/bycategory/?name=${encodedCategoryName}`);
+//     const foods: Food[] = foodsAllResponse.data;
+
+//     if (!foods || foods.length === 0) {
+//       return { averageRating: null }; // 음식이 없으면 평균 평점 없음
+//     }
+
+//     // 2. 각 음식의 평점 정보 가져오기
+//     const ratingsPromises = foods.map((food) =>
+//       axiosInstance.get<RatingResponse>(`/rating/food/${food.id}/average/`)
+//     );
+
+//     // 각 음식 id에 대한 평점 정보를 모두 가져옴
+//     const ratingsResponse = await Promise.all(ratingsPromises);
+
+//     // 3. 모든 음식들의 평점 합산 및 평균 계산
+//     const totalRating = ratingsResponse.reduce(
+//       (acc, response) => acc + (response.data.average_rating || 0),
+//       0
+//     );
+
+//     const averageRating = totalRating / foods.length;
+
+//     return { averageRating };
+//   } catch (error) {
+//     console.error("Error fetching category average rating:", error);
+//     return { averageRating: null }; // 에러 발생 시 null 반환
+//   }
+// };
