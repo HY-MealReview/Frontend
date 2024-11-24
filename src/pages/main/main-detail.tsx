@@ -13,7 +13,7 @@ import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings, 
     getFoodCategory, 
     getRecommendCount, 
-    createRecommend,deleteRecommend, updateRecommend,
+    createRecommend,deleteRecommend, updateRecommend, getUserDetails, getUserRecommendations,
     getFoodIdByName,
     postRating
 } from '@apis/mainApi';
@@ -22,6 +22,11 @@ interface Food {
     average_rating: number;
     category_name: string;
 }
+interface UserRecommendation {
+  menu: { id: number }; // menu 필드 안에 id가 있다는 가정
+  recommendation: boolean; // true: 추천, false: 비추천
+}
+
 
 
 export const MainDetailPage = () => {
@@ -37,7 +42,9 @@ export const MainDetailPage = () => {
     const [ratings, setRatings] = useState<{ [key: number]: number }>({}); // 각 음식 항목에 대한 별점 상태
     const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
     const [averageRating, setAverageRating] = useState<number | null>(null);
+    const [userId, setUserId] = useState<string | null>(null); // 추천 스타일 로직을 위해서 사용자 ID 불러오기
 
+    console.log(userId);
     
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -50,6 +57,40 @@ export const MainDetailPage = () => {
     const GoBack = () => {
         navigate(`/`);
     };
+
+    useEffect(() => {
+      const fetchUserAndRecommendations = async () => {
+          try {
+              const user = await getUserDetails(); // 사용자 정보 가져오기
+              setUserId(user.student_id);
+
+              const userRecommendations: UserRecommendation[] = await getUserRecommendations(); // 추천 데이터 가져오기
+
+              // 추천 상태 업데이트
+              const updatedMenuData = menuData.map((menu) => {
+                  const userRecommendation = userRecommendations.find(
+                      (rec) => rec.menu.id === menu.id
+                  );
+                  return {
+                      ...menu,
+                      recommendationStatus: userRecommendation
+                          ? userRecommendation.recommendation
+                              ? "recommended"
+                              : "notRecommended"
+                          : null,
+                  };
+              });
+              setMenuData(updatedMenuData); // 메뉴 상태 업데이트
+              // 추천 수 가져오기
+              const count = await getRecommendCount(menuSetId);
+              setRecommendCount(count); // 추천 수 상태 업데이트
+          } catch (error) {
+              console.error("초기화 중 오류 발생:", error);
+          }
+      };
+
+      fetchUserAndRecommendations();
+  }, [menuData, menuSetId]);
 
     // 메뉴 세트의 ID로 추천 수 가져오기
     useEffect(() => {
@@ -388,7 +429,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
                     color : isRecommended === true ?  '#134B84' : '#6A6A6A',
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
-                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
+                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px'
                     }} onClick={() => handleRecommendClick(true)}>
                         <img 
                         src={
@@ -414,7 +455,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
                     fontWeight : isRecommended === false ? 'bold' : 'normal',
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
-                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
+                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px'
                     }} onClick={() => handleRecommendClick(false)}>
                         <img 
                         src={
