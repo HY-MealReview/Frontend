@@ -388,7 +388,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
                     color : isRecommended === true ?  '#134B84' : '#6A6A6A',
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
-                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
+                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px'
                     }} onClick={() => handleRecommendClick(true)}>
                         <img 
                         src={
@@ -414,7 +414,7 @@ const handleRatingChange = (foodId: number, rating: number) => {
                     fontWeight : isRecommended === false ? 'bold' : 'normal',
                     width:'124px', height :'104px', borderRadius : '12px',
                     cursor : 'pointer',
-                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px', boxShadow : '0 0px 20px rgba(0,0,0,0.1)'
+                        display : 'flex', justifyContent : 'center', alignItems : 'center', gap:'8px'
                     }} onClick={() => handleRecommendClick(false)}>
                         <img 
                         src={
