@@ -9,10 +9,15 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
-  createRecommend,updateRecommend, deleteRecommend,
+  createRecommend,updateRecommend, deleteRecommend, getUserDetails, getUserRecommendations,
   getMenusWithRatings,
   getRecommendCount,
 } from "@apis/mainApi";
+
+interface UserRecommendation {
+  menu: { id: number }; // menu 필드 안에 id가 있다는 가정
+  recommendation: boolean; // true: 추천, false: 비추천
+}
 
 // 날짜를 `YYYY-MM-DD` 형식으로 포맷하는 함수
 const formatDate = (date: Date): string => {
@@ -34,8 +39,11 @@ export const MainPage = () => {
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   const navigate = useNavigate(); //페이지 이동하기
   const [savedMenuStates, setSavedMenuStates] = useState<any[]>([]);
+  const [userId, setUserId] = useState<string | null>(null); // 추천 상태 반영을 위해서 사용자 ID 추가하기
 
   console.log(currentSlideIndex);
+  console.log(userId);
+  console.log(setSavedMenuStates);
 
   const restaurantData = [
     {
@@ -89,6 +97,43 @@ export const MainPage = () => {
       const interval = setInterval(updateDateTime, 60000); // 1분마다 갱신
       return () => clearInterval(interval); // 컴포넌트 언마운트 시 클린업
     }, []); // 한 번만 실행되도록 빈 배열로 설정
+
+
+
+     // 사용자 정보 및 추천 상태 가져오기
+  useEffect(() => {
+    const fetchUserAndRecommendations = async () => {
+      try {
+        const user = await getUserDetails(); // 사용자 정보 가져오기
+        setUserId(user.student_id);
+
+        const userRecommendations: UserRecommendation[] = await getUserRecommendations(); // 추천 데이터 가져오기
+
+        const updatedMenuStates = menus.map((menu) => {
+          const userRecommendation = userRecommendations.find(
+            (rec) => rec.menu.id === menu.id
+          );
+          return {
+            id: menu.id,
+            recommendCount: menu.true_count || 0,
+            notRecommendCount: menu.false_count || 0,
+            recommendationStatus: userRecommendation
+              ? userRecommendation.recommendation
+                ? "recommended"
+                : "notRecommended"
+              : null,
+          };
+        });
+
+        setMenuStates(updatedMenuStates); // 메뉴 상태 초기화
+      } catch (error) {
+        console.error("초기화 중 오류 발생:", error);
+      }
+    };
+    fetchUserAndRecommendations();
+  }, [menus]);
+
+
   
     useEffect(() => {
       // mealTime이 변경될 때마다 메뉴를 다시 불러오는 로직
@@ -108,15 +153,6 @@ export const MainPage = () => {
   useEffect(() => {
     const today = new Date();
     setDate(formatDate(today)); // 오늘 날짜로 설정
-
-    console.log("localStorage.getItem(menuStates, JSON.stringify(menuStates))");
-    const savedData = localStorage.getItem("menuStates");
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      console.log("복원된 menuStates:", parsedData);
-      setSavedMenuStates(parsedData); 
-    }
-
     fetchRestaurants();
     fetchMenus(restaurantData[0].name, 0);
   }, []);
@@ -137,11 +173,6 @@ export const MainPage = () => {
     }
   };
 
-useEffect(() => {
-    console.log("localStorage.setItem(menuStates, JSON.stringify(menuStates))")
-    console.log(menuStates)
-    localStorage.setItem("menuStates", JSON.stringify(menuStates));
-  }, [menuStates]);  
   
   const fetchMenus = async (restaurant: string, index: number) => {
     try {
