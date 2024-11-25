@@ -11,7 +11,7 @@ import halfStar from "@assets/main/halfStar.webp"
 import NoImage from "@assets/main/NoImage.webp";
 import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings, 
-    getFoodCategory, 
+    //getFoodCategory, 
     getRecommendCount, 
     createRecommend,deleteRecommend, updateRecommend, getUserRecommendation,
     getFoodIdByName,
@@ -35,7 +35,7 @@ export const MainDetailPage = () => {
     const [recommendCount, setRecommendCount] = useState<{ true_count: number; false_count: number } | null>(null); // 추천/비추천 수
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [ratings, setRatings] = useState<{ [key: number]: number }>({}); // 각 음식 항목에 대한 별점 상태
-    const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
+    //const [categoryName, setCategoryName] = useState<string>(""); // 카테고리 이름 상태
     const [averageRating, setAverageRating] = useState<number | null>(null);
 
     
@@ -166,7 +166,7 @@ export const MainDetailPage = () => {
         if (selectedMenuSet) {
             setMenuData(selectedMenuSet.foods);
             calculateAverageRating(selectedMenuSet.foods);
-            categoryAverageRating(selectedMenuSet.foods);
+            //categoryAverageRating(selectedMenuSet.foods);
             return;
         }
         const fetchMenusAndRatings = async () => {
@@ -193,29 +193,28 @@ export const MainDetailPage = () => {
 
 
 
-    //카테고리 Id를 가지고 카테고리의 이름 가져오기
-    const categoryAverageRating = (foods: Food[]) => {
-      if (!foods || foods.length === 0) return;
+  //   //카테고리 Id를 가지고 카테고리의 이름 가져오기
+  //   const categoryAverageRating = (foods: Food[]) => {
+  //     if (!foods || foods.length === 0) return;
     
-      const fetchCategoryNameAndRating = async () => {
-          try {
-              const firstFoodName = foods[0].name; // 첫 번째 음식 이름 가져오기
-              const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리 가져오기
-              setCategoryName(category || ""); // 카테고리 이름 설정
+  //     const fetchCategoryNameAndRating = async () => {
+  //         try {
+  //             const firstFoodName = foods[0].name; // 첫 번째 음식 이름 가져오기
+  //             const category = await getFoodCategory(firstFoodName, restaurant); // 카테고리 가져오기
+  //             setCategoryName(category || ""); // 카테고리 이름 설정
   
-              // 카테고리에 속한 음식들의 평점 평균 계산
-              const categoryFoods = foods.filter(food => food.category_name === category);
-              const totalRating = categoryFoods.reduce((sum, food) => sum + food.average_rating, 0);
-              const averageCategoryRating = totalRating / categoryFoods.length;
-              setAverageRating(averageCategoryRating); // 카테고리 평균 평점 설정
+  //             // 카테고리에 속한 음식들의 평점 평균 계산
+  //             const categoryFoods = foods.filter(food => food.category_name === category);
+  //             const totalRating = categoryFoods.reduce((sum, food) => sum + food.average_rating, 0);
+  //             const averageCategoryRating = totalRating / categoryFoods.length;
+  //             setAverageRating(averageCategoryRating); // 카테고리 평균 평점 설정
   
-          } catch (error) {
-              console.error("Error fetching category data:", error);
-          }
-      };
-  
-      fetchCategoryNameAndRating();
-  };
+  //         } catch (error) {
+  //             console.error("Error fetching category data:", error);
+  //         }
+  //     };
+  //     fetchCategoryNameAndRating();
+  // };
   
 
 
@@ -362,11 +361,13 @@ const handleRatingChange = (foodId: number, rating: number) => {
 
                         <div style={{display : 'flex', width :'165px'}}>
                             <div style={{width : '184px',marginBottom : '4px',textAlign: 'left', fontSize:'12px', fontWeight : 'normal', display :'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            {categoryName} ({restaurant})
+                              category
+                            {/*{categoryName} ({restaurant})*/}
                                 <div style={{display : 'flex',justifyContent:'flex-start' , alignItems :'center'}}>
                                 <img src={star} style={{width:'20px', height:'20px', margin : '5px'}} />
                                 <div>
-                                {averageRating !== null ? (averageRating/2).toFixed(1) : "No Info"}
+                                 {/*{averageRating !== null ? (averageRating/2).toFixed(1) : "No Info"}*/}
+                                 no info
                                   </div> 
                                 </div>
 
