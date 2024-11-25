@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import LogoImage from "@assets/main/logo.webp";
 import Recommend from "@assets/main/Recommend.webp";
+import RecommendClick from '@assets/main/RecommendedClicked.webp';
 import NoRecommend from "@assets/main/NoRecommend.webp";
+import NoRecommendClicked from "@assets/main/NoRecommendClicked.webp"
 import Star from "@assets/main/star.webp";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -523,8 +525,12 @@ const handleNotRecommendClick = async (index: number, menu_id: number) => {
                           }}
                         >
                           <img
-                            src={Recommend}
-                            style={{
+                        src={
+                          menuStates[index]?.recommendationStatus ===
+                          "recommended" ?   RecommendClick // 추천 상태일 때의 이미지
+                          : Recommend // 추천되지 않은 상태일 때의 이미지
+                      }
+                          style={{
                               width: "48px",
                               height: "auto",
                               padding: "6px",
@@ -575,8 +581,13 @@ const handleNotRecommendClick = async (index: number, menu_id: number) => {
                           }}
                         >
                           <img
-                            src={NoRecommend}
-                            style={{
+                        src={
+                          menuStates[index]?.notRecommendationStatus ===
+                              "notRecommended"
+                                ? NoRecommendClicked // 추천 상태일 때의 이미지
+                          : NoRecommend // 추천되지 않은 상태일 때의 이미지
+                      }
+                          style={{
                               width: "48px",
                               height: "auto",
                               padding: "6px",
