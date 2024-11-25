@@ -9,7 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
 import NoImage from "@assets/main/NoImage.webp";
 import {
-  createRecommend,updateRecommend, deleteRecommend,
+  createRecommend,updateRecommend, deleteRecommend,getUserRecommendation,
   getMenusWithRatings,
   getRecommendCount,
 } from "@apis/mainApi";
@@ -33,28 +33,17 @@ export const MainPage = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
   const [menuStates, setMenuStates] = useState<any[]>([]); // 메뉴 상태 관리
   const navigate = useNavigate(); //페이지 이동하기
-  const [savedMenuStates, setSavedMenuStates] = useState<any[]>([]);
 
   console.log(currentSlideIndex);
 
   const restaurantData = [
-    {
-      id: 1,
-      name: "창의인재원식당",
-    },
-    {
-      id: 2,
-      name: "교직원식당",
-    },
-    {
-      id: 3,
-      name: "학생식당",
-    },
-    {
-      id: 4,
-      name: "창업보육센터",
-    },
+    { id: 1, name: "창의인재원식당" },
+    { id: 2, name: "교직원식당" },
+    { id: 3, name: "학생식당" },
+    { id: 4, name: "창업보육센터" },
   ];
+
+
     // --- 1. 시간대 설정 로직 ---
     useEffect(() => {
       // 처음 컴포넌트가 마운트될 때나 시간 변경 시 mealTime 설정
@@ -108,15 +97,6 @@ export const MainPage = () => {
   useEffect(() => {
     const today = new Date();
     setDate(formatDate(today)); // 오늘 날짜로 설정
-
-    console.log("localStorage.getItem(menuStates, JSON.stringify(menuStates))");
-    const savedData = localStorage.getItem("menuStates");
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      console.log("복원된 menuStates:", parsedData);
-      setSavedMenuStates(parsedData); 
-    }
-
     fetchRestaurants();
     fetchMenus(restaurantData[0].name, 0);
   }, []);
@@ -137,11 +117,6 @@ export const MainPage = () => {
     }
   };
 
-useEffect(() => {
-    console.log("localStorage.setItem(menuStates, JSON.stringify(menuStates))")
-    console.log(menuStates)
-    localStorage.setItem("menuStates", JSON.stringify(menuStates));
-  }, [menuStates]);  
   
   const fetchMenus = async (restaurant: string, index: number) => {
     try {
@@ -173,38 +148,23 @@ useEffect(() => {
       // 새 상태를 생성하면서 기존 상태를 반영
       const initialStates = await Promise.all(
         filteredMenus.map(async (menu) => {
-          try {
-            const response = await getRecommendCount(menu.id);
-            return response;
-          } catch (error) {
-            console.error(
-              `Failed to fetch recommend count for menu ID ${menu.id}:`,
-              error
-            );
-            return { true_count: 0, false_count: 0 };
-          }
+          const recommendData = await getRecommendCount(menu.id);
+          const userRecommendation = await getUserRecommendation(menu.id);
+          return {
+            id: menu.id,
+            recommendCount: recommendData.true_count || 0,
+            notRecommendCount: recommendData.false_count || 0,
+            recommendationStatus: userRecommendation?.recommendation ? "recommended" : null,
+            notRecommendationStatus: userRecommendation?.recommendation === false ? "notRecommended" : null,
+          };
         })
       );
-      
-  
-      const updatedMenuStates = filteredMenus.map((menu, i) => {
-        const savedState = savedMenuStates?.find(
-          (state) => state?.id?.id === menu.id // `savedMenuStates`의 구조를 반영
-        );
-        return {
-          id: menu,
-          recommendCount: initialStates[i].true_count,
-          notRecommendCount: initialStates[i].false_count,
-          recommendationStatus: savedState?.recommendationStatus || null, 
-          notRecommendationStatus: savedState?.notRecommendationStatus || null,
-        };
-      });
-  
-      setMenuStates(updatedMenuStates);
+      setMenuStates(initialStates);
     } catch (error) {
       console.error("fetchMenus에서 오류 발생:", error);
     }
   };
+
 
 //추천 핸들러
 const handleRecommendClick = async (index: number, menu_id: number) => {

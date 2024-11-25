@@ -13,7 +13,7 @@ import { MainModal } from '@pages/main/mainModal';
 import {getMenusWithRatings, 
     getFoodCategory, 
     getRecommendCount, 
-    createRecommend,deleteRecommend, updateRecommend,
+    createRecommend,deleteRecommend, updateRecommend, getUserRecommendation,
     getFoodIdByName,
     postRating
 } from '@apis/mainApi';
@@ -55,6 +55,7 @@ export const MainDetailPage = () => {
     useEffect(() => {
         if (selectedMenuSet) {
           fetchRecommendCount(selectedMenuSet.id); // 메뉴 세트의 ID로 추천 수 가져오기
+          fetchUserRecommendation(menuSetId);
         }
       }, [selectedMenuSet]);
 
@@ -68,6 +69,15 @@ export const MainDetailPage = () => {
       setRecommendCount(count); // 추천 수 상태 업데이트
     } catch (error) {
       console.error("Error fetching recommend count:", error);
+    }
+  };
+
+  const fetchUserRecommendation = async (menuSetId: number) => {
+    try {
+      const userRecommendation = await getUserRecommendation(menuSetId);
+      setIsRecommended(userRecommendation?.recommendation ?? null); // 추천 여부 설정
+    } catch (error) {
+      console.error("유저 추천 여부 로딩 실패", error);
     }
   };
 
